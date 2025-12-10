@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zain Buksh - Digital Delivery & Project Management Professional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;700&family=Inconsolata&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #f0f0f0;
+            transition: background-color 0.3s, color 0.3s;
+            background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+        }
+        body.light-mode {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+        }
+        body.light-mode .navbar {
+            background-color: #ffffff;
+        }
+        .navbar {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+        }
+        .navbar-brand, .nav-link {
+            color: #f0f0f0 !important;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #a9a9a9 !important;
+        }
+        body.light-mode .navbar-brand, body.light-mode .nav-link {
+            color: #212529 !important;
+        }
+        body.light-mode .nav-link:hover {
+            color: #6c757d !important;
+        }
+        .hero {
+            background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);
+            color: white;
+            padding: 200px 0 150px;
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 5.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .hero p.lead {
+            font-size: 1.6rem;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .profile-img {
+            width: 280px;
+            height: 280px;
+            border: 10px solid rgba(255,255,255,0.8);
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            transition: transform 0.4s, box-shadow 0.4s;
+        }
+        .profile-img:hover {
+            transform: scale(1.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+        .section-padding {
+            padding: 120px 0;
+        }
+        .about-text {
+            font-size: 1.2rem;
+            text-align: justify;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            border-radius: 16px;
+            overflow: hidden;
+            background-color: #2c2c2c;
+        }
+        body.light-mode .card {
+            background-color: #ffffff;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+        .card-header {
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 20px;
+            font-size: 1.3rem;
+        }
+        .card-header.bronze, .card-header.silver, .card-header.gold {
+            color: #333;
+        }
+        .card-header.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #a57128 100%);
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.3);
+        }
+        .card-header.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #a9a9a9 100%);
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.5);
+        }
+        .card-header.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #e6c200 100%);
+            box-shadow: inset 0 0 25px rgba(255,255,255,0.6), 0 0 25px rgba(255,215,0,0.8);
+            animation: shine 3s infinite alternate;
+        }
+        @keyframes shine {
+            0% { filter: brightness(1); }
+            100% { filter: brightness(1.3); }
+        }
+        .skill-item {
+            margin-bottom: 35px;
+        }
+        .skill-bar {
+            background: #3a3a3a;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        body.light-mode .skill-bar {
+            background: #e9ecef;
+        }
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);
+            width: 0;
+            transition: width 2.5s ease;
+        }
+        .skill-percent {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+        body:not(.light-mode) .skill-percent {
+            color: #4CAF50;
+        }
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            background: #4CAF50;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -4px;
+            border-radius: 4px;
+        }
+        .timeline-item {
+            padding: 25px 45px;
+            position: relative;
+            background-color: inherit;
+            width: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 35px;
+            height: 35px;
+            right: -20px;
+            background: #2c2c2c;
+            border: 6px solid #4CAF50;
+            top: 30px;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(76,175,80,0.3);
+        }
+        body.light-mode .timeline-item::after {
+            background: white;
+        }
+        .left {
+            left: 0;
+        }
+        .right {
+            left: 50%;
+        }
+        .right::after {
+            left: -19px;
+        }
+        .timeline-content {
+            padding: 30px;
+            background-color: #2c2c2c;
+            position: relative;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: background-color 0.3s;
+        }
+        body.light-mode .timeline-content {
+            background-color: white;
+        }
+        .projects .card-body, .certifications .card-body {
+            padding: 25px;
+        }
+        .contact-form .form-control {
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border: 1px solid #4a4a4a;
+            padding: 15px;
+            background-color: #3a3a3a;
+            color: #f0f0f0;
+        }
+        body.light-mode .contact-form .form-control {
+            background-color: white;
+            color: #333;
+            border-color: #ced4da;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);
+            border: none;
+            border-radius: 50px;
+            padding: 18px 45px;
+            font-weight: 500;
+            transition: all 0.4s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(76,175,80,0.2);
+        }
+        .btn-custom:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(76,175,80,0.3);
+        }
+        .dark-mode-toggle {
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: color 0.3s;
+        }
+        .footer {
+            background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);
+            color: white;
+            padding: 60px 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.light-mode .footer {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #333;
+        }
+        .section-icon {
+            font-size: 3rem;
+            color: #4CAF50;
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .cert-link {
+            color: #4CAF50;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .cert-link:hover {
+            color: #101585;
+        }
+        .bg-light {
+            background-color: #1e1e1e !important;
+        }
+        body.light-mode .bg-light {
+            background-color: #f8f9fa !important;
+        }
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .back-to-top {
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        @media (max-width: 768px) {
+            .timeline::after {
+                left: 35px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 80px;
+                padding-right: 30px;
+            }
+            .timeline-item::after {
+                left: 15px;
+            }
+            .right {
+                left: 0%;
+            }
+            .hero h1 {
+                font-size: 4.5rem;
+            }
+            .hero {
+                padding: 150px 0 100px;
+            }
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <canvas id="canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#home">Zain Buksh</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#experience">Experience</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#education">Education</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#certifications">Certifications</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#skills">Skills</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item">
+                        <span class="nav-link dark-mode-toggle"><i class="fas fa-moon"></i></span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-7" data-aos="fade-right" data-aos-duration="1200">
+                    <h1 class="display-1">Zain Buksh</h1>
+                    <p class="lead mb-4">Digital Delivery | Project Management | IT Professional</p>
+                    <p id="typing-text" class="fs-5 mb-5"></p>
+                    <a href="#about" class="btn btn-light btn-lg btn-custom me-3">Learn More</a>
+                    <a href="https://www.linkedin.com/in/zain-buksh-a116b01b1/" target="_blank" class="btn btn-outline-light btn-lg">LinkedIn</a>
+                </div>
+                <div class="col-lg-5 text-center" data-aos="fade-left" data-aos-duration="1200">
+                    <img src="https://media.licdn.com/dms/image/v2/D5603AQFZdIKvtn62XQ/profile-displayphoto-scale_200_200/B56ZnCtcNhJ4Ag-/0/1759908317939?e=1767225600&v=beta&t=SAJ6yABmLI_Deb18Uq5kZpUrKh5F_hK9kmxHjGMqPVU" alt="Zain Buksh Profile" class="profile-img img-fluid">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section-padding bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto text-center" data-aos="fade-up" data-aos-duration="800">
+                    <i class="fas fa-user section-icon"></i>
+                    <h2 class="display-4 fw-bold mb-5">About Me</h2>
+                    <p class="about-text lead">Zain Buksh is a dedicated IT professional with extensive experience in research, project management, and delivering industry-focused solutions. Holding a Master's degree in Information Technology by research, Zain has contributed to innovative IT initiatives at The University of Fiji and now serves as a Digital Delivery Coordinator at KPMG Australia. With a strong foundation in software engineering and a passion for cybersecurity and smart technologies, Zain is committed to advancing digital transformation and fostering technological excellence.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="section-padding">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <i class="fas fa-briefcase section-icon"></i>
+                <h2 class="display-4 fw-bold">Professional Experience</h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item left" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <h4 class="fw-bold">Digital Delivery Coordinator</h4>
+                        <h5 class="text-muted">KPMG Australia</h5>
+                        <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i>January 2025 - Present</p>
+                        <p>Focusing on delivering digital and technology projects, advancing expertise in IT solutions and project coordination.</p>
+                    </div>
+                </div>
+                <div class="timeline-item right" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <h4 class="fw-bold">Project Manager</h4>
+                        <h5 class="text-muted">The University of Fiji, School of Science and Technology</h5>
+                        <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i>October 2022 - January 2025</p>
+                        <p>Managed projects in the Computer Science and Mathematics Department, contributing to research and innovative IT initiatives, including cybersecurity in smart grid IoT.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section-padding bg-light">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <i class="fas fa-project-diagram section-icon"></i>
+                <h2 class="display-4 fw-bold">Key Projects & Contributions</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Cybersecurity in Smart Grid IoT</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Research project focusing on enhancing security protocols for IoT devices in smart grids. Published findings in academic journals.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>IT Project Management Initiatives</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Led multiple IT projects at The University of Fiji, improving departmental efficiency through innovative software solutions.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-digital-tachograph me-2"></i>Digital Transformation at KPMG</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Coordinating digital delivery for client projects, implementing agile methodologies and cutting-edge tech stacks.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-code me-2"></i>Software Engineering Research</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Master's thesis on advanced IT topics, contributing to the field of software engineering and system optimization.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="section-padding">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <i class="fas fa-graduation-cap section-icon"></i>
+                <h2 class="display-4 fw-bold">Education</h2>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4" data-aos="flip-left">
+                    <div class="card">
+                        <div class="card-header gold">
+                            <h5 class="mb-0"><i class="fas fa-university me-2"></i>Master of Information Technology</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">The University of Fiji</p>
+                            <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i>Graduated April 2025</p>
+                            <p class="mb-0"><i class="fas fa-star me-2"></i>GPA: 4.25 / 4.50</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="flip-up" data-aos-delay="100">
+                    <div class="card">
+                        <div class="card-header silver">
+                            <h5 class="mb-0"><i class="fas fa-certificate me-2"></i>Postgraduate Diploma in Information Technology</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">The University of Fiji</p>
+                            <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i>Graduated December 2022</p>
+                            <p class="mb-0"><i class="fas fa-star me-2"></i>GPA: 4.0 / 4.5</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" data-aos="flip-right" data-aos-delay="200">
+                    <div class="card">
+                        <div class="card-header bronze">
+                            <h5 class="mb-0"><i class="fas fa-laptop-code me-2"></i>Bachelor of Information Technology, Software Engineering</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">The University of Fiji</p>
+                            <p class="mb-2"><i class="fas fa-calendar-alt me-2"></i>Graduated June 2021</p>
+                            <p class="mb-0"><i class="fas fa-tools me-2"></i>Skills: Teamwork, Cloud Computing, Network Administration, System Administration</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications Section -->
+    <section id="certifications" class="section-padding bg-light">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <i class="fas fa-award section-icon"></i>
+                <h2 class="display-4 fw-bold">Licenses & Certifications</h2>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>PMP® Certification Training Course</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">Pearson</p>
+                            <p class="mb-2"><i class="fas fa-calendar-check me-2"></i>Issued November 2025</p>
+                            <p class="mb-0"><i class="fas fa-id-badge me-2"></i>Credential ID: IPPW3K8FBG9V</p>
+                            <a href="https://www.credly.com/badges/19a6f2ed-868d-4b31-bd4e-cb622ffa1d0f/public_url" class="cert-link d-block mt-2"><i class="fas fa-external-link-alt me-2"></i>Show credential</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Certified Associate in Project Management (CAPM)</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">Pearson</p>
+                            <p class="mb-2"><i class="fas fa-calendar-check me-2"></i>Issued October 2025</p>
+                            <p class="mb-0"><i class="fas fa-id-badge me-2"></i>Credential ID: MW9P0HN0HZCK</p>
+                            <a href="#" class="cert-link d-block mt-2"><i class="fas fa-external-link-alt me-2"></i>Show credential</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Digital Transformation</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">International Business Management Institute (IBMI)</p>
+                            <p class="mb-2"><i class="fas fa-calendar-check me-2"></i>Issued December 2024</p>
+                            <p class="mb-0"><i class="fas fa-id-badge me-2"></i>Credential ID: 1129633-173-513-3554</p>
+                            <a href="#" class="cert-link d-block mt-2"><i class="fas fa-external-link-alt me-2"></i>Show credential</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="card">
+                        <div class="card-header" style="background: linear-gradient(135deg, #101585 0%, #4CAF50 100%);">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Business & Computing Fundamentals</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-2">Fiji National University</p>
+                            <p class="mb-2"><i class="fas fa-calendar-check me-2"></i>Issued August 2020</p>
+                            <p class="mb-0"><i class="fas fa-id-badge me-2"></i>Credential ID: 2020CPOL0490</p>
+                            <a href="#" class="cert-link d-block mt-2"><i class="fas fa-external-link-alt me-2"></i>Show credential</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section-padding">
+        <div class="container">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <i class="fas fa-tools section-icon"></i>
+                <h2 class="display-4 fw-bold">Skills & Expertise</h2>
+            </div>
+            <div class="row">
+                <div class="col-md-6 skill-item" data-aos="fade-right">
+                    <h5>Project Management <span class="skill-percent float-end">95%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="95"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-left">
+                    <h5>Digital Delivery & IT Solutions <span class="skill-percent float-end">90%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="90"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-right" data-aos-delay="100">
+                    <h5>Research & Software Engineering <span class="skill-percent float-end">85%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="85"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-left" data-aos-delay="100">
+                    <h5>Cybersecurity <span class="skill-percent float-end">80%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="80"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-right" data-aos-delay="200">
+                    <h5>Cloud Computing <span class="skill-percent float-end">85%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="85"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-left" data-aos-delay="200">
+                    <h5>Network Administration <span class="skill-percent float-end">80%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="80"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-right" data-aos-delay="300">
+                    <h5>System Administration <span class="skill-percent float-end">75%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="75"></div>
+                    </div>
+                </div>
+                <div class="col-md-6 skill-item" data-aos="fade-left" data-aos-delay="300">
+                    <h5>Teamwork & Collaboration <span class="skill-percent float-end">90%</span></h5>
+                    <div class="skill-bar">
+                        <div class="skill-progress" data-width="90"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section-padding bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto" data-aos="fade-up">
+                    <div class="text-center mb-5">
+                        <i class="fas fa-envelope section-icon"></i>
+                        <h2 class="display-4 fw-bold">Get In Touch</h2>
+                    </div>
+                    <p class="text-center lead mb-5">Interested in collaborating on innovative IT projects? Let's connect!</p>
+                    <form id="contactForm" class="contact-form">
+                        <input type="text" class="form-control" placeholder="Your Name" required>
+                        <input type="email" class="form-control" placeholder="Your Email" required>
+                        <textarea class="form-control" rows="5" placeholder="Your Message" required></textarea>
+                        <button type="submit" class="btn btn-custom btn-lg w-100">Send Message</button>
+                    </form>
+                    <div id="formMessage" class="mt-3 text-center"></div>
+                    <div class="text-center mt-4">
+                        <a href="https://www.linkedin.com/in/zain-buksh-a116b01b1/" target="_blank" class="btn btn-outline-primary btn-lg me-2"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+                        <p class="mt-3 text-muted">Email: zbuksh@outlook.com | Location: Lautoka, Fiji</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Top -->
+    <a href="#home" class="back-to-top btn btn-custom position-fixed d-none"><i class="fas fa-arrow-up"></i></a>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Zain Buksh. All rights reserved. | Built with ❤️ for showcasing professional journey.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({ duration: 1200 });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Mode toggle
+        const modeToggle = document.querySelector('.dark-mode-toggle');
+        modeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const icon = modeToggle.querySelector('i');
+            if (document.body.classList.contains('light-mode')) {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            }
+            // Update particle colors
+            const isLight = document.body.classList.contains('light-mode');
+            particles.forEach(p => {
+                p.color = isLight ? 'rgba(76,175,80,0.3)' : 'rgba(25,135,84,0.5)';
+            });
+            lineColorR = isLight ? 16 : 13;
+            lineColorG = isLight ? 21 : 110;
+            lineColorB = isLight ? 133 : 253;
+        });
+
+        // Typing effect
+        const typingText = document.getElementById('typing-text');
+        const texts = ['Passionate about leveraging technology to drive innovative solutions.', 'Expert in research, project management, and IT initiatives.'];
+        let count = 0;
+        let index = 0;
+        let currentText = '';
+        let letter = '';
+
+        function type() {
+            if (count === texts.length) {
+                count = 0;
+            }
+            currentText = texts[count];
+            letter = currentText.slice(0, ++index);
+
+            typingText.textContent = letter;
+            if (letter.length === currentText.length) {
+                count++;
+                index = 0;
+                setTimeout(type, 2000);
+            } else {
+                setTimeout(type, 50);
+            }
+        }
+        type();
+
+        // Animate skill bars on scroll
+        const skillProgress = document.querySelectorAll('.skill-progress');
+        const animateSkills = () => {
+            skillProgress.forEach(bar => {
+                bar.style.width = bar.dataset.width + '%';
+            });
+        };
+        const skillsSection = document.getElementById('skills');
+        const observer = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                animateSkills();
+                observer.disconnect();
+            }
+        });
+        observer.observe(skillsSection);
+
+        // Contact form validation and submission simulation
+        const contactForm = document.getElementById('contactForm');
+        const formMessage = document.getElementById('formMessage');
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (contactForm.checkValidity()) {
+                formMessage.innerHTML = '<div class="alert alert-success">Message sent successfully!</div>';
+                contactForm.reset();
+            } else {
+                formMessage.innerHTML = '<div class="alert alert-danger">Please fill out all fields correctly.</div>';
+            }
+            setTimeout(() => { formMessage.innerHTML = ''; }, 3000);
+        });
+
+        // Back to top
+        const backToTop = document.querySelector('.back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('d-none');
+            } else {
+                backToTop.classList.add('d-none');
+            }
+        });
+
+        // Dynamic tech background with particles
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particles = [];
+        let lineColorR = 16;
+        let lineColorG = 21;
+        let lineColorB = 133; // Default light mode
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 1,
+                speedX: (Math.random() - 0.5) * 2,
+                speedY: (Math.random() - 0.5) * 2,
+                color: 'rgba(76,175,80,0.3)' // Default light mode
+            });
+        }
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0 || p.x > canvas.width) p.speedX = -p.speedX;
+                if (p.y < 0 || p.y > canvas.height) p.speedY = -p.speedY;
+            });
+            // Connect particles for tech web effect
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    let dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(${lineColorR},${lineColorG},${lineColorB}, ${1 - dist / 100})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+        animateParticles();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
