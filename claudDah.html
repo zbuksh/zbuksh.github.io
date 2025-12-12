@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Trail Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(15, 32, 39, 0.95);
+            backdrop-filter: blur(10px);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .top-bar .brand {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .top-bar .brand svg {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+
+        .top-bar .search-container {
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .top-bar .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .top-bar .search-input::placeholder {
+            color: #bbb;
+        }
+
+        .top-bar .search-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .top-bar .right-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-bar .region-selector {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .top-bar .notification-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .top-bar .notification-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        .top-bar .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #f44336;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 50%;
+        }
+
+        .top-bar .shell-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .top-bar .shell-btn:hover {
+            background: linear-gradient(135deg, #7B1FA2, #9C27B0);
+            transform: translateY(-2px);
+        }
+
+        .top-bar .user-menu {
+            position: relative;
+        }
+
+        .top-bar .user-btn {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .top-bar .user-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+            margin-right: 8px;
+        }
+
+        .top-bar .user-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 200px;
+        }
+
+        .top-bar .user-dropdown.active {
+            display: block;
+        }
+
+        .top-bar .user-dropdown ul {
+            list-style: none;
+        }
+
+        .top-bar .user-dropdown li {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .top-bar .user-dropdown li:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .content-container {
+            display: flex;
+            flex: 1;
+            margin-top: 60px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            animation: slideInLeft 0.8s ease-in-out;
+            position: sticky;
+            top: 60px;
+        }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo svg {
+            width: 60px;
+            height: 60px;
+            animation: rotateLogo 10s linear infinite;
+        }
+
+        @keyframes rotateLogo {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .dashboard-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        .dashboard-section h2 {
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        /* Profile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        /* Particles background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 15s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0); opacity: 0.8; }
+            100% { transform: translateY(-100vh); opacity: 0; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .content-container {
+                flex-direction: column;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .top-bar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 10px;
+            }
+
+            .top-bar .search-container {
+                order: 3;
+                width: 100%;
+                margin: 10px 0 0;
+            }
+
+            .top-bar .right-section {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    <div class="top-bar">
+        <div class="brand">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="5" fill="none" />
+                <path d="M30 50 L50 70 L70 30" stroke="#fff" stroke-width="5" fill="none" />
+            </svg>
+            Cloud Trail Console
+        </div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search services, features, docs...">
+        </div>
+        <div class="right-section">
+            <select class="region-selector">
+                <option>US East (N. Virginia)</option>
+                <option>US West (Oregon)</option>
+                <option>EU (Ireland)</option>
+            </select>
+            <button class="notification-btn">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                </svg>
+                <span class="notification-count">3</span>
+            </button>
+            <button class="shell-btn" id="shellBtn">Shell</button>
+            <div class="user-menu">
+                <button class="user-btn" id="userBtn">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                    zbuksh
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <ul>
+                        <li id="profileItem">Profile</li>
+                        <li id="logoutItem">Logout</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content-container">
+        <div class="sidebar">
+            <div class="logo">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="5" fill="none" />
+                    <path d="M30 50 L50 70 L70 30" stroke="#fff" stroke-width="5" fill="none" />
+                </svg>
+            </div>
+            <h2>Cloud Trail</h2>
+            <ul>
+                <li><a href="#overview" class="active">Overview</a></li>
+                <li><a href="#storage">Storage</a></li>
+                <li><a href="#compute">Compute</a></li>
+                <li><a href="#database">Databases</a></li>
+                <li><a href="#security">Security</a></li>
+                <li><a href="#billing">Billing</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="dashboard-section active" id="overview">
+                <h2>Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Active Instances</h3>
+                        <p>12</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Storage Used</h3>
+                        <p>45 GB</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Cost</h3>
+                        <p>$120.50</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Uptime</h3>
+                        <p>99.9%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-section" id="storage">
+                <h2>Storage Management</h2>
+                <p>Manage your cloud storage buckets and files here.</p>
+                <div class="chart-container">
+                    <canvas id="storageChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-section" id="compute">
+                <h2>Compute Resources</h2>
+                <p>Monitor and scale your virtual machines and containers.</p>
+                <div class="chart-container">
+                    <canvas id="computeChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-section" id="database">
+                <h2>Databases</h2>
+                <p>Overview of your SQL and NoSQL databases.</p>
+                <div class="chart-container">
+                    <canvas id="databaseChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-section" id="security">
+                <h2>Security Center</h2>
+                <p>Review security alerts and compliance status.</p>
+                <div class="chart-container">
+                    <canvas id="securityChart"></canvas>
+                </div>
+            </div>
+            <div class="dashboard-section" id="billing">
+                <h2>Billing & Usage</h2>
+                <p>Detailed breakdown of your costs and usage.</p>
+                <div class="chart-container">
+                    <canvas id="billingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>User Profile Management</h2>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="profileUsername">Username</label>
+                    <input type="text" id="profileUsername" value="zbuksh" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email</label>
+                    <input type="email" id="profileEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="profilePassword">New Password</label>
+                    <input type="password" id="profilePassword" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="profileConfirmPassword">Confirm New Password</label>
+                    <input type="password" id="profileConfirmPassword" placeholder="Confirm new password">
+                </div>
+                <button type="submit" class="save-btn">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Particles effect
+        const particlesContainer = document.getElementById('particles');
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const size = Math.random() * 5 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+            particlesContainer.appendChild(particle);
+            setTimeout(() => particle.remove(), 20000);
+        }
+        setInterval(createParticle, 300);
+
+        // User dropdown
+        const userBtn = document.getElementById('userBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        userBtn.addEventListener('click', function() {
+            userDropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userBtn.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('active');
+            }
+        });
+
+        // Profile item
+        const profileItem = document.getElementById('profileItem');
+        profileItem.addEventListener('click', function() {
+            profileModal.style.display = 'flex';
+            userDropdown.classList.remove('active');
+        });
+
+        // Logout item
+        const logoutItem = document.getElementById('logoutItem');
+        logoutItem.addEventListener('click', function() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = 'admin.html';
+            }
+            userDropdown.classList.remove('active');
+        });
+
+        // Shell functionality (simulated)
+        const shellBtn = document.getElementById('shellBtn');
+        shellBtn.addEventListener('click', function() {
+            alert('Opening Cloud Shell... (Simulated)');
+        });
+
+        // Tab-like functionality for sidebar links
+        const sidebarLinks = document.querySelectorAll('.sidebar a');
+        const sections = document.querySelectorAll('.dashboard-section');
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+
+                // Remove active class from all links and sections
+                sidebarLinks.forEach(l => l.classList.remove('active'));
+                sections.forEach(s => s.classList.remove('active'));
+
+                // Add active to current
+                this.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Profile Modal
+        const profileModal = document.getElementById('profileModal');
+        const closeModal = document.getElementById('closeModal');
+        const profileForm = document.getElementById('profileForm');
+        const profileEmail = document.getElementById('profileEmail');
+
+        // Load saved email from localStorage
+        if (localStorage.getItem('userEmail')) {
+            profileEmail.value = localStorage.getItem('userEmail');
+        }
+
+        closeModal.addEventListener('click', function() {
+            profileModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(e) {
+            if (e.target === profileModal) {
+                profileModal.style.display = 'none';
+            }
+        });
+
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = profileEmail.value;
+            const password = document.getElementById('profilePassword').value;
+            const confirmPassword = document.getElementById('profileConfirmPassword').value;
+
+            if (password && password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            // Save email to localStorage
+            if (email) {
+                localStorage.setItem('userEmail', email);
+            }
+
+            // Simulate password change (no backend)
+            if (password) {
+                alert('Password changed successfully! (Simulated)');
+            } else {
+                alert('Changes saved successfully!');
+            }
+
+            profileModal.style.display = 'none';
+        });
+
+        // Chart.js Charts
+        // Storage Chart (Pie Chart)
+        const storageCtx = document.getElementById('storageChart').getContext('2d');
+        new Chart(storageCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Used', 'Free'],
+                datasets: [{
+                    data: [45, 55],
+                    backgroundColor: ['#4CAF50', '#2196F3'],
+                    borderColor: ['#fff', '#fff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#fff' }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Storage Usage (GB)',
+                        color: '#fff'
+                    }
+                }
+            }
+        });
+
+        // Compute Chart (Line Chart)
+        const computeCtx = document.getElementById('computeChart').getContext('2d');
+        new Chart(computeCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'CPU Usage (%)',
+                    data: [65, 59, 80, 81, 56, 55],
+                    borderColor: '#FF6384',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#fff' }
+                    },
+                    title: {
+                        display: true,
+                        text: 'CPU Usage Over Time',
+                        color: '#fff'
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#ddd' } },
+                    y: { ticks: { color: '#ddd' } }
+                }
+            }
+        });
+
+        // Database Chart (Bar Chart)
+        const databaseCtx = document.getElementById('databaseChart').getContext('2d');
+        new Chart(databaseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['SQL', 'NoSQL', 'Cache'],
+                datasets: [{
+                    label: 'Query Performance (ms)',
+                    data: [12, 19, 3],
+                    backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#fff' }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Database Query Performance',
+                        color: '#fff'
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#ddd' } },
+                    y: { ticks: { color: '#ddd' } }
+                }
+            }
+        });
+
+        // Security Chart (Doughnut Chart)
+        const securityCtx = document.getElementById('securityChart').getContext('2d');
+        new Chart(securityCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Alerts', 'Resolved', 'Pending'],
+                datasets: [{
+                    data: [30, 50, 20],
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                    borderColor: ['#fff', '#fff', '#fff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#fff' }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Security Events',
+                        color: '#fff'
+                    }
+                }
+            }
+        });
+
+        // Billing Chart (Polar Area Chart)
+        const billingCtx = document.getElementById('billingChart').getContext('2d');
+        new Chart(billingCtx, {
+            type: 'polarArea',
+            data: {
+                labels: ['Compute', 'Storage', 'Network', 'Other'],
+                datasets: [{
+                    data: [50, 30, 20, 10],
+                    backgroundColor: ['rgba(255,99,132,0.6)', 'rgba(54,162,235,0.6)', 'rgba(255,206,86,0.6)', 'rgba(75,192,192,0.6)']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#fff' }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Billing Breakdown ($)',
+                        color: '#fff'
+                    }
+                },
+                scales: {
+                    r: {
+                        ticks: { color: '#ddd' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
