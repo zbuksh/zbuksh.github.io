@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Git Bash Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .cursor {
+            animation: blink 1s step-end infinite;
+        }
+        .output-line {
+            transition: opacity 0.3s ease-in;
+        }
+        @keyframes loadingDots {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+        .loading::after {
+            content: '';
+            animation: loadingDots 1.5s infinite;
+            display: inline-block;
+            width: 3em;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-200 to-gray-300 flex justify-center items-center h-screen font-mono antialiased">
+    <div id="terminal-window" class="w-11/12 max-w-7xl h-5/6 max-h-[900px] bg-black border-2 border-gray-400 rounded-2xl shadow-2xl flex flex-col overflow-hidden transform transition-all duration-300 hover:shadow-3xl">
+        <div id="title-bar" class="bg-gradient-to-r from-gray-800 to-gray-700 text-white p-3 flex justify-between items-center text-sm rounded-t-2xl">
+            <div id="title" class="flex-1 text-center font-bold tracking-wide">Cloud Git Bash Terminal</div>
+            <div id="controls" class="flex space-x-3">
+                <button onclick="minimize()" class="text-white hover:text-red-300 focus:outline-none transition-colors">−</button>
+                <button onclick="maximize()" class="text-white hover:text-green-300 focus:outline-none transition-colors">□</button>
+                <button onclick="closeWindow()" class="text-white hover:text-blue-300 focus:outline-none transition-colors">×</button>
+            </div>
+        </div>
+        <div id="cloud-logos" class="bg-gray-900 p-3 flex justify-center space-x-6 items-center border-b-2 border-gray-700">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS Logo" class="h-8 transform hover:scale-110 transition-transform">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Microsoft_Azure.svg" alt="Azure Logo" class="h-8 transform hover:scale-110 transition-transform">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="GCP Logo" class="h-8 transform hover:scale-110 transition-transform">
+        </div>
+        <div id="terminal" class="flex-1 p-5 bg-black text-white overflow-y-auto text-base leading-loose whitespace-pre-wrap break-words scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+            <div class="mb-3 text-lg font-semibold text-blue-300">Welcome to Cloud Git Bash Terminal</div>
+            <div class="mb-3 text-gray-300">Integrated with cloud services: AWS, Azure, GCP.</div>
+            <div class="mb-3 text-gray-300">Type 'help' for available commands.</div>
+            <div id="output"></div>
+            <div id="input-line" class="flex items-center">
+                <span id="prompt" class="text-green-400 whitespace-pre font-bold">(server-intr-alex) $ </span>
+                <input id="input" type="text" class="flex-1 bg-transparent border-none text-white font-mono text-base outline-none caret-white" autofocus>
+                <span id="cursor" class="bg-white text-black w-2 inline-block cursor">&nbsp;</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const prompt = document.getElementById('prompt');
+        const terminal = document.getElementById('terminal');
+        const terminalWindow = document.getElementById('terminal-window');
+        const cursor = document.getElementById('cursor');
+
+        // Hide cursor when typing
+        input.addEventListener('input', () => {
+            cursor.style.display = input.value ? 'none' : 'inline-block';
+        });
+
+        // Simulated file system
+        let currentDir = '/home/user';
+        const fileSystem = {
+            '/home/user': {
+                'file.txt': 'This is a sample file.',
+                'dir': {}
+            }
+        };
+
+        // Command history
+        let history = [];
+        let historyIndex = -1;
+
+        // Process running flag
+        let processRunning = false;
+
+        // Focus on input
+        input.focus();
+
+        // Handle enter key
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const command = input.value.trim();
+                if (command) {
+                    history.push(command);
+                    historyIndex = history.length;
+                    appendToOutput(`${prompt.textContent}${command}`);
+                    processCommand(command);
+                }
+                input.value = '';
+                cursor.style.display = 'inline-block';
+            } else if (e.key === 'ArrowUp') {
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = history[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                if (historyIndex < history.length - 1) {
+                    historyIndex++;
+                    input.value = history[historyIndex];
+                } else {
+                    historyIndex = history.length;
+                    input.value = '';
+                }
+            }
+        });
+
+        // Append HTML to output
+        function appendToOutput(html, isLoading = false) {
+            const line = document.createElement('div');
+            line.className = 'output-line mb-1 opacity-0';
+            if (isLoading) {
+                line.classList.add('loading');
+            }
+            line.innerHTML = html;
+            output.appendChild(line);
+            setTimeout(() => { line.classList.add('opacity-100'); }, 10);
+            terminal.scrollTop = terminal.scrollHeight;
+            return line;
+        }
+
+        // Process commands
+        function processCommand(cmd) {
+            const parts = cmd.split(' ');
+            const command = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            if (cmd === 'launch(docker.instance(zbuksh.github_asd-99583221)onServer') {
+                if (processRunning) {
+                    appendToOutput('<span class="text-red-500">Process already running.</span>');
+                    return;
+                }
+                processRunning = true;
+                appendToOutput('<span class="text-yellow-400">Starting Docker instance launch process...</span>');
+                startDockerProcess();
+                return;
+            }
+
+            switch (command) {
+                case 'help':
+                    appendToOutput('Available commands: echo, ls, cd, pwd, cat, clear, mkdir, touch, rm, mv, cp, git, cloud-info');
+                    break;
+                case 'echo':
+                    appendToOutput(args.join(' '));
+                    break;
+                case 'ls':
+                    const dir = getCurrentDir();
+                    appendToOutput(Object.keys(dir).join(' '));
+                    break;
+                case 'cd':
+                    if (args[0]) {
+                        changeDirectory(args[0]);
+                    } else {
+                        appendToOutput('Usage: cd <directory>');
+                    }
+                    break;
+                case 'pwd':
+                    appendToOutput(currentDir);
+                    break;
+                case 'cat':
+                    if (args[0]) {
+                        const content = getFileContent(args[0]);
+                        if (content !== undefined) {
+                            appendToOutput(content);
+                        } else {
+                            appendToOutput(`cat: ${args[0]}: No such file`);
+                        }
+                    } else {
+                        appendToOutput('Usage: cat <file>');
+                    }
+                    break;
+                case 'clear':
+                    output.innerHTML = '';
+                    break;
+                case 'mkdir':
+                    if (args[0]) {
+                        createDirectory(args[0]);
+                    } else {
+                        appendToOutput('Usage: mkdir <directory>');
+                    }
+                    break;
+                case 'touch':
+                    if (args[0]) {
+                        createFile(args[0]);
+                    } else {
+                        appendToOutput('Usage: touch <file>');
+                    }
+                    break;
+                case 'rm':
+                    if (args[0]) {
+                        removeItem(args[0]);
+                    } else {
+                        appendToOutput('Usage: rm <file or directory>');
+                    }
+                    break;
+                case 'mv':
+                    if (args.length === 2) {
+                        moveItem(args[0], args[1]);
+                    } else {
+                        appendToOutput('Usage: mv <source> <destination>');
+                    }
+                    break;
+                case 'cp':
+                    if (args.length === 2) {
+                        copyItem(args[0], args[1]);
+                    } else {
+                        appendToOutput('Usage: cp <source> <destination>');
+                    }
+                    break;
+                case 'git':
+                    handleGitCommand(args);
+                    break;
+                case 'cloud-info':
+                    appendToOutput('Cloud integrations: AWS for storage, Azure for compute, GCP for AI.');
+                    break;
+                default:
+                    appendToOutput(`<span class="text-red-500">Command not found: ${command}</span>`);
+            }
+        }
+
+        // Handle git subcommands
+        function handleGitCommand(args) {
+            if (args.length === 0) {
+                appendToOutput('Usage: git <subcommand>');
+                return;
+            }
+            const subcommand = args[0].toLowerCase();
+            switch (subcommand) {
+                case 'init':
+                    appendToOutput('Initialized empty Git repository in ' + currentDir + '/.git/');
+                    break;
+                case 'status':
+                    appendToOutput('On branch main\nNo commits yet\nnothing to commit (create/copy files and use "git add" to track)');
+                    break;
+                case 'add':
+                    if (args[1]) {
+                        appendToOutput(`Added ${args[1]} to staging.`);
+                    } else {
+                        appendToOutput('Usage: git add <file>');
+                    }
+                    break;
+                case 'commit':
+                    if (args[1] === '-m' && args[2]) {
+                        appendToOutput(`[main (root-commit)] ${args[2]}\n 0 files changed\n create mode 100644 files`);
+                    } else {
+                        appendToOutput('Usage: git commit -m "message"');
+                    }
+                    break;
+                case 'clone':
+                    if (args[1]) {
+                        appendToOutput(`Cloning into '${args[1].split('/').pop()}'...\nremote: Enumerating objects: 100, done.\nremote: Total 100 (delta 0), reused 0 (delta 0), pack-reused 100\nUnpacking objects: 100% (100/100), done.`);
+                    } else {
+                        appendToOutput('Usage: git clone <repository>');
+                    }
+                    break;
+                default:
+                    appendToOutput(`git: '${subcommand}' is not a git command.`);
+            }
+        }
+
+        // Get current directory object
+        function getCurrentDir() {
+            let dir = fileSystem;
+            const paths = currentDir.split('/').filter(p => p);
+            for (let path of paths) {
+                dir = dir[path];
+            }
+            return dir;
+        }
+
+        // Change directory
+        function changeDirectory(path) {
+            let newDir = path.startsWith('/') ? path : currentDir + '/' + path;
+            newDir = newDir.replace(/\/+/g, '/').replace(/\/$/, '');
+            if (path === '..') {
+                const parts = currentDir.split('/').filter(p => p);
+                parts.pop();
+                newDir = '/' + parts.join('/');
+            }
+            if (newDir === '') newDir = '/home/user';
+
+            // Check if directory exists
+            let tempDir = fileSystem;
+            const tempPaths = newDir.split('/').filter(p => p);
+            for (let p of tempPaths) {
+                if (tempDir[p] && typeof tempDir[p] === 'object') {
+                    tempDir = tempDir[p];
+                } else {
+                    appendToOutput(`<span class="text-red-500">cd: ${path}: No such directory</span>`);
+                    return;
+                }
+            }
+            currentDir = newDir;
+            updatePrompt();
+        }
+
+        // Update prompt with current dir
+        function updatePrompt() {
+            prompt.textContent = `(server-intr-alex) ${currentDir} $ `;
+        }
+
+        // Get file content
+        function getFileContent(file) {
+            const dir = getCurrentDir();
+            return dir[file];
+        }
+
+        // Create directory
+        function createDirectory(name) {
+            const dir = getCurrentDir();
+            if (!dir[name]) {
+                dir[name] = {};
+                appendToOutput(`Directory ${name} created.`);
+            } else {
+                appendToOutput(`<span class="text-red-500">mkdir: ${name}: Directory exists</span>`);
+            }
+        }
+
+        // Create file
+        function createFile(name) {
+            const dir = getCurrentDir();
+            if (!dir[name]) {
+                dir[name] = ''; // Empty file
+                appendToOutput(`File ${name} created.`);
+            } else {
+                appendToOutput(`<span class="text-red-500">touch: ${name}: File exists</span>`);
+            }
+        }
+
+        // Remove item
+        function removeItem(name) {
+            const dir = getCurrentDir();
+            if (dir[name] !== undefined) {
+                delete dir[name];
+                appendToOutput(`${name} removed.`);
+            } else {
+                appendToOutput(`<span class="text-red-500">rm: ${name}: No such file or directory</span>`);
+            }
+        }
+
+        // Move item
+        function moveItem(source, dest) {
+            const dir = getCurrentDir();
+            if (dir[source] !== undefined) {
+                dir[dest] = dir[source];
+                delete dir[source];
+                appendToOutput(`Moved ${source} to ${dest}.`);
+            } else {
+                appendToOutput(`<span class="text-red-500">mv: ${source}: No such file or directory</span>`);
+            }
+        }
+
+        // Copy item
+        function copyItem(source, dest) {
+            const dir = getCurrentDir();
+            if (dir[source] !== undefined) {
+                if (typeof dir[source] === 'object') {
+                    dir[dest] = { ...dir[source] }; // Shallow copy for dirs
+                } else {
+                    dir[dest] = dir[source];
+                }
+                appendToOutput(`Copied ${source} to ${dest}.`);
+            } else {
+                appendToOutput(`<span class="text-red-500">cp: ${source}: No such file or directory</span>`);
+            }
+        }
+
+        // Start Docker process
+        function startDockerProcess() {
+            const endTime = Date.now() + 3600 * 1000; // 1 hour
+            let progress = 0;
+            const colors = ['text-green-400', 'text-blue-400', 'text-yellow-400', 'text-purple-400', 'text-cyan-400', 'text-indigo-400'];
+            const actions = ['Downloading', 'Installing', 'Configuring', 'Verifying', 'Building', 'Pushing', 'Pulling', 'Initializing', 'Compiling', 'Optimizing', 'Testing', 'Deploying'];
+            const infoMessages = [
+                '[INFO] Checking system compatibility...',
+                '[INFO] Allocating resources...',
+                '[DEBUG] Network configuration in progress...',
+                '[INFO] Updating package index...',
+                '[DEBUG] Resolving dependencies...',
+                '[INFO] Preparing environment...',
+                '[WARN] Minor issue detected, auto-correcting...'
+            ];
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">Docker Instance Created on zbuksh.github.io/909087-677VB-687783-776215-9237373U-0239993-00-1-1</span>');
+                    processRunning = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 3 + 0.5;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputSSHBlock(numLines);
+                    } else {
+                        outputDependencyBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... done.</span>`;
+                        }, Math.random() * 2000 + 1000);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '='.repeat(filled) + '-'.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-400">Overall progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-500' : 'text-gray-400';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 3000 + 1000); // 1-4 seconds interval
+        }
+
+        // Output SSH block
+        function outputSSHBlock(numLines) {
+            appendToOutput('<span class="text-magenta-400">Generating SSH keys...</span>');
+            for (let i = 0; i < numLines; i++) {
+                const key = generateRandomSSHKey();
+                appendToOutput(`<span class="text-pink-300">${key}</span>`);
+            }
+            appendToOutput('<span class="text-magenta-400">SSH keys generated and configured.</span>');
+        }
+
+        // Output dependency resolution block
+        function outputDependencyBlock(numLines) {
+            appendToOutput('<span class="text-blue-400">Resolving dependencies...</span>');
+            for (let i = 0; i < numLines; i++) {
+                const dep = generateRandomPackageName();
+                appendToOutput(`<span class="text-blue-300"> - ${dep} (version ${Math.floor(Math.random() * 10 + 1)}.${Math.floor(Math.random() * 10)}.${Math.floor(Math.random() * 10)})</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Dependencies resolved.</span>');
+        }
+
+        // Generate random package name
+        function generateRandomPackageName() {
+            const prefixes = ['lib', 'node-', 'python-', 'docker-', 'utils-', 'core-', 'net-', 'crypto-', 'db-', 'ui-'];
+            const names = ['foo', 'bar', 'baz', 'qux', 'zap', 'widget', 'gadget', 'module', 'framework', 'tool'];
+            const suffixes = ['-dev', '-core', '-utils', '', '-1.0', '-beta', '-alpha', '-rc1'];
+            const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+            const name = names[Math.floor(Math.random() * names.length)];
+            const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+            return prefix + name + suffix;
+        }
+
+        // Generate random SSH key line
+        function generateRandomSSHKey() {
+            const types = ['ssh-rsa', 'ssh-ed25519', 'ecdsa-sha2-nistp256'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const key = Array.from({length: 50}, () => String.fromCharCode(Math.floor(Math.random() * 26) + 65)).join('');
+            return `${type} AAAAB3NzaC1yc2EAAAADAQABAAABAQD${key} user@example.com`;
+        }
+
+        // Window controls
+        function minimize() {
+            alert('Minimize functionality not implemented.');
+        }
+
+        function maximize() {
+            if (terminalWindow.classList.contains('w-full')) {
+                terminalWindow.classList.remove('w-full', 'h-full', 'max-w-none', 'max-h-none');
+                terminalWindow.classList.add('w-11/12', 'max-w-7xl', 'h-5/6', 'max-h-[900px]');
+            } else {
+                terminalWindow.classList.add('w-full', 'h-full', 'max-w-none', 'max-h-none');
+                terminalWindow.classList.remove('w-11/12', 'max-w-7xl', 'h-5/6', 'max-h-[900px]');
+            }
+        }
+
+        function closeWindow() {
+            alert('Close functionality not implemented.');
+        }
+
+        // Initial prompt update
+        updatePrompt();
+
+        // Click anywhere in terminal to focus input
+        terminal.addEventListener('click', () => input.focus());
+    </script>
+</body>
+</html>
