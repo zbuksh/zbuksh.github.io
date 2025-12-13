@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Package Security Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js CDN for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom styles */
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3b82f6; /* Tailwind blue-500 */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-running {
+            color: #22c55e; /* Tailwind green-500 */
+        }
+
+        .status-stopped {
+            color: #ef4444; /* Tailwind red-500 */
+        }
+
+        /* Enhanced animations and transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Color effects and transitions for login */
+        .login-bg {
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            transition: background 0.5s ease;
+        }
+
+        .login-bg:hover {
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+            border-color: #3b82f6;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            transition: transform 0.2s ease;
+        }
+
+        /* Active tab style */
+        .tab-active {
+            background-color: #3b82f6 !important;
+            color: white !important;
+        }
+
+        /* Active sidebar link */
+        .sidebar-active {
+            background-color: #ddd !important;
+        }
+
+        /* Terminal styles */
+        #terminal {
+            background: #1e1e1e;
+            color: #fff;
+            font-family: monospace;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            outline: none;
+        }
+
+        .command-output {
+            margin-top: 10px;
+        }
+
+        .loading-spinner::after {
+            content: ' ⠏';
+            animation: spinner 1s steps(6) infinite;
+        }
+
+        @keyframes spinner {
+            0% { content: ' ⠹'; }
+            16% { content: ' ⠼'; }
+            33% { content: ' ⠴'; }
+            50% { content: ' ⠦'; }
+            66% { content: ' ⠧'; }
+            83% { content: ' ⠇'; }
+            100% { content: ' ⠏'; }
+        }
+
+        /* Dropdown for More button */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content button {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #f1f1f1;
+        }
+
+        .show {
+            display: block;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans">
+
+    <!-- Login Container -->
+    <div id="login-container" class="flex items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-purple-500">
+        <form id="login-form" class="bg-white p-10 rounded-lg shadow-xl w-full max-w-md fade-in relative transform transition-all duration-500 hover:scale-105">
+            <div class="text-center mb-6">
+                <i class="fas fa-shield-alt text-6xl text-blue-600"></i>
+                <h2 class="text-2xl font-bold text-blue-600 mt-4">Docker Package Security Login</h2>
+            </div>
+            <div class="mb-4">
+                <input type="text" id="username" placeholder="Username" required class="w-full p-3 border border-gray-300 rounded transition duration-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:bg-blue-50">
+            </div>
+            <div class="mb-4 relative">
+                <input type="password" id="password" placeholder="Password" required class="w-full p-3 border border-gray-300 rounded transition duration-300 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:bg-blue-50">
+                <i id="toggle-password" class="fas fa-eye absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500 transition duration-300 hover:text-blue-500"></i>
+            </div>
+            <button type="submit" class="w-full p-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Login</button>
+            <div id="login-error" class="text-red-500 text-center mt-4"></div>
+        </form>
+    </div>
+
+    <!-- Loading Container -->
+    <div id="loading-container" class="hidden fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50">
+        <div id="loading-text" class="text-lg mb-5">Establishing secure connections and setup...</div>
+        <div class="loader"></div>
+    </div>
+
+    <!-- Modal for buttons -->
+    <div id="analysis-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title" class="text-2xl font-bold mb-4"></h2>
+            <div id="modal-loading" class="flex justify-center items-center">
+                <div class="loader"></div>
+                <p class="ml-4">Analyzing...</p>
+            </div>
+            <div id="modal-content-body" class="hidden">
+                <!-- Analysis content will be here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div id="main-container" class="hidden">
+        <!-- Top Bar -->
+        <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="text-xl font-bold mr-4"><i class="fas fa-cloud mr-2 text-blue-400"></i>Docker Package Security</span>
+                <span class="ml-5">Console | Istanbul</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span>More</span>
+                <i class="fas fa-bell cursor-pointer transition duration-300 hover:text-blue-400"></i>
+                <button id="logout-button" class="flex items-center"><i class="fas fa-user mr-2"></i>User | Logout</button>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="bg-gray-200 w-64 p-5 h-[calc(100vh-64px)] fixed overflow-y-auto">
+            <ul class="space-y-2">
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300 sidebar-active" data-section="docker-package-security"><i class="fas fa-shield-alt mr-2 text-blue-600"></i>Docker Package Security</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="security-groups"><i class="fas fa-users mr-2 text-blue-600"></i>Security Groups</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="web-apps"><i class="fas fa-globe mr-2 text-blue-600"></i>Web Apps</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="sites-management"><i class="fas fa-sitemap mr-2 text-blue-600"></i>Sites Management</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="network-security"><i class="fas fa-network-wired mr-2 text-blue-600"></i>Network & Security</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="elastic-ip"><i class="fas fa-cloud-upload-alt mr-2 text-blue-600"></i>Elastic IP</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="key-pair"><i class="fas fa-key mr-2 text-blue-600"></i>Key Pair</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="storage-backup"><i class="fas fa-hdd mr-2 text-blue-600"></i>Storage & Backup</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="elastic-volume-service"><i class="fas fa-database mr-2 text-blue-600"></i>Elastic Volume Service</a></li>
+                <li><a href="#" class="sidebar-link block p-3 rounded hover:bg-gray-300 transition duration-300" data-section="cloud-backup-recovery"><i class="fas fa-cloud-download-alt mr-2 text-blue-600"></i>Cloud Backup and Recovery</a></li>
+            </ul>
+        </div>
+
+        <!-- Content -->
+        <div id="content-area" class="ml-64 p-6">
+            <!-- Sections will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const loginContainer = document.getElementById('login-container');
+        const loadingContainer = document.getElementById('loading-container');
+        const mainContainer = document.getElementById('main-container');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('toggle-password');
+        const logoutButton = document.getElementById('logout-button');
+        const contentArea = document.getElementById('content-area');
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+        let packages = []; // Will load from localStorage
+        let currentSection = 'docker-package-security';
+
+        // Modal elements
+        const modal = document.getElementById('analysis-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalLoading = document.getElementById('modal-loading');
+        const modalContentBody = document.getElementById('modal-content-body');
+        const closeModal = document.getElementsByClassName('close')[0];
+
+        closeModal.onclick = () => {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Password toggle functionality
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.classList.toggle('fa-eye');
+            togglePassword.classList.toggle('fa-eye-slash');
+        });
+
+        // Login form submit
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === 'zbuksh' && password === 'Redapple@2025##') {
+                loginContainer.style.display = 'none';
+                loadingContainer.style.display = 'flex';
+
+                // Random delay between 4-7 seconds
+                const delay = Math.floor(Math.random() * (7000 - 4000 + 1)) + 4000;
+                setTimeout(() => {
+                    loadingContainer.style.display = 'none';
+                    mainContainer.style.display = 'block';
+                    loadPackages();
+                    loadSection(currentSection);
+                }, delay);
+            } else {
+                loginError.textContent = 'Invalid username or password';
+            }
+        });
+
+        // Logout functionality
+        logoutButton.addEventListener('click', () => {
+            mainContainer.style.display = 'none';
+            loginContainer.style.display = 'flex';
+            // Reset login form
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            loginError.textContent = '';
+        });
+
+        // Sidebar navigation
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                sidebarLinks.forEach(l => l.classList.remove('sidebar-active'));
+                link.classList.add('sidebar-active');
+                currentSection = link.dataset.section;
+                loadSection(currentSection);
+            });
+        });
+
+        // Load section content
+        function loadSection(section) {
+            let html = '';
+            switch (section) {
+                case 'docker-package-security':
+                    html = getDockerPackageSecurityContent();
+                    break;
+                case 'security-groups':
+                    html = getSectionContent('Security Groups', 'Manage security groups for your packages. Sample group: Admin, User, Guest.', 'security-groups');
+                    break;
+                case 'web-apps':
+                    html = getSectionContent('Web Apps', 'List of deployed web applications. Example: App1 - Running, App2 - Stopped.', 'web-apps');
+                    break;
+                case 'sites-management':
+                    html = getSectionContent('Sites Management', 'Manage hosted sites. Site1: www.example.com, Traffic: 1000 visits/day.', 'sites-management');
+                    break;
+                case 'network-security':
+                    html = getSectionContent('Network & Security', 'Network configurations. Firewall rules: Allow port 80, Block port 22.', 'network-security');
+                    break;
+                case 'elastic-ip':
+                    html = getSectionContent('Elastic IP', 'Assigned IPs: 192.168.0.1 - Associated with Instance1.', 'elastic-ip');
+                    break;
+                case 'key-pair':
+                    html = getSectionContent('Key Pair', 'Key pairs for SSH access. Key1: Created on 2023-01-01.', 'key-pair');
+                    break;
+                case 'storage-backup':
+                    html = getSectionContent('Storage & Backup', 'Storage volumes: Volume1 - 100GB, Backup schedule: Daily.', 'storage-backup');
+                    break;
+                case 'elastic-volume-service':
+                    html = getSectionContent('Elastic Volume Service', 'Elastic volumes: EV1 - 50GB, Attached to Instance2.', 'elastic-volume-service');
+                    break;
+                case 'cloud-backup-recovery':
+                    html = getSectionContent('Cloud Backup and Recovery', 'Backups: Backup1 - Full, Date: 2023-12-01.', 'cloud-backup-recovery');
+                    break;
+            }
+            contentArea.innerHTML = html;
+
+            if (section === 'docker-package-security') {
+                attachTabListeners();
+                attachButtonListeners();
+                renderPackages();
+                const terminalInput = document.getElementById('terminal-input');
+                if (terminalInput) {
+                    terminalInput.addEventListener('keydown', terminalKeydownHandler);
+                }
+                attachMainButtonsListeners();
+            } else {
+                renderSectionTable(section);
+                renderSectionChart(section);
+            }
+
+            // Load editable content if applicable
+            const textarea = contentArea.querySelector('textarea');
+            if (textarea) {
+                const savedContent = localStorage.getItem(`${section}-content`);
+                if (savedContent) {
+                    textarea.value = savedContent;
+                }
+                const saveBtn = contentArea.querySelector('.save-content');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', () => {
+                        localStorage.setItem(`${section}-content`, textarea.value);
+                        alert('Changes saved!');
+                    });
+                }
+            }
+        }
+
+        function getDockerPackageSecurityContent() {
+            return `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">Docker Package Security (7)</h1>
+                    <div class="space-x-2">
+                        <button id="troubleshooting-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Troubleshooting</button>
+                        <button id="security-news-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Security News</button>
+                        <button id="quick-links-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Quick Links</button>
+                        <button id="buy-package-btn" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300 transform hover:scale-105">Buy Package</button>
+                    </div>
+                </div>
+
+                <div id="tabs" class="flex space-x-2 mb-6">
+                    <button class="tab bg-gray-200 px-4 py-2 rounded transition duration-300 hover:bg-blue-100 tab-active" data-tab="my-packages">My Packages</button>
+                    <button class="tab bg-gray-200 px-4 py-2 rounded transition duration-300 hover:bg-blue-100" data-tab="tr-istanbul">TR-Istanbul (7)</button>
+                    <button class="tab bg-gray-200 px-4 py-2 rounded transition duration-300 hover:bg-blue-100" data-tab="ap-singapore">AP-Singapore (2)</button>
+                    <button class="tab bg-gray-200 px-4 py-2 rounded transition duration-300 hover:bg-blue-100" data-tab="ap-bangkok">AP-Bangkok (1)</button>
+                    <button class="tab bg-gray-200 px-4 py-2 rounded transition duration-300 hover:bg-blue-100" data-tab="cloud-shell">Cloud Shell</button>
+                </div>
+
+                <div id="tab-content" class="bg-white p-4 rounded-lg shadow-md">
+                    <!-- My Packages Content (Default) -->
+                    <div id="my-packages" class="tab-panel">
+                        <div class="flex justify-between mb-6">
+                            <div class="space-x-2">
+                                <button id="start-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Start</button>
+                                <button id="stop-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Stop</button>
+                                <button id="reset-password-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Reset Password</button>
+                                <div class="dropdown inline-block">
+                                    <button id="more-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">More</button>
+                                    <div id="more-dropdown" class="dropdown-content">
+                                        <button onclick="moreAction('restart')">Restart</button>
+                                        <button onclick="moreAction('delete')">Delete</button>
+                                        <button onclick="moreAction('configure')">Configure</button>
+                                    </div>
+                                </div>
+                                <button id="export-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 transform hover:scale-105">Export</button>
+                            </div>
+                            <input type="text" placeholder="Name/ID" class="p-2 border border-gray-300 rounded transition duration-300 focus:border-blue-500 focus:ring focus:ring-blue-200">
+                        </div>
+
+                        <table class="w-full bg-white shadow-md rounded-lg overflow-hidden mb-6">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-3 text-left"><input type="checkbox" id="select-all"></th>
+                                    <th class="p-3 text-left">Name/ID</th>
+                                    <th class="p-3 text-left">Monitor</th>
+                                    <th class="p-3 text-left">Status</th>
+                                    <th class="p-3 text-left">AZ</th>
+                                    <th class="p-3 text-left">Specifications/Image</th>
+                                    <th class="p-3 text-left">IP Address</th>
+                                    <th class="p-3 text-left">Billing Mode</th>
+                                    <th class="p-3 text-left">Enterprise Project</th>
+                                    <th class="p-3 text-left">Tag</th>
+                                    <th class="p-3 text-left">Operation</th>
+                                </tr>
+                            </thead>
+                            <tbody id="packages-table-body">
+                                <!-- Rows will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+
+                        <div class="mb-6">
+                            <h3 class="text-lg font-bold mb-2">Editable Content for My Packages</h3>
+                            <textarea id="my-packages-content" class="w-full h-32 p-2 border border-gray-300 rounded"></textarea>
+                            <button class="save-content mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Changes</button>
+                        </div>
+
+                        <div class="mt-6 flex items-center space-x-2">
+                            <select class="p-2 border border-gray-300 rounded">
+                                <option>10</option>
+                                <option>20</option>
+                                <option>50</option>
+                            </select>
+                            <span id="total-records">| Total Records: 0 |</span>
+                            <button class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"><i class="fas fa-chevron-left"></i></button>
+                            <span>1</span>
+                            <button class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- TR-Istanbul Content -->
+                    <div id="tr-istanbul" class="tab-panel hidden">
+                        <h3 class="text-lg font-bold mb-2">TR-Istanbul Region</h3>
+                        <p>Sample content for TR-Istanbul.</p>
+                        <textarea id="tr-istanbul-content" class="w-full h-32 p-2 border border-gray-300 rounded mb-2"></textarea>
+                        <button class="save-content bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Changes</button>
+                    </div>
+
+                    <!-- AP-Singapore Content -->
+                    <div id="ap-singapore" class="tab-panel hidden">
+                        <h3 class="text-lg font-bold mb-2">AP-Singapore Region</h3>
+                        <p>Sample content for AP-Singapore.</p>
+                        <textarea id="ap-singapore-content" class="w-full h-32 p-2 border border-gray-300 rounded mb-2"></textarea>
+                        <button class="save-content bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Changes</button>
+                    </div>
+
+                    <!-- AP-Bangkok Content -->
+                    <div id="ap-bangkok" class="tab-panel hidden">
+                        <h3 class="text-lg font-bold mb-2">AP-Bangkok Region</h3>
+                        <p>Sample content for AP-Bangkok.</p>
+                        <textarea id="ap-bangkok-content" class="w-full h-32 p-2 border border-gray-300 rounded mb-2"></textarea>
+                        <button class="save-content bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Changes</button>
+                    </div>
+
+                    <!-- Cloud Shell Content -->
+                    <div id="cloud-shell" class="tab-panel hidden">
+                        <h3 class="text-lg font-bold mb-2">Cloud Shell</h3>
+                        <div id="terminal">
+                            <div>Welcome to Docker Package Security Cloud Shell</div>
+                            <div>Type 'help' for a list of commands.</div>
+                            <div id="terminal-output"></div>
+                            <div>
+                                <span>$ </span>
+                                <input id="terminal-input" type="text" autofocus>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSectionContent(title, sampleText, sectionId) {
+            return `
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold">${title}</h1>
+                </div>
+                <p>${sampleText}</p>
+                <div class="mb-6 mt-4">
+                    <h3 class="text-lg font-bold mb-2">Editable Table for ${title}</h3>
+                    <table class="w-full bg-white shadow-md rounded-lg overflow-hidden mb-6" id="${sectionId}-table">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="p-3 text-left">ID</th>
+                                <th class="p-3 text-left">Name</th>
+                                <th class="p-3 text-left">Description</th>
+                                <th class="p-3 text-left">Status</th>
+                                <th class="p-3 text-left">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="${sectionId}-table-body">
+                            <!-- Rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                    <button onclick="addSectionRow('${sectionId}')" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Row</button>
+                </div>
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-2">Editable Graph for ${title}</h3>
+                    <canvas id="${sectionId}-chart" width="400" height="200"></canvas>
+                    <textarea id="${sectionId}-chart-data" class="w-full h-32 p-2 border border-gray-300 rounded mt-4" placeholder='Enter chart data as JSON: {"labels": ["Jan", "Feb"], "data": [10, 20]}'></textarea>
+                    <button onclick="updateSectionChart('${sectionId}')" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Update Graph</button>
+                </div>
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold mb-2">Additional Notes</h3>
+                    <textarea class="w-full h-32 p-2 border border-gray-300 rounded"></textarea>
+                    <button class="save-content mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Save Changes</button>
+                </div>
+            `;
+        }
+
+        // Render section table
+        function renderSectionTable(section) {
+            const tableBody = document.getElementById(`${section}-table-body`);
+            let sectionData = localStorage.getItem(`${section}-data`);
+            if (sectionData) {
+                sectionData = JSON.parse(sectionData);
+            } else {
+                sectionData = [
+                    { id: '1', name: 'Sample1', description: 'Desc1', status: 'Active' },
+                    { id: '2', name: 'Sample2', description: 'Desc2', status: 'Inactive' },
+                    { id: '3', name: 'Sample3', description: 'Desc3', status: 'Active' }
+                ];
+                localStorage.setItem(`${section}-data`, JSON.stringify(sectionData));
+            }
+
+            tableBody.innerHTML = '';
+            sectionData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="p-3" contenteditable="true">${item.id}</td>
+                    <td class="p-3" contenteditable="true">${item.name}</td>
+                    <td class="p-3" contenteditable="true">${item.description}</td>
+                    <td class="p-3" contenteditable="true">${item.status}</td>
+                    <td class="p-3">
+                        <button onclick="saveSectionRow('${section}', ${index})" class="bg-green-500 text-white px-2 py-1 rounded">Save</button>
+                        <button onclick="deleteSectionRow('${section}', ${index})" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Delete</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Add row to section table
+        function addSectionRow(section) {
+            let sectionData = JSON.parse(localStorage.getItem(`${section}-data`)) || [];
+            sectionData.push({ id: (sectionData.length + 1).toString(), name: 'New', description: 'New Desc', status: 'Active' });
+            localStorage.setItem(`${section}-data`, JSON.stringify(sectionData));
+            renderSectionTable(section);
+        }
+
+        // Save row in section table
+        function saveSectionRow(section, index) {
+            let sectionData = JSON.parse(localStorage.getItem(`${section}-data`));
+            const row = document.getElementById(`${section}-table-body`).rows[index];
+            sectionData[index].id = row.cells[0].textContent.trim();
+            sectionData[index].name = row.cells[1].textContent.trim();
+            sectionData[index].description = row.cells[2].textContent.trim();
+            sectionData[index].status = row.cells[3].textContent.trim();
+            localStorage.setItem(`${section}-data`, JSON.stringify(sectionData));
+            alert('Row saved!');
+        }
+
+        // Delete row in section table
+        function deleteSectionRow(section, index) {
+            let sectionData = JSON.parse(localStorage.getItem(`${section}-data`));
+            sectionData.splice(index, 1);
+            localStorage.setItem(`${section}-data`, JSON.stringify(sectionData));
+            renderSectionTable(section);
+        }
+
+        // Render section chart
+        function renderSectionChart(section) {
+            let chartData = localStorage.getItem(`${section}-chart-data`);
+            if (chartData) {
+                chartData = JSON.parse(chartData);
+            } else {
+                chartData = {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    data: [10, 20, 30, 40, 50]
+                };
+                localStorage.setItem(`${section}-chart-data`, JSON.stringify(chartData));
+            }
+            document.getElementById(`${section}-chart-data`).value = JSON.stringify(chartData);
+
+            const ctx = document.getElementById(`${section}-chart`).getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: 'Data',
+                        data: chartData.data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update section chart
+        function updateSectionChart(section) {
+            const newData = document.getElementById(`${section}-chart-data`).value;
+            try {
+                const parsedData = JSON.parse(newData);
+                localStorage.setItem(`${section}-chart-data`, JSON.stringify(parsedData));
+                renderSectionChart(section);
+                alert('Graph updated!');
+            } catch (e) {
+                alert('Invalid JSON format.');
+            }
+        }
+
+        // Attach main buttons listeners for popups
+        function attachMainButtonsListeners() {
+            const buttons = {
+                'troubleshooting-btn': 'Troubleshooting Analysis',
+                'security-news-btn': 'Security News Analysis',
+                'quick-links-btn': 'Quick Links Analysis',
+                'buy-package-btn': 'Buy Package Analysis'
+            };
+
+            Object.keys(buttons).forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        showAnalysisModal(buttons[id]);
+                    });
+                }
+            });
+        }
+
+        // Show analysis modal with loading
+        function showAnalysisModal(title) {
+            modalTitle.textContent = title;
+            modalLoading.style.display = 'flex';
+            modalContentBody.style.display = 'none';
+            modal.style.display = 'block';
+
+            // Simulate analysis delay 2-5 seconds
+            const delay = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+            setTimeout(() => {
+                modalLoading.style.display = 'none';
+                modalContentBody.style.display = 'block';
+                modalContentBody.innerHTML = `<p>Complex analysis complete for ${title}. Results: Sample data processed, no issues found. Detailed report: [Simulated analysis text].</p>`;
+            }, delay);
+        }
+
+        // ... (rest of the script remains the same, including loadPackages, savePackages, renderPackages, attachTabListeners, attachButtonListeners, getSelectedPackages, updateSelectedPackagesStatus, moreAction, exportToCSV, terminalKeydownHandler, processCommand)
+        // Load packages from localStorage or initialize with samples
+        function loadPackages() {
+            const storedPackages = localStorage.getItem('packages');
+            if (storedPackages) {
+                packages = JSON.parse(storedPackages);
+            } else {
+                // Sample data
+                packages = [
+                    { name: 'express', id: 'exp-1234', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ1', specs: 'v4.17.1 / Node.js', ip: '192.168.1.1', billing: 'Pay-per-use', project: 'default', tag: 'web', location: 'npm' },
+                    { name: 'react', id: 'rct-5678', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ2', specs: 'v18.2.0 / Frontend', ip: '192.168.1.2', billing: 'Subscription', project: 'frontend', tag: 'ui', location: 'npm' },
+                    { name: 'numpy', id: 'np-91011', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ1', specs: 'v1.24.3 / Python', ip: '192.168.1.3', billing: 'Pay-per-use', project: 'data', tag: 'ml', location: 'pypi' },
+                    { name: 'tensorflow', id: 'tf-1213', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ3', specs: 'v2.12.0 / ML', ip: '192.168.1.4', billing: 'Pay-per-use', project: 'ai', tag: 'deeplearning', location: 'pypi' },
+                    { name: 'lodash', id: 'ld-1415', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ1', specs: 'v4.17.21 / Utility', ip: '192.168.1.5', billing: 'Free', project: 'default', tag: 'utils', location: 'npm' },
+                    { name: 'pandas', id: 'pd-1617', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ2', specs: 'v1.5.3 / Data', ip: '192.168.1.6', billing: 'Pay-per-use', project: 'data', tag: 'analysis', location: 'pypi' },
+                    { name: 'vue', id: 'vue-1819', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ1', specs: 'v3.2.45 / Frontend', ip: '192.168.1.7', billing: 'Subscription', project: 'frontend', tag: 'ui', location: 'npm' },
+                    { name: 'scikit-learn', id: 'skl-2021', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ3', specs: 'v1.2.2 / ML', ip: '192.168.1.8', billing: 'Pay-per-use', project: 'ai', tag: 'machinelearning', location: 'pypi' },
+                    { name: 'bootstrap', id: 'bs-2223', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ1', specs: 'v5.2.3 / CSS', ip: '192.168.1.9', billing: 'Free', project: 'default', tag: 'style', location: 'npm' },
+                    { name: 'matplotlib', id: 'mpl-2425', monitor: '<i class="fas fa-chart-bar text-blue-600"></i>', status: 'Running', az: 'AZ2', specs: 'v3.7.1 / Plotting', ip: '192.168.1.10', billing: 'Pay-per-use', project: 'data', tag: 'viz', location: 'pypi' }
+                ];
+                savePackages();
+            }
+        }
+
+        function savePackages() {
+            localStorage.setItem('packages', JSON.stringify(packages));
+        }
+
+        // Render packages table
+        function renderPackages() {
+            const packagesTableBody = contentArea.querySelector('#packages-table-body');
+            if (!packagesTableBody) return;
+            packagesTableBody.innerHTML = '';
+            packages.forEach((pkg, index) => {
+                const statusClass = pkg.status === 'Running' ? 'status-running' : 'status-stopped';
+                const row = document.createElement('tr');
+                row.classList.add('border-b', 'hover:bg-blue-50', 'transition', 'duration-300');
+                row.innerHTML = `
+                    <td class="p-3"><input type="checkbox" class="select-checkbox" data-index="${index}"></td>
+                    <td class="p-3 name-cell" contenteditable="false">${pkg.name}<br>${pkg.id}</td>
+                    <td class="p-3">${pkg.monitor}</td>
+                    <td class="p-3 ${statusClass} status-cell" contenteditable="false"><i class="fas fa-circle mr-1 text-xs"></i>${pkg.status}</td>
+                    <td class="p-3 az-cell" contenteditable="false">${pkg.az}</td>
+                    <td class="p-3 specs-cell" contenteditable="false">${pkg.specs}</td>
+                    <td class="p-3 ip-cell" contenteditable="false">${pkg.ip}</td>
+                    <td class="p-3 billing-cell" contenteditable="false">${pkg.billing}</td>
+                    <td class="p-3 project-cell" contenteditable="false">${pkg.project}</td>
+                    <td class="p-3 tag-cell" contenteditable="false">${pkg.tag}</td>
+                    <td class="p-3">
+                        <button class="edit-btn bg-yellow-500 text-white px-2 py-1 rounded mr-2" data-index="${index}">Edit</button>
+                        <button class="save-btn hidden bg-green-500 text-white px-2 py-1 rounded mr-2" data-index="${index}">Save</button>
+                        Remote Login | More >
+                    </td>
+                `;
+                packagesTableBody.appendChild(row);
+            });
+            const totalRecords = contentArea.querySelector('#total-records');
+            if (totalRecords) {
+                totalRecords.textContent = `| Total Records: ${packages.length} |`;
+            }
+
+            // Select all checkbox
+            const selectAll = contentArea.querySelector('#select-all');
+            if (selectAll) {
+                selectAll.addEventListener('change', (e) => {
+                    contentArea.querySelectorAll('.select-checkbox').forEach(cb => {
+                        cb.checked = e.target.checked;
+                    });
+                });
+            }
+
+            // Add event listeners for edit/save
+            contentArea.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    const row = e.target.closest('tr');
+                    row.querySelectorAll('.name-cell, .status-cell, .az-cell, .specs-cell, .ip-cell, .billing-cell, .project-cell, .tag-cell').forEach(cell => {
+                        cell.contentEditable = true;
+                        cell.style.backgroundColor = '#f0f8ff';
+                    });
+                    e.target.classList.add('hidden');
+                    row.querySelector('.save-btn').classList.remove('hidden');
+                });
+            });
+
+            contentArea.querySelectorAll('.save-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    const row = e.target.closest('tr');
+                    const nameCell = row.querySelector('.name-cell').textContent.split('\n');
+                    packages[index].name = nameCell[0].trim();
+                    packages[index].id = nameCell[1].trim();
+                    packages[index].status = row.querySelector('.status-cell').textContent.trim().replace(/^\S\s/, ''); // Remove icon
+                    packages[index].az = row.querySelector('.az-cell').textContent.trim();
+                    packages[index].specs = row.querySelector('.specs-cell').textContent.trim();
+                    packages[index].ip = row.querySelector('.ip-cell').textContent.trim();
+                    packages[index].billing = row.querySelector('.billing-cell').textContent.trim();
+                    packages[index].project = row.querySelector('.project-cell').textContent.trim();
+                    packages[index].tag = row.querySelector('.tag-cell').textContent.trim();
+
+                    row.querySelectorAll('.name-cell, .status-cell, .az-cell, .specs-cell, .ip-cell, .billing-cell, .project-cell, .tag-cell').forEach(cell => {
+                        cell.contentEditable = false;
+                        cell.style.backgroundColor = '';
+                    });
+                    e.target.classList.add('hidden');
+                    row.querySelector('.edit-btn').classList.remove('hidden');
+                    savePackages();
+                    renderPackages(); // Re-render to update status class
+                });
+            });
+        }
+
+        // Attach tab listeners
+        function attachTabListeners() {
+            const tabs = contentArea.querySelectorAll('.tab');
+            const tabPanels = contentArea.querySelectorAll('.tab-panel');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('tab-active'));
+                    tab.classList.add('tab-active');
+                    const tabId = tab.getAttribute('data-tab');
+                    tabPanels.forEach(panel => {
+                        panel.classList.add('hidden');
+                        if (panel.id === tabId) {
+                            panel.classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Attach button listeners for Start, Stop, etc.
+        function attachButtonListeners() {
+            const startBtn = contentArea.querySelector('#start-btn');
+            const stopBtn = contentArea.querySelector('#stop-btn');
+            const resetPasswordBtn = contentArea.querySelector('#reset-password-btn');
+            const moreBtn = contentArea.querySelector('#more-btn');
+            const exportBtn = contentArea.querySelector('#export-btn');
+
+            if (startBtn) {
+                startBtn.addEventListener('click', () => {
+                    updateSelectedPackagesStatus('Running');
+                });
+            }
+
+            if (stopBtn) {
+                stopBtn.addEventListener('click', () => {
+                    updateSelectedPackagesStatus('Stopped');
+                });
+            }
+
+            if (resetPasswordBtn) {
+                resetPasswordBtn.addEventListener('click', () => {
+                    const selected = getSelectedPackages();
+                    if (selected.length > 0) {
+                        alert(`Password reset for packages: ${selected.map(p => p.name).join(', ')}`);
+                    } else {
+                        alert('No packages selected.');
+                    }
+                });
+            }
+
+            if (moreBtn) {
+                moreBtn.addEventListener('click', () => {
+                    document.getElementById('more-dropdown').classList.toggle('show');
+                });
+            }
+
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    exportToCSV();
+                });
+            }
+
+            // Close dropdown if clicking outside
+            window.addEventListener('click', (e) => {
+                if (!e.target.matches('#more-btn')) {
+                    const dropdowns = document.getElementsByClassName('dropdown-content');
+                    for (let i = 0; i < dropdowns.length; i++) {
+                        if (dropdowns[i].classList.contains('show')) {
+                            dropdowns[i].classList.remove('show');
+                        }
+                    }
+                }
+            });
+        }
+
+        // Get selected packages
+        function getSelectedPackages() {
+            const checkboxes = contentArea.querySelectorAll('.select-checkbox:checked');
+            return Array.from(checkboxes).map(cb => packages[cb.dataset.index]);
+        }
+
+        // Update status of selected packages
+        function updateSelectedPackagesStatus(newStatus) {
+            const selected = getSelectedPackages();
+            if (selected.length > 0) {
+                selected.forEach(pkg => {
+                    pkg.status = newStatus;
+                });
+                savePackages();
+                renderPackages();
+                alert(`Selected packages set to ${newStatus}.`);
+            } else {
+                alert('No packages selected.');
+            }
+        }
+
+        // More actions
+        function moreAction(action) {
+            const selected = getSelectedPackages();
+            if (selected.length > 0) {
+                switch (action) {
+                    case 'restart':
+                        alert(`Restarting packages: ${selected.map(p => p.name).join(', ')}`);
+                        break;
+                    case 'delete':
+                        selected.forEach(pkg => {
+                            const index = packages.indexOf(pkg);
+                            packages.splice(index, 1);
+                        });
+                        savePackages();
+                        renderPackages();
+                        alert(`Deleted packages: ${selected.map(p => p.name).join(', ')}`);
+                        break;
+                    case 'configure':
+                        alert(`Configuring packages: ${selected.map(p => p.name).join(', ')}`);
+                        break;
+                }
+            } else {
+                alert('No packages selected.');
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            let csv = 'Name,ID,Status,AZ,Specifications,IP Address,Billing Mode,Enterprise Project,Tag\n';
+            packages.forEach(pkg => {
+                csv += `${pkg.name},${pkg.id},${pkg.status},${pkg.az},${pkg.specs.replace(/,/g, ' ')},${pkg.ip},${pkg.billing},${pkg.project},${pkg.tag}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'packages.csv';
+            link.click();
+        }
+
+        // Cloud Shell keydown handler
+        function terminalKeydownHandler(e) {
+            if (e.key === 'Enter') {
+                const command = e.target.value.trim();
+                e.target.value = '';
+                processCommand(command);
+            }
+        }
+
+        // Cloud Shell process command
+        function processCommand(command) {
+            const terminalOutput = contentArea.querySelector('#terminal-output');
+            if (!terminalOutput) return;
+            const outputDiv = document.createElement('div');
+            outputDiv.classList.add('command-output');
+            outputDiv.innerHTML = `$ ${command}<br><span class="loading-spinner">Processing</span>`;
+            terminalOutput.appendChild(outputDiv);
+            const terminal = contentArea.querySelector('#terminal');
+            terminal.scrollTop = terminal.scrollHeight;
+
+            // Simulate loading delay 1-3 seconds
+            const delay = Math.floor(Math.random() * (3000 - 1000 + 1)) + 1000;
+            setTimeout(() => {
+                let output = '';
+                const parts = command.toLowerCase().split(' ');
+                const cmd = parts[0];
+                const args = parts.slice(1);
+
+                let packageName = '';
+                let location = 'default';
+
+                if (cmd === 'add' || cmd === 'install') {
+                    if (args.length >= 1) {
+                        packageName = args[0];
+                        if (args.length > 1 && args[1] === 'from' && args[2]) {
+                            location = args[2];
+                        }
+                        const newPkg = {
+                            name: packageName,
+                            id: `${packageName.slice(0, 2)}-${Math.floor(Math.random() * 10000)}`,
+                            monitor: '<i class="fas fa-chart-bar text-blue-600"></i>',
+                            status: 'Running',
+                            az: 'AZ1',
+                            specs: `v1.0.0 / Installed from ${location}`,
+                            ip: `192.168.1.${packages.length + 11}`,
+                            billing: 'Pay-per-use',
+                            project: 'default',
+                            tag: '-',
+                            location: location
+                        };
+                        packages.push(newPkg);
+                        savePackages();
+                        renderPackages();
+                        output = `Package ${packageName} installed from ${location}.`;
+                    } else {
+                        output = 'Usage: add/install [package-name] [from [location]] (locations: npm, pypi, github, custom)';
+                    }
+                } else {
+                    switch (cmd) {
+                        case 'help':
+                            output = 'Available commands:<br>' +
+                                     '- list: List current packages<br>' +
+                                     '- add/install [package-name] [from [location]]: Add a new package from location (npm, pypi, github, custom)<br>' +
+                                     '- remove [package-name]: Remove a package<br>' +
+                                     '- details [package-name]: Get details of a package<br>' +
+                                     '- clear: Clear the terminal<br>' +
+                                     '- scan: Scan for vulnerabilities<br>' +
+                                     '- update: Update all packages';
+                            break;
+                        case 'list':
+                            output = packages.length > 0 ? packages.map(p => `${p.name} (${p.id}) from ${p.location}`).join('<br>') : 'No packages installed.';
+                            break;
+                        case 'remove':
+                            if (args[0]) {
+                                const index = packages.findIndex(p => p.name === args[0]);
+                                if (index > -1) {
+                                    packages.splice(index, 1);
+                                    savePackages();
+                                    renderPackages();
+                                    output = `Package ${args[0]} removed.`;
+                                } else {
+                                    output = `Package ${args[0]} not found.`;
+                                }
+                            } else {
+                                output = 'Usage: remove [package-name]';
+                            }
+                            break;
+                        case 'details':
+                            if (args[0]) {
+                                const pkg = packages.find(p => p.name === args[0]);
+                                output = pkg ? `Details for ${pkg.name}: ${pkg.specs}, Status: ${pkg.status}, Location: ${pkg.location}` : `Package ${args[0]} not found.`;
+                            } else {
+                                output = 'Usage: details [package-name]';
+                            }
+                            break;
+                        case 'clear':
+                            terminalOutput.innerHTML = '';
+                            return; // No output for clear
+                        case 'scan':
+                            output = 'Scanning for vulnerabilities... No issues found.';
+                            break;
+                        case 'update':
+                            output = 'Updating all packages... Update complete.';
+                            break;
+                        default:
+                            output = 'Command not found. Type "help" for available commands.';
+                    }
+                }
+
+                outputDiv.innerHTML = `$ ${command}<br>${output}`;
+                terminal.scrollTop = terminal.scrollHeight;
+            }, delay);
+        }
+
+        // Initial load
+        loadSection('docker-package-security');
+    </script>
+</body>
+</html>
