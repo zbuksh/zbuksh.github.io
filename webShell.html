@@ -83,8 +83,10 @@
         let history = [];
         let historyIndex = -1;
 
-        // Process running flag
-        let processRunning = false;
+        // Process running flags
+        let processRunningDocker = false;
+        let processRunningPackage = false;
+        let processRunningSend = false;
 
         // Focus on input
         input.focus();
@@ -138,13 +140,35 @@
             const args = parts.slice(1);
 
             if (cmd === 'launch(docker.instance(zbuksh.github_asd-99583221)onServer') {
-                if (processRunning) {
-                    appendToOutput('<span class="text-red-500">Process already running.</span>');
+                if (processRunningDocker) {
+                    appendToOutput('<span class="text-red-500">Docker process already running.</span>');
                     return;
                 }
-                processRunning = true;
+                processRunningDocker = true;
                 appendToOutput('<span class="text-yellow-400">Starting Docker instance launch process...</span>');
                 startDockerProcess();
+                return;
+            }
+
+            if (cmd === 'package (Services / App Services /; list[BUBT_Fees_Management.aspx, BUBT_EC2_DATA-LINK.py,  SQL Server VM Image,  LicenseCertificate_2025&2026.pyQT], FROM zbuksh-B97-771-5B1-CRU, TO docker.instance(zbuksh.github_asd-99583221)') {
+                if (processRunningPackage) {
+                    appendToOutput('<span class="text-red-500">Packaging process already running.</span>');
+                    return;
+                }
+                processRunningPackage = true;
+                appendToOutput('<span class="text-yellow-400">Starting packaging process...</span>');
+                startPackagingProcess();
+                return;
+            }
+
+            if (cmd === 'SEND package.id[89-000-2987-029237-8788923-999I9I2I2-L2K38-2923-8932K-NBV2H-3873-N387-383N-3U38-93J-383-903-OO], TO docker.instanc[](https://www.bubt.edu.bd/_asd-866734831)onServer, UNIPACK onArival.Install[cred.unicom.dataIn]; setOnListCommand TO DB id.090922665167.fetch;') {
+                if (processRunningSend) {
+                    appendToOutput('<span class="text-red-500">Send process already running.</span>');
+                    return;
+                }
+                processRunningSend = true;
+                appendToOutput('<span class="text-yellow-400">Starting send process...</span>');
+                startSendProcess();
                 return;
             }
 
@@ -397,7 +421,7 @@
                 if (Date.now() >= endTime) {
                     clearInterval(processInterval);
                     appendToOutput('<span class="text-green-500 font-bold">Docker Instance Created on zbuksh.github.io/909087-677VB-687783-776215-9237373U-0239993-00-1-1</span>');
-                    processRunning = false;
+                    processRunningDocker = false;
                     return;
                 }
 
@@ -445,6 +469,170 @@
             }, Math.random() * 3000 + 1000); // 1-4 seconds interval
         }
 
+        // Start Packaging process
+        function startPackagingProcess() {
+            const endTime = Date.now() + 7200 * 1000; // 2 hours
+            let progress = 0;
+            const colors = ['text-green-500', 'text-blue-500', 'text-yellow-500', 'text-purple-500', 'text-cyan-500', 'text-indigo-500'];
+            const actions = ['Packaging', 'Bundling', 'Compressing', 'Encrypting', 'Uploading', 'Syncing', 'Validating', 'Archiving', 'Hashing', 'Signing', 'Merging', 'Finalizing'];
+            const infoMessages = [
+                '[INFO] Preparing package manifest...',
+                '[INFO] Allocating storage...',
+                '[DEBUG] File transfer in progress...',
+                '[INFO] Updating metadata...',
+                '[DEBUG] Resolving links...',
+                '[INFO] Setting permissions...',
+                '[WARN] Potential conflict detected, resolving...'
+            ];
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">package created: ID 89-000-2987-029237-8788923-999I9I2I2-L2K38-2923-8932K-NBV2H-3873-N387-383N-3U38-93J-383-903-OO</span>');
+                    processRunningPackage = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 2 + 0.3;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputFileListBlock(numLines);
+                    } else {
+                        outputHashBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... complete.</span>`;
+                        }, Math.random() * 2500 + 1500);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '#'.repeat(filled) + '.'.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-500">Packaging progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-500' : 'text-gray-400';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 4000 + 1500); // 1.5-5.5 seconds interval
+        }
+
+        // Start Send process
+        function startSendProcess() {
+            const endTime = Date.now() + 7200 * 1000; // 2 hours
+            let progress = 0;
+            const colors = ['text-green-300', 'text-blue-300', 'text-yellow-300', 'text-purple-300', 'text-cyan-300', 'text-indigo-300'];
+            const actions = ['Sending', 'Transferring', 'Uploading', 'Syncing', 'Encrypting', 'Verifying', 'Pushing', 'Delivering'];
+            const infoMessages = [
+                '[INFO] Establishing connection...',
+                '[INFO] Authenticating...',
+                '[DEBUG] Data transfer in progress...',
+                '[INFO] Updating status...',
+                '[DEBUG] Checking integrity...',
+                '[INFO] Preparing for delivery...',
+                '[WARN] Network fluctuation detected, stabilizing...'
+            ];
+
+            // Initial hash values
+            appendToOutput('<span class="text-blue-400">Generating initial hash values...</span>');
+            for (let i = 0; i < 5; i++) { // A few hash values, say 5
+                const hash = generateRandomHash();
+                appendToOutput(`<span class="text-blue-300"> - Initial Hash: ${hash}</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Initial hashes generated.</span>');
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">Delivery Complete - IDFJ89878682213367</span>');
+                    processRunningSend = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 2 + 0.3;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputHashBlock(numLines);
+                    } else {
+                        outputDependencyBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... done.</span>`;
+                        }, Math.random() * 2500 + 1500);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '>'.repeat(filled) + ' '.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-300">Send progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-400' : 'text-gray-300';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 4000 + 1500); // 1.5-5.5 seconds interval
+        }
+
+        // Output File List block
+        function outputFileListBlock(numLines) {
+            appendToOutput('<span class="text-magenta-400">Adding files to package...</span>');
+            for (let i = 0; i < numLines; i++) {
+                const file = generateRandomFileName();
+                appendToOutput(`<span class="text-pink-300"> - Adding: ${file}</span>`);
+            }
+            appendToOutput('<span class="text-magenta-400">Files added to package.</span>');
+        }
+
+        // Output Hash block
+        function outputHashBlock(numLines) {
+            appendToOutput('<span class="text-blue-400">Generating hashes...</span>');
+            for (let i = 0; i < numLines; i++) {
+                const hash = generateRandomHash();
+                appendToOutput(`<span class="text-blue-300"> - Hash: ${hash}</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Hashes generated.</span>');
+        }
+
         // Output SSH block
         function outputSSHBlock(numLines) {
             appendToOutput('<span class="text-magenta-400">Generating SSH keys...</span>');
@@ -474,6 +662,20 @@
             const name = names[Math.floor(Math.random() * names.length)];
             const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
             return prefix + name + suffix;
+        }
+
+        // Generate random file name
+        function generateRandomFileName() {
+            const names = ['config', 'data', 'script', 'image', 'doc', 'archive', 'log', 'temp'];
+            const extensions = ['.txt', '.py', '.json', '.jpg', '.pdf', '.zip', '.log', '.tmp'];
+            const name = names[Math.floor(Math.random() * names.length)];
+            const ext = extensions[Math.floor(Math.random() * extensions.length)];
+            return name + Math.floor(Math.random() * 100) + ext;
+        }
+
+        // Generate random hash
+        function generateRandomHash() {
+            return Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('');
         }
 
         // Generate random SSH key line
