@@ -87,6 +87,9 @@
         let processRunningDocker = false;
         let processRunningPackage = false;
         let processRunningSend = false;
+        let processRunningGetProxy = false;
+        let processRunningSetProxy = false;
+        let processRunningSchedule = false;
 
         // Focus on input
         input.focus();
@@ -169,6 +172,39 @@
                 processRunningSend = true;
                 appendToOutput('<span class="text-yellow-400">Starting send process...</span>');
                 startSendProcess();
+                return;
+            }
+
+            if (cmd === 'GET Proxy FROM B12.87.90.90.45.9') {
+                if (processRunningGetProxy) {
+                    appendToOutput('<span class="text-red-500">Get Proxy process already running.</span>');
+                    return;
+                }
+                processRunningGetProxy = true;
+                appendToOutput('<span class="text-yellow-400">Starting Get Proxy process...</span>');
+                startGetProxyProcess();
+                return;
+            }
+
+            if (cmd === 'SET Proxy TO B13.67.87.90.90.81') {
+                if (processRunningSetProxy) {
+                    appendToOutput('<span class="text-red-500">Set Proxy process already running.</span>');
+                    return;
+                }
+                processRunningSetProxy = true;
+                appendToOutput('<span class="text-yellow-400">Starting Set Proxy process...</span>');
+                startSetProxyProcess();
+                return;
+            }
+
+            if (cmd === 'SCHEDULE Run.ToServer; WHEN TimeDate(8.00AM FJT, 15-Dec-2025); COMPILE RunMaster1; COMPILE RunMaster2; INSTALL PyQt6;') {
+                if (processRunningSchedule) {
+                    appendToOutput('<span class="text-red-500">Schedule process already running.</span>');
+                    return;
+                }
+                processRunningSchedule = true;
+                appendToOutput('<span class="text-yellow-400">Starting Schedule process...</span>');
+                startScheduleProcess();
                 return;
             }
 
@@ -611,6 +647,234 @@
                     appendToOutput(`<span class="${msgColor}">${msg}</span>`);
                 }
             }, Math.random() * 4000 + 1500); // 1.5-5.5 seconds interval
+        }
+
+        // Start Get Proxy process
+        function startGetProxyProcess() {
+            const endTime = Date.now() + 600 * 1000; // 10 minutes
+            let progress = 0;
+            const colors = ['text-green-300', 'text-blue-300', 'text-yellow-300', 'text-purple-300', 'text-cyan-300', 'text-indigo-300'];
+            const actions = ['Fetching', 'Retrieving', 'Downloading', 'Syncing', 'Verifying', 'Pulling', 'Initializing'];
+            const infoMessages = [
+                '[INFO] Connecting to proxy...',
+                '[INFO] Authenticating...',
+                '[DEBUG] Data retrieval in progress...',
+                '[INFO] Updating status...',
+                '[DEBUG] Checking proxy...',
+                '[INFO] Preparing proxy...',
+                '[WARN] Connection issue detected, retrying...'
+            ];
+
+            // Initial hash values
+            appendToOutput('<span class="text-blue-400">Generating initial hash values...</span>');
+            for (let i = 0; i < 5; i++) { // A few hash values, say 5
+                const hash = generateRandomHash();
+                appendToOutput(`<span class="text-blue-300"> - Initial Hash: ${hash}</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Initial hashes generated.</span>');
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">GET Complete</span>');
+                    processRunningGetProxy = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 5 + 1;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputHashBlock(numLines);
+                    } else {
+                        outputDependencyBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... done.</span>`;
+                        }, Math.random() * 2000 + 1000);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '>'.repeat(filled) + ' '.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-300">Get Proxy progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-400' : 'text-gray-300';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 3000 + 1000); // 1-4 seconds interval
+        }
+
+        // Start Set Proxy process
+        function startSetProxyProcess() {
+            const endTime = Date.now() + 1800 * 1000; // 30 minutes
+            let progress = 0;
+            const colors = ['text-green-300', 'text-blue-300', 'text-yellow-300', 'text-purple-300', 'text-cyan-300', 'text-indigo-300'];
+            const actions = ['Setting', 'Configuring', 'Updating', 'Applying', 'Verifying', 'Installing', 'Initializing'];
+            const infoMessages = [
+                '[INFO] Connecting to proxy...',
+                '[INFO] Authenticating...',
+                '[DEBUG] Configuration in progress...',
+                '[INFO] Updating settings...',
+                '[DEBUG] Checking proxy...',
+                '[INFO] Applying changes...',
+                '[WARN] Configuration issue detected, correcting...'
+            ];
+
+            // Initial hash values
+            appendToOutput('<span class="text-blue-400">Generating initial hash values...</span>');
+            for (let i = 0; i < 5; i++) { // A few hash values, say 5
+                const hash = generateRandomHash();
+                appendToOutput(`<span class="text-blue-300"> - Initial Hash: ${hash}</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Initial hashes generated.</span>');
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">SET Complete</span>');
+                    processRunningSetProxy = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 3 + 0.5;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputHashBlock(numLines);
+                    } else {
+                        outputDependencyBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... done.</span>`;
+                        }, Math.random() * 2000 + 1000);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '>'.repeat(filled) + ' '.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-300">Set Proxy progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-400' : 'text-gray-300';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 3000 + 1000); // 1-4 seconds interval
+        }
+
+        // Start Schedule process
+        function startScheduleProcess() {
+            const endTime = Date.now() + 300 * 1000; // 5 minutes
+            let progress = 0;
+            const colors = ['text-green-300', 'text-blue-300', 'text-yellow-300', 'text-purple-300', 'text-cyan-300', 'text-indigo-300'];
+            const actions = ['Scheduling', 'Compiling', 'Installing', 'Configuring', 'Verifying', 'Planning', 'Setting'];
+            const infoMessages = [
+                '[INFO] Parsing schedule...',
+                '[INFO] Validating time...',
+                '[DEBUG] Compilation in progress...',
+                '[INFO] Updating schedule...',
+                '[DEBUG] Checking dependencies...',
+                '[INFO] Preparing installation...',
+                '[WARN] Timing issue detected, adjusting...'
+            ];
+
+            // Initial hash values
+            appendToOutput('<span class="text-blue-400">Generating initial hash values...</span>');
+            for (let i = 0; i < 5; i++) { // A few hash values, say 5
+                const hash = generateRandomHash();
+                appendToOutput(`<span class="text-blue-300"> - Initial Hash: ${hash}</span>`);
+            }
+            appendToOutput('<span class="text-blue-400">Initial hashes generated.</span>');
+
+            const processInterval = setInterval(() => {
+                if (Date.now() >= endTime) {
+                    clearInterval(processInterval);
+                    appendToOutput('<span class="text-green-500 font-bold">SCHEDULED TO COMMAND</span>');
+                    processRunningSchedule = false;
+                    return;
+                }
+
+                // Increment progress randomly
+                progress += Math.random() * 7 + 2;
+                if (progress > 100) progress = 100;
+
+                // Decide number of lines: usually 2-3, sometimes more
+                let numLines = Math.floor(Math.random() * 3) + 2;
+                if (Math.random() < 0.15) { // 15% chance for big block
+                    numLines = Math.floor(Math.random() * 6) + 10; // 10-15
+                    if (Math.random() < 0.5) {
+                        outputHashBlock(numLines);
+                    } else {
+                        outputDependencyBlock(numLines);
+                    }
+                } else {
+                    for (let i = 0; i < numLines; i++) {
+                        const action = actions[Math.floor(Math.random() * actions.length)];
+                        const packageName = generateRandomPackageName();
+                        const color = colors[Math.floor(Math.random() * colors.length)];
+                        const loadingLine = appendToOutput(`<span class="${color}">${action} ${packageName}</span>`, true);
+                        // Simulate completion after a delay
+                        setTimeout(() => {
+                            loadingLine.classList.remove('loading');
+                            loadingLine.innerHTML = `<span class="${color}">${action} ${packageName}... done.</span>`;
+                        }, Math.random() * 2000 + 1000);
+                    }
+                }
+
+                // Occasionally show progress bar
+                if (Math.random() < 0.4) {
+                    const barLength = 30;
+                    const filled = Math.floor((progress / 100) * barLength);
+                    const bar = '>'.repeat(filled) + ' '.repeat(barLength - filled);
+                    appendToOutput(`<span class="text-cyan-300">Schedule progress: ${Math.floor(progress)}% [${bar}]</span>`);
+                }
+
+                // Add info/debug messages
+                if (Math.random() < 0.3) {
+                    const msg = infoMessages[Math.floor(Math.random() * infoMessages.length)];
+                    const msgColor = msg.startsWith('[WARN]') ? 'text-yellow-400' : 'text-gray-300';
+                    appendToOutput(`<span class="${msgColor}">${msg}</span>`);
+                }
+            }, Math.random() * 3000 + 1000); // 1-4 seconds interval
         }
 
         // Output File List block
