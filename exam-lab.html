@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PL-300 Practice Exam Launch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Segoe UI", Inter, system-ui, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1f2937;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
+            animation: fadeIn 0.8s ease;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #f1f5f9;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 25px 0;
+            font-size: 0.9rem;
+            color: #1e293b;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            margin-bottom: 18px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        /* Loading Overlay */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 42px;
+            height: 42px;
+            border: 4px solid #cbd5e1;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .overlay p {
+            font-size: 0.95rem;
+            color: #334155;
+        }
+
+        .error {
+            color: #dc2626;
+            font-weight: 600;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <div class="header">
+        <h1>Veem Pearson Instance Launch</h1>
+        <p>
+            PL‑300: Microsoft Power BI Data Analyst  
+            <br>
+            Official Practice Assessment Access
+        </p>
+    </div>
+
+    <div class="info-box">
+        <strong>Instructions:</strong>  
+        Enter your full name and the authorized practice exam launch code to proceed.
+    </div>
+
+    <form id="launchForm">
+        <label for="name">Candidate Name</label>
+        <input type="text" id="name" required placeholder="Enter your full name">
+
+        <label for="code">Practice Exam Launch Code</label>
+        <input type="text" id="code" required placeholder="Enter launch code">
+
+        <button type="submit">Launch Assessment</button>
+    </form>
+
+    <div class="error" id="errorMsg">
+        Incorrect code. Please verify and try again.
+    </div>
+
+    <div class="footer">
+        © 2026 | Assessment Access Portal
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="overlay" id="overlay">
+        <div class="spinner"></div>
+        <p id="overlayText">Validating access…</p>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("launchForm");
+    const overlay = document.getElementById("overlay");
+    const overlayText = document.getElementById("overlayText");
+    const errorMsg = document.getElementById("errorMsg");
+    const button = form.querySelector("button");
+
+    const CORRECT_CODE = "ZTN344312CSD";
+    const TARGET_URL = 
+        "https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/practice/assessment?assessment-type=practice&assessmentId=48&practice-assessment-type=certification";
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        errorMsg.style.display = "none";
+        overlay.style.display = "flex";
+        button.disabled = true;
+
+        overlayText.textContent = "Validating access…";
+
+        setTimeout(() => {
+            const enteredCode = document.getElementById("code").value.trim();
+
+            if (enteredCode === CORRECT_CODE) {
+                overlayText.textContent = "Launching assessment…";
+                setTimeout(() => {
+                    window.location.href = TARGET_URL;
+                }, 1200);
+            } else {
+                overlay.style.display = "none";
+                errorMsg.style.display = "block";
+                button.disabled = false;
+            }
+        }, 1400);
+    });
+</script>
+
+</body>
+</html>
