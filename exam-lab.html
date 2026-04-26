@@ -2,65 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>PL-300 Practice Exam Launch</title>
+    <title>PL‑300 Practice Assessment Launch</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #0f172a;
+            --border: #dbe2ea;
+            --muted: #6b7280;
+            --bg: #f8fafc;
+            --error: #b91c1c;
+        }
+
         * {
             box-sizing: border-box;
-            font-family: "Segoe UI", Inter, system-ui, sans-serif;
+            font-family: "Segoe UI", "Inter", system-ui, sans-serif;
         }
 
         body {
             margin: 0;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
+            background: linear-gradient(180deg, #eef2f7, #f8fafc);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1f2937;
+            color: var(--secondary);
         }
 
-        .card {
+        .page {
             width: 100%;
-            max-width: 520px;
-            background: #ffffff;
-            border-radius: 14px;
-            padding: 40px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
-            animation: fadeIn 0.8s ease;
+            max-width: 760px;
+            padding: 24px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 48px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             position: relative;
+            animation: fadeIn 0.6s ease;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .header {
-            text-align: center;
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
             margin-bottom: 30px;
         }
 
-        .header h1 {
-            font-size: 1.8rem;
-            color: #0f172a;
-            margin-bottom: 10px;
+        header h1 {
+            font-size: 1.7rem;
+            color: var(--primary);
+            margin-bottom: 6px;
         }
 
-        .header p {
+        header h2 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .context {
             font-size: 0.95rem;
-            color: #475569;
             line-height: 1.6;
+            color: #374151;
+            margin-bottom: 28px;
         }
 
-        .info-box {
-            background: #f1f5f9;
-            border-left: 4px solid #2563eb;
-            padding: 15px;
-            margin: 25px 0;
-            font-size: 0.9rem;
-            color: #1e293b;
+        .context strong {
+            color: var(--secondary);
+        }
+
+        .form-group {
+            margin-bottom: 22px;
         }
 
         label {
@@ -68,43 +89,42 @@
             font-size: 0.85rem;
             font-weight: 600;
             margin-bottom: 6px;
-            color: #334155;
+            color: #374151;
         }
 
         input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 13px 14px;
             font-size: 0.95rem;
-            border-radius: 8px;
-            border: 1px solid #cbd5f5;
-            margin-bottom: 18px;
-            transition: border-color 0.2s;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #ffffff;
         }
 
         input:focus {
             outline: none;
-            border-color: #2563eb;
+            border-color: var(--primary);
+        }
+
+        .actions {
+            margin-top: 32px;
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: #2563eb;
-            color: white;
+            padding: 14px 16px;
             font-size: 1rem;
             font-weight: 600;
+            background: var(--primary);
+            color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s;
         }
 
         button:hover {
-            background: #1d4ed8;
-        }
-
-        button:active {
-            transform: scale(0.98);
+            background: #1c3480;
         }
 
         button:disabled {
@@ -112,34 +132,43 @@
             cursor: not-allowed;
         }
 
-        .footer {
-            margin-top: 25px;
+        .error {
+            margin-top: 16px;
+            text-align: center;
+            color: var(--error);
+            font-weight: 600;
+            display: none;
+        }
+
+        footer {
+            margin-top: 34px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
             text-align: center;
             font-size: 0.75rem;
-            color: #64748b;
+            color: var(--muted);
         }
 
         /* Loading Overlay */
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255,255,255,0.94);
             display: none;
             align-items: center;
             justify-content: center;
-            border-radius: 14px;
             flex-direction: column;
-            text-align: center;
+            border-radius: 10px;
         }
 
         .spinner {
-            width: 42px;
-            height: 42px;
+            width: 36px;
+            height: 36px;
             border: 4px solid #cbd5e1;
-            border-top-color: #2563eb;
+            border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 0.9s linear infinite;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         @keyframes spin {
@@ -151,56 +180,62 @@
             color: #334155;
         }
 
-        .error {
-            color: #dc2626;
-            font-weight: 600;
-            margin-top: 12px;
-            font-size: 0.9rem;
-            display: none;
-            text-align: center;
+        @media (max-width: 640px) {
+            .panel {
+                padding: 32px 24px;
+            }
+            header h1 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="card">
-    <div class="header">
-        <h1>Veem Pearson Instance Launch</h1>
-        <p>
-            PL‑300: Microsoft Power BI Data Analyst  
-            <br>
-            Official Practice Assessment Access
-        </p>
-    </div>
+<div class="page">
+    <div class="panel">
+        <header>
+            <h1>Veem Pearson Instance Launch</h1>
+            <h2>PL‑300: Microsoft Power BI Data Analyst — Practice Assessment</h2>
+        </header>
 
-    <div class="info-box">
-        <strong>Instructions:</strong>  
-        Enter your full name and the authorized practice exam launch code to proceed.
-    </div>
+        <div class="context">
+            This portal provides authorized access to the official
+            <strong>Microsoft Learn PL‑300 practice assessment</strong>.
+            <br><br>
+            Please confirm your identity and enter the issued practice exam
+            launch code to proceed. Unauthorized access attempts are restricted.
+        </div>
 
-    <form id="launchForm">
-        <label for="name">Candidate Name</label>
-        <input type="text" id="name" required placeholder="Enter your full name">
+        <form id="launchForm">
+            <div class="form-group">
+                <label for="name">Candidate Full Name</label>
+                <input id="name" type="text" required placeholder="e.g. Alex Johnson">
+            </div>
 
-        <label for="code">Practice Exam Launch Code</label>
-        <input type="text" id="code" required placeholder="Enter launch code">
+            <div class="form-group">
+                <label for="code">Practice Exam Launch Code</label>
+                <input id="code" type="text" required placeholder="Enter launch code">
+            </div>
 
-        <button type="submit">Launch Assessment</button>
-    </form>
+            <div class="actions">
+                <button type="submit">Launch Practice Assessment</button>
+            </div>
+        </form>
 
-    <div class="error" id="errorMsg">
-        Incorrect code. Please verify and try again.
-    </div>
+        <div class="error" id="errorMsg">
+            Incorrect launch code. Please check your access details and try again.
+        </div>
 
-    <div class="footer">
-        © 2026 | Assessment Access Portal
-    </div>
+        <footer>
+            © 2026 • Secure Assessment Access Portal
+        </footer>
 
-    <!-- Loading Overlay -->
-    <div class="overlay" id="overlay">
-        <div class="spinner"></div>
-        <p id="overlayText">Validating access…</p>
+        <div class="overlay" id="overlay">
+            <div class="spinner"></div>
+            <p id="overlayText">Validating credentials…</p>
+        </div>
     </div>
 </div>
 
@@ -212,23 +247,20 @@
     const button = form.querySelector("button");
 
     const CORRECT_CODE = "ZTN344312CSD";
-    const TARGET_URL = 
+    const TARGET_URL =
         "https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/practice/assessment?assessment-type=practice&assessmentId=48&practice-assessment-type=certification";
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
-
         errorMsg.style.display = "none";
         overlay.style.display = "flex";
         button.disabled = true;
-
-        overlayText.textContent = "Validating access…";
 
         setTimeout(() => {
             const enteredCode = document.getElementById("code").value.trim();
 
             if (enteredCode === CORRECT_CODE) {
-                overlayText.textContent = "Launching assessment…";
+                overlayText.textContent = "Launching secure assessment session…";
                 setTimeout(() => {
                     window.location.href = TARGET_URL;
                 }, 1200);
@@ -243,3 +275,4 @@
 
 </body>
 </html>
+``
