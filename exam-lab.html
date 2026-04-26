@@ -1,278 +1,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>PL‑300 Practice Assessment Launch</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>PL‑300 Practice Assessment Launch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        :root {
-            --primary: #1e3a8a;
-            --secondary: #0f172a;
-            --border: #dbe2ea;
-            --muted: #6b7280;
-            --bg: #f8fafc;
-            --error: #b91c1c;
-        }
+<style>
+:root{
+  --primary:#1e3a8a;
+  --primary-dark:#172554;
+  --border:#dbe2ea;
+  --muted:#64748b;
+  --bg:#f8fafc;
+  --error:#b91c1c;
+  --success:#15803d;
+}
 
-        * {
-            box-sizing: border-box;
-            font-family: "Segoe UI", "Inter", system-ui, sans-serif;
-        }
+*{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(180deg, #eef2f7, #f8fafc);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--secondary);
-        }
+body{
+  margin:0;
+  min-height:100vh;
+  background:#eef2f7;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#0f172a;
+}
 
-        .page {
-            width: 100%;
-            max-width: 760px;
-            padding: 24px;
-        }
+main{max-width:820px;width:100%;padding:24px;}
 
-        .panel {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 48px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            position: relative;
-            animation: fadeIn 0.6s ease;
-        }
+.panel{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:48px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  position:relative;
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+header{
+  border-bottom:1px solid var(--border);
+  padding-bottom:20px;
+  margin-bottom:28px;
+}
 
-        header {
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
+header h1{
+  font-size:1.7rem;
+  color:var(--primary);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-        header h1 {
-            font-size: 1.7rem;
-            color: var(--primary);
-            margin-bottom: 6px;
-        }
+header h2{
+  margin-top:6px;
+  font-size:1rem;
+  color:var(--muted);
+  font-weight:500;
+}
 
-        header h2 {
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--muted);
-        }
+.context{
+  font-size:.95rem;
+  line-height:1.6;
+  margin-bottom:24px;
+}
 
-        .context {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #374151;
-            margin-bottom: 28px;
-        }
+.timer-box{
+  border:1px solid var(--border);
+  border-left:5px solid var(--primary);
+  background:#f8fafc;
+  padding:16px;
+  margin-bottom:28px;
+}
 
-        .context strong {
-            color: var(--secondary);
-        }
+.timer-title{
+  font-weight:600;
+  font-size:.9rem;
+  margin-bottom:6px;
+}
 
-        .form-group {
-            margin-bottom: 22px;
-        }
+.timer-status{
+  font-size:1rem;
+  font-weight:600;
+}
 
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #374151;
-        }
+.timer-open{color:var(--success);}
+.timer-closed{color:var(--error);}
+.timer-countdown{color:#334155;}
 
-        input {
-            width: 100%;
-            padding: 13px 14px;
-            font-size: 0.95rem;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-            background: #ffffff;
-        }
+.form-group{margin-bottom:22px;}
 
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
+label{
+  display:block;
+  font-weight:600;
+  font-size:.85rem;
+  margin-bottom:6px;
+}
 
-        .actions {
-            margin-top: 32px;
-        }
+input[type="text"]{
+  width:100%;
+  padding:13px;
+  font-size:.95rem;
+  border:1px solid var(--border);
+  border-radius:6px;
+}
 
-        button {
-            width: 100%;
-            padding: 14px 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+input:focus{outline:none;border-color:var(--primary);}
 
-        button:hover {
-            background: #1c3480;
-        }
+.checkbox{
+  display:flex;
+  gap:10px;
+  font-size:.85rem;
+  line-height:1.4;
+}
 
-        button:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
+.checkbox input{margin-top:3px;}
 
-        .error {
-            margin-top: 16px;
-            text-align: center;
-            color: var(--error);
-            font-weight: 600;
-            display: none;
-        }
+button{
+  width:100%;
+  padding:14px;
+  margin-top:24px;
+  font-size:1rem;
+  font-weight:600;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 
-        footer {
-            margin-top: 34px;
-            padding-top: 18px;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
+button:hover{background:var(--primary-dark);}
+button:disabled{background:#94a3b8;cursor:not-allowed;}
 
-        /* Loading Overlay */
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(255,255,255,0.94);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border-radius: 10px;
-        }
+.error{
+  display:none;
+  color:var(--error);
+  margin-top:14px;
+  font-weight:600;
+}
 
-        .spinner {
-            width: 36px;
-            height: 36px;
-            border: 4px solid #cbd5e1;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-            margin-bottom: 14px;
-        }
+footer{
+  border-top:1px solid var(--border);
+  margin-top:36px;
+  padding-top:16px;
+  font-size:.75rem;
+  color:var(--muted);
+  text-align:center;
+}
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+/* Overlay */
+.overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,.95);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+}
 
-        .overlay p {
-            font-size: 0.95rem;
-            color: #334155;
-        }
+.spinner{
+  width:36px;height:36px;
+  border:4px solid #cbd5e1;
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin .9s linear infinite;
+  margin-bottom:14px;
+}
 
-        @media (max-width: 640px) {
-            .panel {
-                padding: 32px 24px;
-            }
-            header h1 {
-                font-size: 1.4rem;
-            }
-        }
-    </style>
+@keyframes spin{to{transform:rotate(360deg);} }
+
+@media(max-width:640px){
+  .panel{padding:32px 24px;}
+}
+</style>
 </head>
 
 <body>
 
-<div class="page">
-    <div class="panel">
-        <header>
-            <h1>Veem Pearson Instance Launch</h1>
-            <h2>PL‑300: Microsoft Power BI Data Analyst — Practice Assessment</h2>
-        </header>
+<main>
+<section class="panel" aria-labelledby="title">
 
-        <div class="context">
-            This portal provides authorized access to the official
-            <strong>Microsoft Learn PL‑300 practice assessment</strong>.
-            <br><br>
-            Please confirm your identity and enter the issued practice exam
-            launch code to proceed. Unauthorized access attempts are restricted.
-        </div>
+<header>
+  <h1 id="title">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb" aria-hidden="true">
+      <rect x="1" y="1" width="10" height="10"/>
+      <rect x="13" y="1" width="10" height="10"/>
+      <rect x="1" y="13" width="10" height="10"/>
+      <rect x="13" y="13" width="10" height="10"/>
+    </svg>
+    Veeam Pearson Instance Launch
+  </h1>
+  <h2>PL‑300: Microsoft Power BI Data Analyst — Practice Assessment</h2>
+</header>
 
-        <form id="launchForm">
-            <div class="form-group">
-                <label for="name">Candidate Full Name</label>
-                <input id="name" type="text" required placeholder="e.g. Alex Johnson">
-            </div>
+<p class="context">
+This secure portal provides controlled access to the official
+<strong>Microsoft Learn PL‑300 practice assessment</strong>.
+Access is restricted to the approved attempt window shown below.
+</p>
 
-            <div class="form-group">
-                <label for="code">Practice Exam Launch Code</label>
-                <input id="code" type="text" required placeholder="Enter launch code">
-            </div>
-
-            <div class="actions">
-                <button type="submit">Launch Practice Assessment</button>
-            </div>
-        </form>
-
-        <div class="error" id="errorMsg">
-            Incorrect launch code. Please check your access details and try again.
-        </div>
-
-        <footer>
-            © 2026 • Secure Assessment Access Portal
-        </footer>
-
-        <div class="overlay" id="overlay">
-            <div class="spinner"></div>
-            <p id="overlayText">Validating credentials…</p>
-        </div>
-    </div>
+<!-- TIME WINDOW TIMER -->
+<div class="timer-box" aria-live="polite">
+  <div class="timer-title">
+    Attempt Time Window (Fiji Time — FJT)
+  </div>
+  <div id="timerStatus" class="timer-status timer-countdown">
+    Calculating attempt window…
+  </div>
 </div>
 
+<form id="launchForm">
+  <div class="form-group">
+    <label for="name">Candidate Full Name</label>
+    <input id="name" type="text" required>
+  </div>
+
+  <div class="form-group">
+    <label for="code">Practice Exam Launch Code</label>
+    <input id="code" type="text" required>
+  </div>
+
+  <div class="form-group checkbox">
+    <input type="checkbox" id="agreement" required>
+    <label for="agreement">
+      I confirm that I am authorized to attempt this assessment and agree
+      to comply with all academic integrity requirements.
+    </label>
+  </div>
+
+  <button type="submit">Launch Secure Practice Assessment</button>
+</form>
+
+<div class="error" id="errorMsg">
+Incorrect launch code. Please verify your access details.
+</div>
+
+<footer>
+© 2026 • Secure Academic Assessment Access Portal
+</footer>
+
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <p id="overlayText">Preparing secure session…</p>
+</div>
+
+</section>
+</main>
+
 <script>
-    const form = document.getElementById("launchForm");
-    const overlay = document.getElementById("overlay");
-    const overlayText = document.getElementById("overlayText");
-    const errorMsg = document.getElementById("errorMsg");
-    const button = form.querySelector("button");
+const CORRECT_CODE="ZTN344312CSD";
+const TARGET_URL="https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/practice/assessment?assessment-type=practice&assessmentId=48&practice-assessment-type=certification";
 
-    const CORRECT_CODE = "ZTN344312CSD";
-    const TARGET_URL =
-        "https://learn.microsoft.com/en-us/credentials/certifications/data-analyst-associate/practice/assessment?assessment-type=practice&assessmentId=48&practice-assessment-type=certification";
+const timerStatus=document.getElementById("timerStatus");
 
-    form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        errorMsg.style.display = "none";
-        overlay.style.display = "flex";
-        button.disabled = true;
+function getFijiNow(){
+  return new Date(
+    new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Fiji"}).format(new Date())
+  );
+}
 
-        setTimeout(() => {
-            const enteredCode = document.getElementById("code").value.trim();
+function updateTimer(){
+  const now=getFijiNow();
+  const start=new Date(now.getFullYear(),3,27,15,0,0); // Apr 27, 3:00 PM
+  const end=new Date(now.getFullYear(),3,27,21,0,0);   // Apr 27, 9:00 PM
 
-            if (enteredCode === CORRECT_CODE) {
-                overlayText.textContent = "Launching secure assessment session…";
-                setTimeout(() => {
-                    window.location.href = TARGET_URL;
-                }, 1200);
-            } else {
-                overlay.style.display = "none";
-                errorMsg.style.display = "block";
-                button.disabled = false;
-            }
-        }, 1400);
-    });
+  if(now<start){
+    const diff=start-now;
+    const h=Math.floor(diff/36e5);
+    const m=Math.floor(diff%36e5/6e4);
+    const s=Math.floor(diff%6e4/1000);
+    timerStatus.textContent=
+      `Attempt window opens in ${h}h ${m}m ${s}s`;
+    timerStatus.className="timer-status timer-countdown";
+  }
+  else if(now>=start && now<=end){
+    timerStatus.textContent="✅ Attempt window OPEN now";
+    timerStatus.className="timer-status timer-open";
+  }
+  else{
+    timerStatus.textContent="⛔ Attempt window CLOSED";
+    timerStatus.className="timer-status timer-closed";
+  }
+}
+
+setInterval(updateTimer,1000);
+updateTimer();
+
+/* AUDIT LOG */
+function logAudit(name){
+  const log=JSON.parse(localStorage.getItem("examAuditLog")||"[]");
+  log.push({name, timestamp:new Date().toISOString()});
+  localStorage.setItem("examAuditLog",JSON.stringify(log));
+}
+
+const form=document.getElementById("launchForm");
+const overlay=document.getElementById("overlay");
+const overlayText=document.getElementById("overlayText");
+const errorMsg=document.getElementById("errorMsg");
+
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  errorMsg.style.display="none";
+
+  if(document.documentElement.requestFullscreen){
+    try{await document.documentElement.requestFullscreen();}catch{}
+  }
+
+  overlay.style.display="flex";
+
+  setTimeout(()=>{
+    const code=document.getElementById("code").value.trim();
+    const name=document.getElementById("name").value.trim();
+
+    if(code===CORRECT_CODE){
+      logAudit(name);
+      overlayText.textContent="Launching Microsoft Learn assessment…";
+      setTimeout(()=>window.location.href=TARGET_URL,1200);
+    }else{
+      overlay.style.display="none";
+      errorMsg.style.display="block";
+    }
+  },1400);
+});
 </script>
 
 </body>
 </html>
-``
