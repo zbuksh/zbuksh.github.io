@@ -11,12 +11,14 @@
   --primary-dark:#172554;
   --border:#dbe2ea;
   --muted:#64748b;
-  --bg:#f8fafc;
   --error:#b91c1c;
   --success:#15803d;
 }
 
-*{box-sizing:border-box;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;}
+*{
+  box-sizing:border-box;
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+}
 
 body{
   margin:0;
@@ -28,7 +30,11 @@ body{
   color:#0f172a;
 }
 
-main{max-width:820px;width:100%;padding:24px;}
+main{
+  max-width:820px;
+  width:100%;
+  padding:24px;
+}
 
 .panel{
   background:#fff;
@@ -49,8 +55,8 @@ header h1{
   font-size:1.7rem;
   color:var(--primary);
   display:flex;
-  align-items:center;
   gap:10px;
+  align-items:center;
 }
 
 header h2{
@@ -63,50 +69,57 @@ header h2{
 .context{
   font-size:.95rem;
   line-height:1.6;
-  margin-bottom:24px;
+  margin-bottom:22px;
 }
 
+/* ----- TIMER ----- */
 .timer-box{
-  border:1px solid var(--border);
-  border-left:5px solid var(--primary);
   background:#f8fafc;
+  border:1px solid var(--border);
+  border-left:6px solid var(--primary);
   padding:16px;
   margin-bottom:28px;
 }
 
 .timer-title{
   font-weight:600;
-  font-size:.9rem;
+  font-size:.85rem;
   margin-bottom:6px;
 }
 
 .timer-status{
   font-size:1rem;
-  font-weight:600;
+  font-weight:700;
 }
 
 .timer-open{color:var(--success);}
 .timer-closed{color:var(--error);}
 .timer-countdown{color:#334155;}
 
-.form-group{margin-bottom:22px;}
+/* ----- FORM ----- */
+.form-group{
+  margin-bottom:22px;
+}
 
 label{
   display:block;
-  font-weight:600;
   font-size:.85rem;
+  font-weight:600;
   margin-bottom:6px;
 }
 
 input[type="text"]{
   width:100%;
   padding:13px;
-  font-size:.95rem;
-  border:1px solid var(--border);
   border-radius:6px;
+  border:1px solid var(--border);
+  font-size:.95rem;
 }
 
-input:focus{outline:none;border-color:var(--primary);}
+input:focus{
+  outline:none;
+  border-color:var(--primary);
+}
 
 .checkbox{
   display:flex;
@@ -115,16 +128,18 @@ input:focus{outline:none;border-color:var(--primary);}
   line-height:1.4;
 }
 
-.checkbox input{margin-top:3px;}
+.checkbox input{
+  margin-top:3px;
+}
 
 button{
   width:100%;
+  margin-top:26px;
   padding:14px;
-  margin-top:24px;
+  background:var(--primary);
+  color:white;
   font-size:1rem;
   font-weight:600;
-  background:var(--primary);
-  color:#fff;
   border:none;
   border-radius:6px;
   cursor:pointer;
@@ -135,21 +150,22 @@ button:disabled{background:#94a3b8;cursor:not-allowed;}
 
 .error{
   display:none;
-  color:var(--error);
   margin-top:14px;
+  color:var(--error);
   font-weight:600;
 }
 
+/* ----- FOOTER ----- */
 footer{
   border-top:1px solid var(--border);
-  margin-top:36px;
+  margin-top:34px;
   padding-top:16px;
   font-size:.75rem;
   color:var(--muted);
   text-align:center;
 }
 
-/* Overlay */
+/* ----- LOADING OVERLAY ----- */
 .overlay{
   position:absolute;
   inset:0;
@@ -161,7 +177,8 @@ footer{
 }
 
 .spinner{
-  width:36px;height:36px;
+  width:36px;
+  height:36px;
   border:4px solid #cbd5e1;
   border-top-color:var(--primary);
   border-radius:50%;
@@ -169,7 +186,9 @@ footer{
   margin-bottom:14px;
 }
 
-@keyframes spin{to{transform:rotate(360deg);} }
+@keyframes spin{
+  to{transform:rotate(360deg);}
+}
 
 @media(max-width:640px){
   .panel{padding:32px 24px;}
@@ -196,18 +215,18 @@ footer{
 </header>
 
 <p class="context">
-This secure portal provides controlled access to the official
+This secure portal allows authorized candidates to access the official
 <strong>Microsoft Learn PL‑300 practice assessment</strong>.
-Access is restricted to the approved attempt window shown below.
+Access is permitted strictly within the defined Fiji Time attempt window.
 </p>
 
 <!-- TIME WINDOW TIMER -->
 <div class="timer-box" aria-live="polite">
   <div class="timer-title">
-    Attempt Time Window (Fiji Time — FJT)
+    Attempt Time Window — 27 April (3:00 PM–9:00 PM FJT)
   </div>
   <div id="timerStatus" class="timer-status timer-countdown">
-    Calculating attempt window…
+    Loading Fiji Time…
   </div>
 </div>
 
@@ -225,8 +244,8 @@ Access is restricted to the approved attempt window shown below.
   <div class="form-group checkbox">
     <input type="checkbox" id="agreement" required>
     <label for="agreement">
-      I confirm that I am authorized to attempt this assessment and agree
-      to comply with all academic integrity requirements.
+      I confirm that I am authorized to attempt this assessment and will
+      comply with all academic integrity and exam conduct requirements.
     </label>
   </div>
 
@@ -255,16 +274,34 @@ const TARGET_URL="https://learn.microsoft.com/en-us/credentials/certifications/d
 
 const timerStatus=document.getElementById("timerStatus");
 
-function getFijiNow(){
+/* ✅ TRUE FIJI TIME (Pacific/Fiji) */
+function getFijiDate(){
+  const parts=new Intl.DateTimeFormat("en-US",{
+    timeZone:"Pacific/Fiji",
+    year:"numeric",
+    month:"numeric",
+    day:"numeric",
+    hour:"numeric",
+    minute:"numeric",
+    second:"numeric",
+    hour12:false
+  }).formatToParts(new Date());
+
+  const get=t=>Number(parts.find(p=>p.type===t).value);
   return new Date(
-    new Intl.DateTimeFormat("en-US",{timeZone:"Pacific/Fiji"}).format(new Date())
+    get("year"),
+    get("month")-1,
+    get("day"),
+    get("hour"),
+    get("minute"),
+    get("second")
   );
 }
 
 function updateTimer(){
-  const now=getFijiNow();
-  const start=new Date(now.getFullYear(),3,27,15,0,0); // Apr 27, 3:00 PM
-  const end=new Date(now.getFullYear(),3,27,21,0,0);   // Apr 27, 9:00 PM
+  const now=getFijiDate();
+  const start=new Date(now.getFullYear(),3,27,15,0,0);
+  const end=new Date(now.getFullYear(),3,27,21,0,0);
 
   if(now<start){
     const diff=start-now;
@@ -272,15 +309,15 @@ function updateTimer(){
     const m=Math.floor(diff%36e5/6e4);
     const s=Math.floor(diff%6e4/1000);
     timerStatus.textContent=
-      `Attempt window opens in ${h}h ${m}m ${s}s`;
+      `Attempt window opens in ${h}h ${m}m ${s}s (FJT)`;
     timerStatus.className="timer-status timer-countdown";
   }
   else if(now>=start && now<=end){
-    timerStatus.textContent="✅ Attempt window OPEN now";
+    timerStatus.textContent="✅ Attempt window OPEN now (FJT)";
     timerStatus.className="timer-status timer-open";
   }
   else{
-    timerStatus.textContent="⛔ Attempt window CLOSED";
+    timerStatus.textContent="⛔ Attempt window CLOSED (FJT)";
     timerStatus.className="timer-status timer-closed";
   }
 }
@@ -288,7 +325,7 @@ function updateTimer(){
 setInterval(updateTimer,1000);
 updateTimer();
 
-/* AUDIT LOG */
+/* ----- AUDIT LOGGING ----- */
 function logAudit(name){
   const log=JSON.parse(localStorage.getItem("examAuditLog")||"[]");
   log.push({name, timestamp:new Date().toISOString()});
