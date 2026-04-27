@@ -4,18 +4,190 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Zain Buksh | Digital Delivery & Technology Portfolio</title>
-  <meta name="description" content="Portfolio of Zain Buksh – Digital Delivery Coordinator, Project Manager, Researcher in AI, Blockchain & Enterprise Systems."/>
-  <link rel="stylesheet" href="styles.css"/>
+
+  <!-- SEO -->
+  <meta name="description" content="Zain Buksh – Digital Delivery Coordinator at KPMG Australia. Project Manager, Technology Researcher in AI, Blockchain & Enterprise Systems."/>
+  <meta name="author" content="Zain Buksh"/>
 
   <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --dark: #0f172a;
+      --light: #f8fafc;
+      --muted: #64748b;
+      --card: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Inter", sans-serif;
+    }
+
+    body {
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.7;
+      scroll-behavior: smooth;
+    }
+
+    /* ================= HEADER ================= */
+    header {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: white;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    nav {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    nav ul {
+      display: flex;
+      gap: 1.4rem;
+      list-style: none;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    nav a:hover {
+      opacity: 1;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 4rem auto 0;
+      text-align: left;
+    }
+
+    .hero h2 {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      max-width: 700px;
+      font-size: 1.05rem;
+      color: #e5e7eb;
+    }
+
+    .cta {
+      margin-top: 1.8rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.6rem;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid white;
+    }
+
+    /* ================= SECTIONS ================= */
+    section {
+      max-width: 1100px;
+      margin: auto;
+      padding: 4rem 1.5rem;
+    }
+
+    section.alt {
+      background: #e2e8f0;
+      max-width: 100%;
+    }
+
+    h3.section-title {
+      font-size: 1.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    p {
+      color: #334155;
+    }
+
+    /* ================= CARDS ================= */
+    .card {
+      background: var(--card);
+      padding: 1.6rem;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .card h4 {
+      margin-bottom: 0.2rem;
+    }
+
+    .card span {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .card ul {
+      margin-top: 0.8rem;
+      padding-left: 1.2rem;
+    }
+
+    /* ================= GRID ================= */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ================= FOOTER ================= */
+    footer {
+      background: var(--dark);
+      color: #cbd5f5;
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      nav ul {
+        display: none;
+      }
+      .hero {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<header class="hero">
-  <nav class="nav">
+
+<header>
+  <nav>
     <h1>Zain Buksh</h1>
     <ul>
       <li><a href="#about">About</a></li>
@@ -26,126 +198,137 @@
     </ul>
   </nav>
 
-  <section class="hero-content">
-    <h2>Digital Delivery & Project Management Professional</h2>
+  <div class="hero">
+    <h2>Digital Delivery & Technology Professional</h2>
     <p>
-      Driving enterprise automation, Power Platform solutions, and technology-led
-      business transformation.
+      Digital Delivery Coordinator at KPMG Australia, specialising in
+      enterprise automation, Power Platform delivery, project governance,
+      and emerging technologies.
     </p>
+
     <div class="cta">
       <a href="#projects" class="btn">View Work</a>
-      <a href="#contact" class="btn-outline">Contact Me</a>
+      <a href="#contact" class="btn btn-outline">Contact Me</a>
     </div>
-  </section>
+  </div>
 </header>
 
-<main>
-
-<section id="about" class="section">
-  <h2>About Me</h2>
+<section id="about">
+  <h3 class="section-title">About Me</h3>
   <p>
-    I am a Digital Delivery Professional with KPMG Australia (Fiji-based),
-    specializing in enterprise low-code solutions, project delivery, and
-    technology transformation initiatives.
+    I am a Digital Delivery Professional with KPMG Australia (Fiji‑based),
+    responsible for coordinating and delivering enterprise technology initiatives
+    across Microsoft Power Platform and cloud-based ecosystems.
   </p>
+  <br/>
   <p>
-    I hold a Master of Information Technology and maintain strong involvement
-    in emerging fields including Artificial Intelligence, Blockchain,
-    Cybersecurity, and Cloud Systems.
+    I hold a Master of Information Technology and actively contribute to academic
+    and applied research in Artificial Intelligence, Blockchain, Cybersecurity,
+    and enterprise system design.
   </p>
 
-  <ul class="highlights">
-    <li>Digital Delivery Coordinator – KPMG Australia</li>
-    <li>Certified Associate in Project Management (CAPM)</li>
-    <li>Registered Associate Member – IAENG (International Association of Engineers), Society of Software Engineering</li>
-    <li>Research Author – IEEE, ACM, Wiley, MDPI</li>
-  </ul>
-</section>
-
-<section id="experience" class="section alt">
-  <h2>Professional Experience</h2>
-
-  <div class="card">
-    <h3>Digital Delivery Coordinator</h3>
-    <span>KPMG Australia | Jan 2025 – Present</span>
+  <div class="card" style="margin-top:2rem;">
     <ul>
-      <li>Lead delivery of Microsoft Power Platform and automation solutions</li>
-      <li>Manage scope, timelines, budgets, and cross‑functional teams</li>
-      <li>Facilitate Agile ceremonies and SteerCo governance</li>
-      <li>Ensure SDLC compliance and ServiceNow reporting</li>
-      <li>Drive CSAT, innovation, and delivery excellence</li>
-    </ul>
-  </div>
-
-  <div class="card">
-    <h3>Project Manager</h3>
-    <span>University of Fiji | Apr 2023 – Jan 2025</span>
-    <ul>
-      <li>Delivered Finance, Registry, Library & Conference systems</li>
-      <li>Led full lifecycle delivery from requirements to production</li>
-      <li>Integrated Blockchain and AI into academic systems</li>
-    </ul>
-  </div>
-
-  <div class="card">
-    <h3>ICT Analyst / IT Support Technician</h3>
-    <span>Tappoo Group & Smart Technologies | 2020 – 2023</span>
-    <ul>
-      <li>Enterprise IT infrastructure & asset management</li>
-      <li>System deployment, maintenance, and security</li>
+      <li>Digital Delivery Coordinator – KPMG Australia</li>
+      <li>Certified Associate in Project Management (CAPM)</li>
+      <li><strong>Registered Associate Member – IAENG (International Association of Engineers), Society of Software Engineering</strong></li>
+      <li>Technology Research Author (IEEE, ACM, Wiley, MDPI)</li>
     </ul>
   </div>
 </section>
 
-<section id="projects" class="section">
-  <h2>Selected Projects</h2>
+<section id="experience" class="alt">
+  <section>
+    <h3 class="section-title">Professional Experience</h3>
+
+    <div class="card">
+      <h4>Digital Delivery Coordinator</h4>
+      <span>KPMG Australia | January 2025 – Present</span>
+      <ul>
+        <li>Lead Power Platform and low‑code solution delivery</li>
+        <li>Manage scope, timelines, budgets, and delivery governance</li>
+        <li>Facilitate Agile ceremonies, SteerCo, and RAIDD reporting</li>
+        <li>Ensure SDLC compliance and ServiceNow documentation</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>Project Manager</h4>
+      <span>University of Fiji | April 2023 – January 2025</span>
+      <ul>
+        <li>Delivered Finance, Registry, Library & Conference systems</li>
+        <li>Managed end‑to‑end technical and stakeholder delivery</li>
+        <li>Integrated Blockchain and AI for academic transformation</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>ICT Analyst / IT Support Technician</h4>
+      <span>Tappoo Group & Smart Technologies | 2020 – 2023</span>
+      <ul>
+        <li>Enterprise infrastructure operations and asset management</li>
+        <li>Systems deployment, troubleshooting, and security controls</li>
+      </ul>
+    </div>
+
+  </section>
+</section>
+
+<section id="projects">
+  <h3 class="section-title">Projects</h3>
 
   <div class="grid">
-    <div class="project">
-      <h3>Enterprise Power Platform Solutions</h3>
-      <p>Recruitment systems, Tax & Legal automation, compliance platforms, document generation workflows.</p>
+    <div class="card">
+      <h4>Enterprise Power Platform Solutions</h4>
+      <p>Recruitment systems, Tax & Legal automation, compliance solutions,
+         enterprise document generation and workflow automation.</p>
     </div>
 
-    <div class="project">
-      <h3>University Cloud Systems</h3>
-      <p>Finance, Registry, Library & Conference systems hosted on Google Cloud Platform.</p>
+    <div class="card">
+      <h4>University Cloud Systems</h4>
+      <p>Finance, Registry, Conference, and Library platforms delivered on
+         Google Cloud with full‑stack frameworks.</p>
     </div>
 
-    <div class="project">
-      <h3>InsuraBlock</h3>
-      <p>Blockchain-based health insurance fraud prevention system (Master’s Thesis).</p>
+    <div class="card">
+      <h4>InsuraBlock</h4>
+      <p>Blockchain‑based health insurance fraud prevention platform
+         (Master’s Thesis Project).</p>
+      <br/>
       <a href="https://insurablock.github.io/2024.INSB99045" target="_blank">View Project →</a>
     </div>
   </div>
 </section>
 
-<section id="research" class="section alt">
-  <h2>Research & Publications</h2>
-  <ul class="research">
-    <li>Cybersecurity Challenges in Smart Grid IoT – Wiley‑IEEE (2024)</li>
-    <li>Explainable AI Frameworks – MDPI Algorithms Journal (2024)</li>
-    <li>Enhancing e‑KYC using Quantum Computing & Blockchain – DLT Journal (2024)</li>
-    <li>Blockchain‑Powered Health Insurance Fraud Prevention – ACM (2024)</li>
-    <li>Blockchain‑Based E‑Wallet – IEEE CSDE (2023)</li>
-  </ul>
+<section id="research" class="alt">
+  <section>
+    <h3 class="section-title">Research & Publications</h3>
+    <ul>
+      <li>Cybersecurity Challenges in Smart Grid IoT – Wiley‑IEEE (2024)</li>
+      <li>Explainable AI Frameworks – MDPI Algorithms Journal (2024)</li>
+      <li>Enhancing e‑KYC using Quantum Computing & Blockchain – DLT Journal (2024)</li>
+      <li>Blockchain‑Powered Health Insurance Fraud Prevention – ACM (2024)</li>
+      <li>Blockchain‑Based E‑Wallet – IEEE CSDE (2023)</li>
+    </ul>
+  </section>
 </section>
 
-<section id="contact" class="section">
-  <h2>Contact</h2>
+<section id="contact">
+  <h3 class="section-title">Contact</h3>
   <p>
-    📍 Fiji (Remote) <br/>
-    📧 zbuksh@outlook.com <br/>
+    📍 Fiji (Remote‑based)<br/>
+    📧 zbuksh@outlook.com<br/>
     🔗 <a href="https://linkedin.com/in/zain-buksh-a116b01b1" target="_blank">LinkedIn Profile</a>
   </p>
 </section>
 
-</main>
-
 <footer>
-  <p>© 2026 Zain Buksh · Digital Delivery · Project Management · Research</p>
+  © 2026 Zain Buksh · Digital Delivery · Project Management · Technology Research
 </footer>
 
-<script src="script.js"></script>
+<script>
+  console.log("Zain Buksh Portfolio Loaded Successfully");
+</script>
+
 </body>
 </html>
-``
