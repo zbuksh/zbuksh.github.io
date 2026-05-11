@@ -1,334 +1,234 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zain Buksh | Digital Delivery & Technology Portfolio</title>
-
-  <!-- SEO -->
-  <meta name="description" content="Zain Buksh – Digital Delivery Coordinator at KPMG Australia. Project Manager, Technology Researcher in AI, Blockchain & Enterprise Systems."/>
-  <meta name="author" content="Zain Buksh"/>
-
-  <!-- Google Font -->
+  <meta name="description" content="Modern portfolio website for Zain Buksh - Digital Delivery Coordinator, Project Manager, IT Analyst, Researcher and technology professional." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['Inter', 'ui-sans-serif', 'system-ui'], body: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            ink: '#06111f',
+            neon: '#48e5ff',
+            violet: '#8b5cf6',
+            acid: '#b6ff6c'
+          },
+          boxShadow: { glow: '0 0 60px rgba(72,229,255,.28)', violet: '0 0 70px rgba(139,92,246,.24)' }
+        }
+      }
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
   <style>
-    :root {
-      --primary: #2563eb;
-      --dark: #0f172a;
-      --light: #f8fafc;
-      --muted: #64748b;
-      --card: #ffffff;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Inter", sans-serif;
-    }
-
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
     body {
-      background: var(--light);
-      color: var(--dark);
-      line-height: 1.7;
-      scroll-behavior: smooth;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(72,229,255,.18), transparent 28rem),
+        radial-gradient(circle at 85% 10%, rgba(139,92,246,.16), transparent 28rem),
+        radial-gradient(circle at 60% 90%, rgba(182,255,108,.08), transparent 26rem),
+        #06111f;
+      color: #eaf6ff;
+      font-family: Inter, system-ui, sans-serif;
     }
-
-    /* ================= HEADER ================= */
-    header {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      padding: 2.5rem 1.5rem 4rem;
-    }
-
-    nav {
-      max-width: 1100px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    nav h1 {
-      font-size: 1.4rem;
-      font-weight: 700;
-    }
-
-    nav ul {
-      display: flex;
-      gap: 1.4rem;
-      list-style: none;
-    }
-
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-size: 0.95rem;
-      opacity: 0.9;
-    }
-
-    nav a:hover {
-      opacity: 1;
-    }
-
-    .hero {
-      max-width: 1100px;
-      margin: 4rem auto 0;
-      text-align: left;
-    }
-
-    .hero h2 {
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      max-width: 700px;
-      font-size: 1.05rem;
-      color: #e5e7eb;
-    }
-
-    .cta {
-      margin-top: 1.8rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      padding: 0.75rem 1.6rem;
-      border-radius: 8px;
-      background: var(--primary);
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 2px solid white;
-    }
-
-    /* ================= SECTIONS ================= */
-    section {
-      max-width: 1100px;
-      margin: auto;
-      padding: 4rem 1.5rem;
-    }
-
-    section.alt {
-      background: #e2e8f0;
-      max-width: 100%;
-    }
-
-    h3.section-title {
-      font-size: 1.9rem;
-      margin-bottom: 1.5rem;
-    }
-
-    p {
-      color: #334155;
-    }
-
-    /* ================= CARDS ================= */
-    .card {
-      background: var(--card);
-      padding: 1.6rem;
-      border-radius: 14px;
-      box-shadow: 0 18px 40px rgba(0,0,0,0.06);
-      margin-bottom: 1.5rem;
-    }
-
-    .card h4 {
-      margin-bottom: 0.2rem;
-    }
-
-    .card span {
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    .card ul {
-      margin-top: 0.8rem;
-      padding-left: 1.2rem;
-    }
-
-    /* ================= GRID ================= */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-    }
-
-    /* ================= FOOTER ================= */
-    footer {
-      background: var(--dark);
-      color: #cbd5f5;
-      text-align: center;
-      padding: 2.5rem 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    /* ================= RESPONSIVE ================= */
-    @media (max-width: 768px) {
-      nav ul {
-        display: none;
-      }
-      .hero {
-        text-align: left;
-      }
-    }
+    .noise::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:50; opacity:.08; background-image:url('data:image/svg+xml,%3Csvg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="n"%3E%3CfeTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23n)" opacity=".6"/%3E%3C/svg%3E'); }
+    .glass { background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.13); backdrop-filter: blur(18px); }
+    .gradient-text { background: linear-gradient(90deg,#fff,#48e5ff,#8b5cf6,#b6ff6c); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .orb { position:absolute; border-radius:999px; filter: blur(12px); opacity:.75; animation: float 8s ease-in-out infinite; }
+    @keyframes float { 0%,100%{ transform:translateY(0) translateX(0)} 50%{ transform:translateY(-28px) translateX(18px)} }
+    .marquee { display:flex; width:max-content; animation: marquee 25s linear infinite; }
+    @keyframes marquee { from{ transform: translateX(0)} to{ transform: translateX(-50%)} }
+    .grid-bg { background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 56px 56px; mask-image: linear-gradient(to bottom, black, transparent 80%); }
+    .cursor-dot { position: fixed; width: 18px; height: 18px; border:1px solid rgba(72,229,255,.8); border-radius: 50%; pointer-events:none; z-index:100; transform: translate(-50%,-50%); transition: width .2s,height .2s,background .2s; }
+    .timeline-line { background: linear-gradient(to bottom, transparent, #48e5ff, #8b5cf6, transparent); }
   </style>
 </head>
+<body class="noise selection:bg-cyan-300 selection:text-ink">
+  <div class="cursor-dot hidden md:block"></div>
+  <div class="fixed inset-0 grid-bg pointer-events-none"></div>
 
-<body>
-
-<header>
-  <nav>
-    <h1>Zain Buksh</h1>
-    <ul>
-      <li><a href="#about">About</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#research">Research</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
+  <nav class="fixed top-0 left-0 right-0 z-40 border-b border-white/10 bg-ink/60 backdrop-blur-2xl">
+    <div class="mx-auto max-w-7xl px-5 py-4 flex items-center justify-between">
+      <a href="#home" class="font-black tracking-tight text-xl">ZB<span class="text-neon">.</span></a>
+      <div class="hidden md:flex items-center gap-7 text-sm text-white/70">
+        <a class="hover:text-neon transition" href="#about">About</a>
+        <a class="hover:text-neon transition" href="#experience">Experience</a>
+        <a class="hover:text-neon transition" href="#projects">Projects</a>
+        <a class="hover:text-neon transition" href="#research">Research</a>
+        <a class="hover:text-neon transition" href="#contact">Contact</a>
+      </div>
+      <a href="mailto:zbuksh@outlook.com" class="rounded-full border border-neon/40 px-4 py-2 text-sm font-semibold hover:bg-neon hover:text-ink transition">Hire / Connect</a>
+    </div>
   </nav>
 
-  <div class="hero">
-    <h2>Digital Delivery & Technology Professional</h2>
-    <p>
-      Digital Delivery Coordinator at KPMG Australia, specialising in
-      enterprise automation, Power Platform delivery, project governance,
-      and emerging technologies.
-    </p>
+  <header id="home" class="relative min-h-screen flex items-center overflow-hidden pt-24">
+    <div class="orb h-72 w-72 bg-neon/20 left-[-6rem] top-36"></div>
+    <div class="orb h-96 w-96 bg-violet/20 right-[-8rem] top-24" style="animation-delay:-3s"></div>
+    <div class="mx-auto max-w-7xl px-5 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+      <section class="hero-copy">
+        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 text-sm text-white/75 mb-7">
+          <span class="h-2 w-2 rounded-full bg-acid animate-pulse"></span> Digital Delivery • Project Management • AI • Cloud • Blockchain
+        </div>
+        <h1 class="text-5xl md:text-7xl xl:text-8xl font-black leading-[.95] tracking-tight">
+          Zain Buksh<br><span class="gradient-text">builds digital systems</span> that move teams forward.
+        </h1>
+        <p class="mt-7 max-w-2xl text-lg text-white/70 leading-relaxed">
+          Fiji-based Digital Delivery Professional with KPMG Australia experience across Microsoft Power Platform, agile project delivery, enterprise applications, cloud infrastructure, research, AI, cybersecurity and blockchain innovation.
+        </p>
+        <div class="mt-9 flex flex-col sm:flex-row gap-4">
+          <a href="#projects" class="rounded-2xl bg-white text-ink px-7 py-4 font-bold hover:scale-105 transition shadow-glow">Explore Work</a>
+          <a href="#contact" class="rounded-2xl glass px-7 py-4 font-bold hover:border-neon/60 transition">Contact Me</a>
+        </div>
+        <div class="mt-10 grid grid-cols-3 gap-4 max-w-xl">
+          <div class="glass rounded-3xl p-5"><b class="text-3xl">4.25</b><p class="text-xs text-white/55 mt-1">Masters GPA</p></div>
+          <div class="glass rounded-3xl p-5"><b class="text-3xl">2025</b><p class="text-xs text-white/55 mt-1">MIT Graduate</p></div>
+          <div class="glass rounded-3xl p-5"><b class="text-3xl">6+</b><p class="text-xs text-white/55 mt-1">Publications</p></div>
+        </div>
+      </section>
 
-    <div class="cta">
-      <a href="#projects" class="btn">View Work</a>
-      <a href="#contact" class="btn btn-outline">Contact Me</a>
+      <section class="relative hero-card">
+        <div class="absolute inset-0 bg-gradient-to-tr from-neon/25 to-violet/25 blur-3xl"></div>
+        <div class="glass rounded-[2.5rem] p-7 md:p-9 relative shadow-glow" data-tilt data-tilt-max="8" data-tilt-speed="600">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-white/50 text-sm">Current role</p>
+              <h2 class="mt-2 text-3xl font-black">Digital Delivery Professional</h2>
+              <p class="text-neon mt-1">KPMG Australia — Digital Delivery / Project Delivery Office</p>
+            </div>
+            <div class="h-16 w-16 rounded-3xl bg-gradient-to-br from-neon to-violet flex items-center justify-center font-black text-ink text-2xl">ZB</div>
+          </div>
+          <div class="mt-8 space-y-4">
+            <div class="rounded-3xl bg-black/25 p-5 border border-white/10"><span class="text-acid font-bold">01</span><h3 class="font-bold mt-2">Enterprise delivery</h3><p class="text-white/60 text-sm mt-1">Scope, timelines, budget, resources, SteerCo, ServiceNow and SDLC compliance.</p></div>
+            <div class="rounded-3xl bg-black/25 p-5 border border-white/10"><span class="text-neon font-bold">02</span><h3 class="font-bold mt-2">Low-code automation</h3><p class="text-white/60 text-sm mt-1">Power Platform, applicant-tracking, document automation, compliance and review systems.</p></div>
+            <div class="rounded-3xl bg-black/25 p-5 border border-white/10"><span class="text-violet font-bold">03</span><h3 class="font-bold mt-2">Research-led innovation</h3><p class="text-white/60 text-sm mt-1">Blockchain, Hyperledger Fabric, XAI, cybersecurity and health insurance fraud prevention.</p></div>
+          </div>
+        </div>
+      </section>
     </div>
-  </div>
-</header>
+  </header>
 
-<section id="about">
-  <h3 class="section-title">About Me</h3>
-  <p>
-    I am a Digital Delivery Professional with KPMG Australia (Fiji‑based),
-    responsible for coordinating and delivering enterprise technology initiatives
-    across Microsoft Power Platform and cloud-based ecosystems.
-  </p>
-  <br/>
-  <p>
-    I hold a Master of Information Technology and actively contribute to academic
-    and applied research in Artificial Intelligence, Blockchain, Cybersecurity,
-    and enterprise system design.
-  </p>
+  <main>
+    <section class="py-8 overflow-hidden border-y border-white/10 bg-white/[.03]">
+      <div class="marquee gap-10 text-white/45 font-bold uppercase tracking-[.25em] text-sm">
+        <span>Power Platform</span><span>Agile Delivery</span><span>Google Cloud</span><span>Blockchain</span><span>AI Research</span><span>Cybersecurity</span><span>ServiceNow</span><span>React</span>
+        <span>Power Platform</span><span>Agile Delivery</span><span>Google Cloud</span><span>Blockchain</span><span>AI Research</span><span>Cybersecurity</span><span>ServiceNow</span><span>React</span>
+      </div>
+    </section>
 
-  <div class="card" style="margin-top:2rem;">
-    <ul>
-      <li>Digital Delivery Coordinator – KPMG Australia</li>
-      <li>Certified Associate in Project Management (CAPM)</li>
-      <li><strong>Registered Associate Member – IAENG (International Association of Engineers), Society of Software Engineering</strong></li>
-      <li>Technology Research Author (IEEE, ACM, Wiley, MDPI)</li>
-    </ul>
-  </div>
-</section>
+    <section id="about" class="py-28 relative">
+      <div class="mx-auto max-w-7xl px-5 grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 reveal"><p class="text-neon font-bold">About</p><h2 class="text-4xl md:text-5xl font-black mt-3">A hybrid profile across delivery, systems and research.</h2></div>
+        <div class="lg:col-span-2 reveal glass rounded-[2rem] p-8 md:p-10 text-white/72 leading-relaxed text-lg">
+          <p>Zain combines technology project management, technical analysis and system troubleshooting with hands-on delivery across enterprise platforms. His work spans sprint ceremonies, RAIDD updates, stakeholder engagement, documentation, application deployment and continuous improvement.</p>
+          <div class="grid sm:grid-cols-2 gap-4 mt-8">
+            <div class="rounded-3xl bg-white/5 p-5"><b>Location</b><p class="text-white/55 mt-1">Lautoka / Nadi, Fiji</p></div>
+            <div class="rounded-3xl bg-white/5 p-5"><b>Email</b><p class="text-white/55 mt-1">zbuksh@outlook.com</p></div>
+            <div class="rounded-3xl bg-white/5 p-5"><b>LinkedIn</b><p class="text-white/55 mt-1">linkedin.com/in/zain-buksh-a116b01b1</p></div>
+            <div class="rounded-3xl bg-white/5 p-5"><b>Focus</b><p class="text-white/55 mt-1">Digital solution delivery and emerging technology.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<section id="experience" class="alt">
-  <section>
-    <h3 class="section-title">Professional Experience</h3>
+    <section id="experience" class="py-28 bg-black/20">
+      <div class="mx-auto max-w-7xl px-5">
+        <div class="reveal max-w-3xl"><p class="text-neon font-bold">Experience</p><h2 class="text-4xl md:text-6xl font-black mt-3">Professional timeline</h2></div>
+        <div class="mt-16 relative">
+          <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px timeline-line"></div>
+          <div class="space-y-10">
+            <article class="timeline-item md:w-1/2 md:pr-10"><div class="glass rounded-[2rem] p-7"><p class="text-neon font-bold">Jan 2025 — Present</p><h3 class="text-2xl font-black mt-2">Digital Delivery Coordinator</h3><p class="text-white/60">KPMG Australia, Digital Delivery - Project Delivery Office</p><p class="text-white/65 mt-4">Lead Power Platform delivery, coordinate agile ceremonies, manage scope, budgets and resources, support SteerCo engagement, ServiceNow updates and SDLC compliance.</p></div></article>
+            <article class="timeline-item md:w-1/2 md:ml-auto md:pl-10"><div class="glass rounded-[2rem] p-7"><p class="text-neon font-bold">Apr 2023 — Dec 2024</p><h3 class="text-2xl font-black mt-2">Project Manager</h3><p class="text-white/60">The University of Fiji</p><p class="text-white/65 mt-4">Managed software initiatives across academic, conference, finance and library systems with stakeholder coordination, technical oversight and structured documentation.</p></div></article>
+            <article class="timeline-item md:w-1/2 md:pr-10"><div class="glass rounded-[2rem] p-7"><p class="text-neon font-bold">Dec 2021 — Apr 2023</p><h3 class="text-2xl font-black mt-2">Group ICT Analyst</h3><p class="text-white/60">Tappoo Group of Companies</p><p class="text-white/65 mt-4">Maintained infrastructure, security, procurement, asset inventory, end-user training and system performance support.</p></div></article>
+            <article class="timeline-item md:w-1/2 md:ml-auto md:pl-10"><div class="glass rounded-[2rem] p-7"><p class="text-neon font-bold">Nov 2020 — Dec 2021</p><h3 class="text-2xl font-black mt-2">IT Support Technician</h3><p class="text-white/60">Smart Technologies PTE LTD</p><p class="text-white/65 mt-4">Delivered hardware/software support, installation, server/laptop configuration, maintenance, backups and troubleshooting.</p></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <div class="card">
-      <h4>Digital Delivery Coordinator</h4>
-      <span>KPMG Australia | January 2025 – Present</span>
-      <ul>
-        <li>Lead Power Platform and low‑code solution delivery</li>
-        <li>Manage scope, timelines, budgets, and delivery governance</li>
-        <li>Facilitate Agile ceremonies, SteerCo, and RAIDD reporting</li>
-        <li>Ensure SDLC compliance and ServiceNow documentation</li>
-      </ul>
+    <section id="projects" class="py-28">
+      <div class="mx-auto max-w-7xl px-5">
+        <div class="reveal flex flex-col md:flex-row md:items-end md:justify-between gap-6"><div><p class="text-neon font-bold">Featured work</p><h2 class="text-4xl md:text-6xl font-black mt-3">Projects with enterprise impact</h2></div><p class="text-white/55 max-w-xl">A portfolio of delivery work across automation, cloud systems and research prototypes.</p></div>
+        <div class="mt-14 grid md:grid-cols-3 gap-6">
+          <div class="project-card glass rounded-[2rem] p-7 min-h-[360px]" data-tilt><span class="text-acid font-black">01</span><h3 class="text-3xl font-black mt-6">Power Platform Delivery</h3><p class="text-white/60 mt-4">Recruitment and applicant tracking, Tax & Legal document automation, compliance and review systems, and enterprise process automation.</p><div class="mt-8 flex flex-wrap gap-2"><span class="tag">Power Platform</span><span class="tag">Automation</span><span class="tag">KPMG</span></div></div>
+          <div class="project-card glass rounded-[2rem] p-7 min-h-[360px]" data-tilt><span class="text-neon font-black">02</span><h3 class="text-3xl font-black mt-6">GCP University Systems</h3><p class="text-white/60 mt-4">Grade management, conference management, placement booking, paper submission, registry, finance and library management systems.</p><div class="mt-8 flex flex-wrap gap-2"><span class="tag">GCP</span><span class="tag">React</span><span class="tag">PHP</span></div></div>
+          <div class="project-card glass rounded-[2rem] p-7 min-h-[360px]" data-tilt><span class="text-violet font-black">03</span><h3 class="text-3xl font-black mt-6">InsuraBlock</h3><p class="text-white/60 mt-4">A blockchain-based health insurance claim data recording system supporting fraud prevention and detection research.</p><div class="mt-8 flex flex-wrap gap-2"><span class="tag">Blockchain</span><span class="tag">HealthTech</span><span class="tag">Research</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-28 bg-black/20">
+      <div class="mx-auto max-w-7xl px-5 grid lg:grid-cols-2 gap-8 items-start">
+        <div class="reveal"><p class="text-neon font-bold">Education & certifications</p><h2 class="text-4xl md:text-5xl font-black mt-3">Academic foundation with industry training.</h2></div>
+        <div class="space-y-4 reveal">
+          <div class="glass rounded-3xl p-6"><b>Master of Information Technology</b><p class="text-white/55">The University of Fiji — Graduated April 2025 — GPA 4.25 / 4.50</p></div>
+          <div class="glass rounded-3xl p-6"><b>Postgraduate Diploma in Information Technology</b><p class="text-white/55">The University of Fiji — Graduated December 2022 — GPA 4.0 / 4.5</p></div>
+          <div class="glass rounded-3xl p-6"><b>Bachelor of Information Technology</b><p class="text-white/55">The University of Fiji — Graduated June 2021</p></div>
+          <div class="glass rounded-3xl p-6"><b>Professional courses</b><p class="text-white/55">CAPM, PMP Training, Digital Transformation, PL-300 Power BI, Trusted AI, Enterprise Foundations, Cyber Security and Disruptive Technologies.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="research" class="py-28">
+      <div class="mx-auto max-w-7xl px-5">
+        <div class="reveal max-w-4xl"><p class="text-neon font-bold">Research</p><h2 class="text-4xl md:text-6xl font-black mt-3">Publications across blockchain, AI and cybersecurity.</h2></div>
+        <div class="mt-12 grid md:grid-cols-2 gap-5">
+          <article class="glass rounded-3xl p-6 reveal"><h3 class="font-black text-xl">Cybersecurity Challenges in Smart Grid IoT</h3><p class="text-white/55 mt-2">Wiley-IEEE Press book chapter, 2024.</p></article>
+          <article class="glass rounded-3xl p-6 reveal"><h3 class="font-black text-xl">Explainable AI Frameworks</h3><p class="text-white/55 mt-2">Algorithms Journal, MDPI, 2024.</p></article>
+          <article class="glass rounded-3xl p-6 reveal"><h3 class="font-black text-xl">Blockchain-Powered Fraud Prevention</h3><p class="text-white/55 mt-2">ACM BSCI, Singapore, 2024.</p></article>
+          <article class="glass rounded-3xl p-6 reveal"><h3 class="font-black text-xl">Blockchain-Based E-Wallet</h3><p class="text-white/55 mt-2">IEEE CSDE, Fiji, 2023.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="py-28">
+      <div class="mx-auto max-w-7xl px-5">
+        <div class="glass rounded-[2.5rem] p-8 md:p-14 relative overflow-hidden shadow-violet">
+          <div class="absolute right-0 top-0 h-80 w-80 bg-neon/20 blur-3xl"></div>
+          <div class="relative z-10 grid lg:grid-cols-2 gap-10 items-center">
+            <div><p class="text-neon font-bold">Contact</p><h2 class="text-4xl md:text-6xl font-black mt-3">Let’s deliver something serious.</h2><p class="text-white/60 mt-5 text-lg">Available for digital delivery, project coordination, systems analysis, automation and emerging technology collaborations.</p></div>
+            <div class="space-y-4">
+              <a href="mailto:zbuksh@outlook.com" class="block rounded-3xl bg-white text-ink p-6 font-black text-xl hover:scale-[1.02] transition">zbuksh@outlook.com</a>
+              <a href="tel:+6792133382" class="block rounded-3xl bg-white/5 border border-white/10 p-6 font-bold hover:border-neon/50 transition">+679 213 3382</a>
+              <a href="https://linkedin.com/in/zain-buksh-a116b01b1" target="_blank" class="block rounded-3xl bg-white/5 border border-white/10 p-6 font-bold hover:border-neon/50 transition">LinkedIn Profile →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative border-t border-white/10 bg-black/35">
+    <div class="mx-auto max-w-7xl px-5 py-14 grid md:grid-cols-4 gap-10">
+      <div class="md:col-span-2"><h2 class="text-3xl font-black">Zain Buksh<span class="text-neon">.</span></h2><p class="text-white/55 mt-4 max-w-lg">Modern digital delivery portfolio built with Tailwind CSS, GSAP, advanced glassmorphism, tilt cards, scroll-triggered animations and responsive single-page architecture.</p></div>
+      <div><h3 class="font-bold mb-4">Navigation</h3><div class="grid gap-2 text-white/55"><a href="#about">About</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#research">Research</a></div></div>
+      <div><h3 class="font-bold mb-4">Stack</h3><p class="text-white/55">HTML • Tailwind CSS • GSAP • VanillaTilt • Modern CSS</p></div>
     </div>
+    <div class="border-t border-white/10 py-6 text-center text-white/45 text-sm">© <span id="year"></span> Zain Buksh. Built for impact, delivery and innovation.</div>
+  </footer>
 
-    <div class="card">
-      <h4>Project Manager</h4>
-      <span>University of Fiji | April 2023 – January 2025</span>
-      <ul>
-        <li>Delivered Finance, Registry, Library & Conference systems</li>
-        <li>Managed end‑to‑end technical and stakeholder delivery</li>
-        <li>Integrated Blockchain and AI for academic transformation</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h4>ICT Analyst / IT Support Technician</h4>
-      <span>Tappoo Group & Smart Technologies | 2020 – 2023</span>
-      <ul>
-        <li>Enterprise infrastructure operations and asset management</li>
-        <li>Systems deployment, troubleshooting, and security controls</li>
-      </ul>
-    </div>
-
-  </section>
-</section>
-
-<section id="projects">
-  <h3 class="section-title">Projects</h3>
-
-  <div class="grid">
-    <div class="card">
-      <h4>Enterprise Power Platform Solutions</h4>
-      <p>Recruitment systems, Tax & Legal automation, compliance solutions,
-         enterprise document generation and workflow automation.</p>
-    </div>
-
-    <div class="card">
-      <h4>University Cloud Systems</h4>
-      <p>Finance, Registry, Conference, and Library platforms delivered on
-         Google Cloud with full‑stack frameworks.</p>
-    </div>
-
-    <div class="card">
-      <h4>InsuraBlock</h4>
-      <p>Blockchain‑based health insurance fraud prevention platform
-         (Master’s Thesis Project).</p>
-      <br/>
-      <a href="https://insurablock.github.io/2024.INSB99045" target="_blank">View Project →</a>
-    </div>
-  </div>
-</section>
-
-<section id="research" class="alt">
-  <section>
-    <h3 class="section-title">Research & Publications</h3>
-    <ul>
-      <li>Cybersecurity Challenges in Smart Grid IoT – Wiley‑IEEE (2024)</li>
-      <li>Explainable AI Frameworks – MDPI Algorithms Journal (2024)</li>
-      <li>Enhancing e‑KYC using Quantum Computing & Blockchain – DLT Journal (2024)</li>
-      <li>Blockchain‑Powered Health Insurance Fraud Prevention – ACM (2024)</li>
-      <li>Blockchain‑Based E‑Wallet – IEEE CSDE (2023)</li>
-    </ul>
-  </section>
-</section>
-
-<section id="contact">
-  <h3 class="section-title">Contact</h3>
-  <p>
-    📍 Fiji (Remote‑based)<br/>
-    📧 zbuksh@outlook.com<br/>
-    🔗 <a href="https://linkedin.com/in/zain-buksh-a116b01b1" target="_blank">LinkedIn Profile</a>
-  </p>
-</section>
-
-<footer>
-  © 2026 Zain Buksh · Digital Delivery · Project Management · Technology Research
-</footer>
-
-<script>
-  console.log("Zain Buksh Portfolio Loaded Successfully");
-</script>
-
+  <style>.tag{font-size:.75rem;padding:.45rem .75rem;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.72)}</style>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    const cursor = document.querySelector('.cursor-dot');
+    window.addEventListener('mousemove', e => { if(cursor){ cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; }});
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.from('.hero-copy > *', { y: 42, opacity: 0, duration: .9, stagger: .12, ease: 'power3.out' });
+    gsap.from('.hero-card', { y: 60, opacity: 0, duration: 1, delay: .35, ease: 'power3.out' });
+    gsap.utils.toArray('.reveal').forEach(el => gsap.from(el, { scrollTrigger:{ trigger: el, start:'top 82%' }, y: 50, opacity:0, duration:.85, ease:'power3.out' }));
+    gsap.utils.toArray('.timeline-item').forEach((el, i) => gsap.from(el, { scrollTrigger:{ trigger: el, start:'top 82%' }, x: i % 2 ? 70 : -70, opacity:0, duration:.85, ease:'power3.out' }));
+    gsap.utils.toArray('.project-card').forEach((el, i) => gsap.from(el, { scrollTrigger:{ trigger: el, start:'top 86%' }, y: 70, rotateX: 10, opacity:0, duration:.9, delay:i*.08, ease:'power3.out' }));
+    VanillaTilt.init(document.querySelectorAll('[data-tilt]'), { glare: true, 'max-glare': .18, speed: 700 });
+  </script>
 </body>
 </html>
