@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusOne Enterprise Intranet</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { inter: ['Inter', 'sans-serif'] },
+          colors: {
+            ink: '#07111F',
+            electric: '#6D5DFB',
+            neon: '#16F2B3',
+            cyber: '#00B8FF',
+            gold: '#FFD166'
+          },
+          boxShadow: {
+            glow: '0 0 40px rgba(109,93,251,.35)',
+            glass: '0 24px 80px rgba(0,0,0,.28)'
+          },
+          animation: {
+            float: 'float 7s ease-in-out infinite',
+            pulseGlow: 'pulseGlow 2.8s ease-in-out infinite',
+            marquee: 'marquee 28s linear infinite',
+            gradient: 'gradient 10s ease infinite',
+            scan: 'scan 4s linear infinite'
+          },
+          keyframes: {
+            float: { '0%,100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-18px)' } },
+            pulseGlow: { '0%,100%': { boxShadow: '0 0 18px rgba(22,242,179,.2)' }, '50%': { boxShadow: '0 0 42px rgba(22,242,179,.55)' } },
+            marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+            gradient: { '0%,100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
+            scan: { '0%': { transform: 'translateY(-120%)' }, '100%': { transform: 'translateY(120%)' } }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { font-family: Inter, system-ui, sans-serif; background:#050A14; color:#EAF2FF; overflow-x:hidden; }
+    .mesh-bg {
+      background:
+        radial-gradient(circle at 12% 10%, rgba(109,93,251,.42), transparent 32%),
+        radial-gradient(circle at 84% 18%, rgba(0,184,255,.28), transparent 30%),
+        radial-gradient(circle at 48% 88%, rgba(22,242,179,.18), transparent 34%),
+        linear-gradient(145deg, #050A14 0%, #07111F 45%, #0B1029 100%);
+    }
+    .animated-gradient { background-size: 250% 250%; animation: gradient 10s ease infinite; }
+    .glass { background: rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); backdrop-filter: blur(20px); }
+    .glass-strong { background: rgba(7,17,31,.72); border:1px solid rgba(255,255,255,.14); backdrop-filter: blur(24px); }
+    .text-gradient { background: linear-gradient(90deg,#fff,#9DDCFF,#16F2B3); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .grid-pattern { background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px); background-size: 44px 44px; }
+    .orb { filter: blur(18px); opacity:.78; }
+    .card-hover { transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease, background .35s ease; }
+    .card-hover:hover { transform: translateY(-8px) scale(1.01); border-color: rgba(22,242,179,.45); box-shadow: 0 22px 80px rgba(0,184,255,.14); background: rgba(255,255,255,.1); }
+    .scanline::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, transparent, rgba(22,242,179,.12), transparent); animation:scan 4s linear infinite; pointer-events:none; }
+    .sidebar-link.active { background: rgba(22,242,179,.14); color:white; border-color:rgba(22,242,179,.35); }
+    .reveal { opacity:0; transform: translateY(24px); transition: all .7s ease; }
+    .reveal.show { opacity:1; transform: translateY(0); }
+    .noise { position:fixed; inset:0; pointer-events:none; opacity:.06; z-index:1; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.45"/></svg>'); }
+  </style>
+</head>
+
+<body class="mesh-bg min-h-screen">
+  <div class="noise"></div>
+  <div class="fixed inset-0 grid-pattern opacity-30 pointer-events-none"></div>
+  <div class="fixed -top-24 -left-20 h-72 w-72 rounded-full bg-electric/30 orb animate-float"></div>
+  <div class="fixed top-28 -right-24 h-96 w-96 rounded-full bg-cyber/20 orb animate-float" style="animation-delay:1.5s"></div>
+
+  <!-- Top Alert / System Bar -->
+  <div class="relative z-30 border-b border-white/10 bg-black/30 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs text-slate-300 sm:px-6 lg:px-8">
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2.5 w-2.5"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-75"></span><span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-neon"></span></span>
+        <span>Enterprise Command Portal Online</span>
+      </div>
+      <div class="hidden items-center gap-5 md:flex">
+        <span id="currentDate">Loading date...</span>
+        <span class="text-neon">Security: Zero-Trust Ready</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 border-b border-white/10 bg-[#050A14]/75 backdrop-blur-2xl">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <a href="#home" class="flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-electric via-cyber to-neon shadow-glow">
+          <i data-lucide="orbit" class="h-6 w-6 text-white"></i>
+        </div>
+        <div>
+          <p class="text-lg font-black tracking-tight">NexusOne</p>
+          <p class="-mt-1 text-[11px] uppercase tracking-[0.25em] text-slate-400">Intranet OS</p>
+        </div>
+      </a>
+
+      <div class="hidden items-center gap-2 lg:flex">
+        <a class="sidebar-link rounded-full border border-transparent px-4 py-2 text-sm text-slate-300 hover:bg-white/10" href="#tools">Tools</a>
+        <a class="sidebar-link rounded-full border border-transparent px-4 py-2 text-sm text-slate-300 hover:bg-white/10" href="#news">News</a>
+        <a class="sidebar-link rounded-full border border-transparent px-4 py-2 text-sm text-slate-300 hover:bg-white/10" href="#learning">Learning</a>
+        <a class="sidebar-link rounded-full border border-transparent px-4 py-2 text-sm text-slate-300 hover:bg-white/10" href="#islamic">Islamic</a>
+        <a class="sidebar-link rounded-full border border-transparent px-4 py-2 text-sm text-slate-300 hover:bg-white/10" href="#systems">Systems</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="themeBtn" class="rounded-full border border-white/10 bg-white/10 p-2.5 hover:bg-white/15" title="Toggle theme intensity">
+          <i data-lucide="sparkles" class="h-5 w-5"></i>
+        </button>
+        <button id="mobileMenuBtn" class="rounded-full border border-white/10 bg-white/10 p-2.5 lg:hidden">
+          <i data-lucide="menu" class="h-5 w-5"></i>
+        </button>
+      </div>
+    </nav>
+    <div id="mobileMenu" class="hidden border-t border-white/10 bg-black/40 px-4 py-3 lg:hidden">
+      <div class="grid gap-2 text-sm">
+        <a href="#tools" class="rounded-xl px-4 py-2 hover:bg-white/10">Tools</a>
+        <a href="#news" class="rounded-xl px-4 py-2 hover:bg-white/10">News</a>
+        <a href="#learning" class="rounded-xl px-4 py-2 hover:bg-white/10">Learning</a>
+        <a href="#islamic" class="rounded-xl px-4 py-2 hover:bg-white/10">Islamic Tools</a>
+        <a href="#systems" class="rounded-xl px-4 py-2 hover:bg-white/10">Systems</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10">
+    <!-- Hero -->
+    <section id="home" class="mx-auto max-w-7xl px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pt-16">
+      <div class="grid items-center gap-8 lg:grid-cols-[1.15fr_.85fr]">
+        <div class="reveal">
+          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-4 py-2 text-sm text-neon">
+            <i data-lucide="zap" class="h-4 w-4"></i>
+            AI-ready digital workplace command center
+          </div>
+          <h1 class="max-w-4xl text-5xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl">
+            Your enterprise <span class="text-gradient">intranet experience</span>, redesigned for speed.
+          </h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+            A premium internal portal for tools, communications, knowledge, news, learning, Islamic resources, weather, and productivity systems — all in one polished homepage.
+          </p>
+
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="#tools" class="group inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-electric to-cyber px-6 py-3 font-bold shadow-glow transition hover:scale-[1.02]">
+              Open Quick Tools <i data-lucide="arrow-right" class="h-5 w-5 transition group-hover:translate-x-1"></i>
+            </a>
+            <a href="#systems" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-6 py-3 font-bold transition hover:bg-white/15">
+              View Systems <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
+            </a>
+          </div>
+
+          <div class="mt-10 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-4">
+            <div class="glass rounded-3xl p-4"><p class="text-3xl font-black text-white">24</p><p class="text-xs text-slate-400">Core Apps</p></div>
+            <div class="glass rounded-3xl p-4"><p class="text-3xl font-black text-white">AI</p><p class="text-xs text-slate-400">Search Ready</p></div>
+            <div class="glass rounded-3xl p-4"><p class="text-3xl font-black text-white">SSO</p><p class="text-xs text-slate-400">Login Concept</p></div>
+            <div class="glass rounded-3xl p-4"><p class="text-3xl font-black text-white">360°</p><p class="text-xs text-slate-400">Employee UX</p></div>
+          </div>
+        </div>
+
+        <!-- Weather + Command Widget -->
+        <aside class="reveal glass-strong scanline relative overflow-hidden rounded-[2rem] p-6 shadow-glass">
+          <div class="absolute right-5 top-5 rounded-full border border-neon/30 bg-neon/10 px-3 py-1 text-xs text-neon">Live Widget</div>
+          <div class="relative z-10">
+            <div class="mb-8 flex items-center gap-3">
+              <div class="rounded-2xl bg-white/10 p-3"><i data-lucide="cloud-sun" class="h-7 w-7 text-gold"></i></div>
+              <div>
+                <h2 class="text-2xl font-black">Weather Desk</h2>
+                <p class="text-sm text-slate-400">Auto-detects location, fallback: Nadi, Fiji</p>
+              </div>
+            </div>
+
+            <div class="rounded-[1.7rem] border border-white/10 bg-black/25 p-5">
+              <div class="flex items-end justify-between gap-3">
+                <div>
+                  <p id="weatherCity" class="text-sm uppercase tracking-[0.25em] text-slate-400">Detecting...</p>
+                  <p id="weatherTemp" class="mt-2 text-6xl font-black">--°</p>
+                </div>
+                <div class="text-right">
+                  <p id="weatherCondition" class="font-bold text-white">Loading weather</p>
+                  <p id="weatherWind" class="text-sm text-slate-400">Wind: -- km/h</p>
+                </div>
+              </div>
+              <div class="mt-5 grid grid-cols-3 gap-3 text-center text-xs">
+                <div class="rounded-2xl bg-white/10 p-3"><p class="text-slate-400">Humidity</p><p id="weatherHumidity" class="mt-1 font-bold">--%</p></div>
+                <div class="rounded-2xl bg-white/10 p-3"><p class="text-slate-400">Local Time</p><p id="localTime" class="mt-1 font-bold">--:--</p></div>
+                <div class="rounded-2xl bg-white/10 p-3"><p class="text-slate-400">Status</p><p class="mt-1 font-bold text-neon">Active</p></div>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-[1.7rem] border border-white/10 bg-gradient-to-r from-electric/20 to-cyber/20 p-5">
+              <p class="text-sm text-slate-300">Command Search</p>
+              <div class="mt-3 flex items-center gap-3 rounded-2xl bg-black/30 px-4 py-3">
+                <i data-lucide="search" class="h-5 w-5 text-slate-400"></i>
+                <input id="portalSearch" class="w-full bg-transparent text-sm outline-none placeholder:text-slate-500" placeholder="Search tools, news, learning, systems..." />
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Marquee -->
+    <section class="border-y border-white/10 bg-white/[.04] py-4 overflow-hidden">
+      <div class="flex w-[200%] animate-marquee gap-8 text-sm font-semibold uppercase tracking-[0.25em] text-slate-300">
+        <span>AI Helpdesk</span><span>Knowledge Search</span><span>Weather Intelligence</span><span>Learning Hub</span><span>News Desk</span><span>Islamic Tools</span><span>Google Workspace</span><span>Outlook</span>
+        <span>AI Helpdesk</span><span>Knowledge Search</span><span>Weather Intelligence</span><span>Learning Hub</span><span>News Desk</span><span>Islamic Tools</span><span>Google Workspace</span><span>Outlook</span>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section id="tools" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="reveal mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-[0.3em] text-neon">Quick Launch</p>
+          <h2 class="mt-2 text-4xl font-black">Core productivity tools</h2>
+        </div>
+        <p class="max-w-xl text-slate-400">Pinned enterprise links with a modern app-grid experience. Replace any URLs with your internal SSO links later.</p>
+      </div>
+
+      <div id="toolGrid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Cards generated by JS -->
+      </div>
+    </section>
+
+    <!-- News -->
+    <section id="news" class="bg-black/20 py-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal mb-8">
+          <p class="text-sm font-bold uppercase tracking-[0.3em] text-cyber">News Desk</p>
+          <h2 class="mt-2 text-4xl font-black">Fiji and world news gateways</h2>
+        </div>
+        <div class="grid gap-5 md:grid-cols-3">
+          <a target="_blank" href="https://www.abc.net.au/news/" class="reveal card-hover glass rounded-[2rem] p-6">
+            <i data-lucide="radio" class="h-9 w-9 text-cyber"></i><h3 class="mt-5 text-2xl font-black">ABC News</h3><p class="mt-2 text-sm text-slate-400">Global and regional breaking news, politics, tech, climate and analysis.</p>
+          </a>
+          <a target="_blank" href="https://www.fbcnews.com.fj/" class="reveal card-hover glass rounded-[2rem] p-6">
+            <i data-lucide="newspaper" class="h-9 w-9 text-neon"></i><h3 class="mt-5 text-2xl font-black">FBC News</h3><p class="mt-2 text-sm text-slate-400">Fiji Broadcasting Corporation news for national updates and alerts.</p>
+          </a>
+          <a target="_blank" href="https://www.fijivillage.com/" class="reveal card-hover glass rounded-[2rem] p-6">
+            <i data-lucide="map-pin" class="h-9 w-9 text-gold"></i><h3 class="mt-5 text-2xl font-black">Fiji Village</h3><p class="mt-2 text-sm text-slate-400">Local Fiji headlines, communities, events, and national stories.</p>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Learning -->
+    <section id="learning" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="reveal mb-8">
+        <p class="text-sm font-bold uppercase tracking-[0.3em] text-gold">Growth Hub</p>
+        <h2 class="mt-2 text-4xl font-black">Learning, credentials and career systems</h2>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-4">
+        <a target="_blank" href="https://www.coursera.org/" class="reveal card-hover glass rounded-[2rem] p-6"><i data-lucide="graduation-cap" class="h-8 w-8 text-cyber"></i><h3 class="mt-4 font-black">Coursera</h3><p class="mt-2 text-sm text-slate-400">University-backed courses and certificates.</p></a>
+        <a target="_blank" href="https://www.udemy.com/" class="reveal card-hover glass rounded-[2rem] p-6"><i data-lucide="book-open-check" class="h-8 w-8 text-neon"></i><h3 class="mt-4 font-black">Udemy</h3><p class="mt-2 text-sm text-slate-400">Practical technology and business training.</p></a>
+        <a target="_blank" href="https://www.credly.com/" class="reveal card-hover glass rounded-[2rem] p-6"><i data-lucide="badge-check" class="h-8 w-8 text-gold"></i><h3 class="mt-4 font-black">Credly</h3><p class="mt-2 text-sm text-slate-400">Digital badges and professional credentials.</p></a>
+        <a target="_blank" href="https://learn.microsoft.com/" class="reveal card-hover glass rounded-[2rem] p-6"><i data-lucide="brain-circuit" class="h-8 w-8 text-electric"></i><h3 class="mt-4 font-black">Microsoft Learn</h3><p class="mt-2 text-sm text-slate-400">Cloud, AI, security and productivity learning.</p></a>
+      </div>
+    </section>
+
+    <!-- Islamic Tools -->
+    <section id="islamic" class="bg-black/20 py-16">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-neon">Faith Resources</p>
+            <h2 class="mt-2 text-4xl font-black">Quran and Islamic tools</h2>
+            <p class="mt-4 text-slate-400">A respectful section for daily Quran access, prayer tools, Islamic references and learning resources.</p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <a target="_blank" href="https://quran.com/" class="card-hover glass rounded-[2rem] p-5"><i data-lucide="book-heart" class="h-8 w-8 text-neon"></i><h3 class="mt-4 font-black">Quran.com</h3><p class="mt-1 text-sm text-slate-400">Read Quran, translations and tafsir.</p></a>
+            <a target="_blank" href="https://sunnah.com/" class="card-hover glass rounded-[2rem] p-5"><i data-lucide="library" class="h-8 w-8 text-cyber"></i><h3 class="mt-4 font-black">Sunnah.com</h3><p class="mt-1 text-sm text-slate-400">Hadith collections and references.</p></a>
+            <a target="_blank" href="https://islamicfinder.org/" class="card-hover glass rounded-[2rem] p-5"><i data-lucide="clock-3" class="h-8 w-8 text-gold"></i><h3 class="mt-4 font-black">Prayer Times</h3><p class="mt-1 text-sm text-slate-400">Prayer times, Qibla and Hijri calendar.</p></a>
+            <a target="_blank" href="https://qiblafinder.withgoogle.com/" class="card-hover glass rounded-[2rem] p-5"><i data-lucide="compass" class="h-8 w-8 text-electric"></i><h3 class="mt-4 font-black">Qibla Finder</h3><p class="mt-1 text-sm text-slate-400">Google Qibla direction tool.</p></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Systems -->
+    <section id="systems" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="reveal mb-8">
+        <p class="text-sm font-bold uppercase tracking-[0.3em] text-electric">Enterprise Layer</p>
+        <h2 class="mt-2 text-4xl font-black">Systems and service hub</h2>
+      </div>
+      <div class="grid gap-5 lg:grid-cols-3">
+        <div class="reveal glass-strong rounded-[2rem] p-6">
+          <div class="flex items-center justify-between"><h3 class="text-2xl font-black">Service Requests</h3><i data-lucide="ticket-check" class="h-8 w-8 text-neon"></i></div>
+          <p class="mt-3 text-sm text-slate-400">IT tickets, HR requests, access requests, asset requests and internal support.</p>
+          <button class="mt-6 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold hover:bg-white/15">Launch Service Desk</button>
+        </div>
+        <div class="reveal glass-strong rounded-[2rem] p-6">
+          <div class="flex items-center justify-between"><h3 class="text-2xl font-black">Knowledge Base</h3><i data-lucide="database-zap" class="h-8 w-8 text-cyber"></i></div>
+          <p class="mt-3 text-sm text-slate-400">Policies, SOPs, project guides, templates, company manuals and process maps.</p>
+          <button class="mt-6 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold hover:bg-white/15">Open Knowledge</button>
+        </div>
+        <div class="reveal glass-strong rounded-[2rem] p-6">
+          <div class="flex items-center justify-between"><h3 class="text-2xl font-black">AI Assistant</h3><i data-lucide="bot" class="h-8 w-8 text-gold"></i></div>
+          <p class="mt-3 text-sm text-slate-400">Internal chatbot concept for policy search, document answers, onboarding and guidance.</p>
+          <button class="mt-6 rounded-2xl bg-white/10 px-5 py-3 text-sm font-bold hover:bg-white/15">Ask Assistant</button>
+        </div>
+      </div>
+
+      <div class="reveal mt-8 rounded-[2rem] border border-white/10 bg-gradient-to-r from-electric/20 via-cyber/10 to-neon/20 p-6">
+        <div class="grid gap-6 lg:grid-cols-3">
+          <div><p class="text-sm text-slate-400">Security Architecture</p><h3 class="mt-1 text-2xl font-black">Zero-trust, SSO, RBAC</h3></div>
+          <div><p class="text-sm text-slate-400">Experience Layer</p><h3 class="mt-1 text-2xl font-black">Personalized dashboards</h3></div>
+          <div><p class="text-sm text-slate-400">Analytics Layer</p><h3 class="mt-1 text-2xl font-black">Usage and adoption metrics</h3></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/10 bg-black/40">
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3">
+          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-electric via-cyber to-neon"><i data-lucide="orbit" class="h-6 w-6"></i></div>
+          <div><p class="text-lg font-black">NexusOne Intranet OS</p><p class="text-xs uppercase tracking-[0.25em] text-slate-500">Enterprise digital front door</p></div>
+        </div>
+        <p class="mt-5 max-w-xl text-sm leading-7 text-slate-400">A modern, single-page intranet concept built with HTML, Tailwind CSS, advanced CSS effects and JavaScript. Customize it with your internal URLs, SSO, APIs and company branding.</p>
+      </div>
+      <div>
+        <h4 class="font-black">Portal</h4>
+        <div class="mt-4 grid gap-2 text-sm text-slate-400"><a href="#tools" class="hover:text-white">Tools</a><a href="#news" class="hover:text-white">News</a><a href="#learning" class="hover:text-white">Learning</a><a href="#islamic" class="hover:text-white">Islamic Tools</a></div>
+      </div>
+      <div>
+        <h4 class="font-black">Governance</h4>
+        <div class="mt-4 grid gap-2 text-sm text-slate-400"><a href="#" class="hover:text-white">Privacy</a><a href="#" class="hover:text-white">Security</a><a href="#" class="hover:text-white">Accessibility</a><a href="#" class="hover:text-white">Support</a></div>
+      </div>
+    </div>
+    <div class="border-t border-white/10 px-4 py-5 text-center text-xs text-slate-500">© <span id="year"></span> NexusOne Enterprise Intranet. Built for speed, clarity and productivity.</div>
+  </footer>
+
+  <script>
+    const tools = [
+      { name:'ChatGPT', desc:'AI productivity and research assistant.', url:'https://chatgpt.com/', icon:'sparkles', color:'text-neon' },
+      { name:'GitHub', desc:'Code repositories and engineering workflows.', url:'https://github.com/', icon:'github', color:'text-white' },
+      { name:'Google Workspace', desc:'Drive, Docs, Sheets, Slides, Meet and Admin.', url:'https://workspace.google.com/', icon:'layers', color:'text-cyber' },
+      { name:'Outlook Email', desc:'Enterprise mail, calendar and contacts.', url:'https://outlook.office.com/mail/', icon:'mail', color:'text-gold' },
+      { name:'Google Drive', desc:'Cloud documents and shared folders.', url:'https://drive.google.com/', icon:'folder-open', color:'text-neon' },
+      { name:'Google Calendar', desc:'Meetings, reminders and team schedules.', url:'https://calendar.google.com/', icon:'calendar-days', color:'text-cyber' },
+      { name:'Microsoft 365', desc:'Office apps, Teams and cloud collaboration.', url:'https://www.office.com/', icon:'app-window', color:'text-electric' },
+      { name:'Project Board', desc:'Placeholder for Jira, Asana, Monday or PM tool.', url:'#systems', icon:'kanban-square', color:'text-gold' }
+    ];
+
+    const grid = document.getElementById('toolGrid');
+    function renderTools(filter = '') {
+      grid.innerHTML = tools
+        .filter(t => (t.name + ' ' + t.desc).toLowerCase().includes(filter.toLowerCase()))
+        .map(t => `
+          <a target="${t.url.startsWith('#') ? '_self' : '_blank'}" href="${t.url}" class="reveal show card-hover glass rounded-[2rem] p-6 group">
+            <div class="flex items-start justify-between gap-4">
+              <div class="rounded-2xl bg-white/10 p-3"><i data-lucide="${t.icon}" class="h-7 w-7 ${t.color}"></i></div>
+              <i data-lucide="arrow-up-right" class="h-5 w-5 text-slate-500 transition group-hover:text-white"></i>
+            </div>
+            <h3 class="mt-5 text-xl font-black">${t.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-400">${t.desc}</p>
+          </a>
+        `).join('');
+      lucide.createIcons();
+    }
+
+    renderTools();
+
+    document.getElementById('portalSearch').addEventListener('input', e => renderTools(e.target.value));
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+    document.getElementById('themeBtn').addEventListener('click', () => document.body.classList.toggle('saturate-150'));
+
+    const now = new Date();
+    document.getElementById('year').textContent = now.getFullYear();
+    document.getElementById('currentDate').textContent = now.toLocaleDateString(undefined, { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    setInterval(() => {
+      document.getElementById('localTime').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    }, 1000);
+
+    const weatherCodes = {
+      0:'Clear sky', 1:'Mainly clear', 2:'Partly cloudy', 3:'Overcast',
+      45:'Fog', 48:'Rime fog', 51:'Light drizzle', 53:'Drizzle', 55:'Heavy drizzle',
+      61:'Light rain', 63:'Rain', 65:'Heavy rain', 80:'Rain showers', 95:'Thunderstorm'
+    };
+
+    async function loadWeather(lat=-17.7765, lon=177.4356, city='Nadi, Fiji') {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m`;
+        const res = await fetch(url);
+        const data = await res.json();
+        document.getElementById('weatherCity').textContent = city;
+        document.getElementById('weatherTemp').textContent = Math.round(data.current.temperature_2m) + '°';
+        document.getElementById('weatherCondition').textContent = weatherCodes[data.current.weather_code] || 'Weather updated';
+        document.getElementById('weatherWind').textContent = 'Wind: ' + Math.round(data.current.wind_speed_10m) + ' km/h';
+        document.getElementById('weatherHumidity').textContent = data.current.relative_humidity_2m + '%';
+      } catch (error) {
+        document.getElementById('weatherCity').textContent = 'Weather unavailable';
+        document.getElementById('weatherCondition').textContent = 'Check API/network';
+      }
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => loadWeather(pos.coords.latitude, pos.coords.longitude, 'Your Location'),
+        () => loadWeather()
+      );
+    } else { loadWeather(); }
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior:'smooth', block:'start' }); }
+      });
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
