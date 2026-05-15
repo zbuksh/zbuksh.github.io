@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R&D IdeaOps Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: rgba(255,255,255,.86);
+      --border: rgba(15,23,42,.1);
+      --ink: #0f172a;
+      --muted: #64748b;
+      --blue: #2563eb;
+      --cyan: #0891b2;
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --violet: #7c3aed;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.16), transparent 34rem),
+        radial-gradient(circle at top right, rgba(14,165,233,.16), transparent 30rem),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 44%, #f6f8fb 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--border);
+      box-shadow: 0 22px 70px rgba(15, 23, 42, .08);
+      backdrop-filter: blur(18px);
+    }
+
+    .soft-card {
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(15,23,42,.08);
+      box-shadow: 0 14px 35px rgba(15, 23, 42, .06);
+    }
+
+    .nav-item { transition: all .22s ease; }
+    .nav-item:hover { transform: translateX(3px); background: rgba(37,99,235,.08); }
+    .nav-item.active { background: linear-gradient(135deg, #2563eb, #0891b2); color: white; box-shadow: 0 12px 24px rgba(37,99,235,.28); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
+      color: white;
+      box-shadow: 0 14px 25px rgba(37,99,235,.25);
+      transition: .2s ease;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 18px 34px rgba(37,99,235,.33); }
+
+    .btn-ghost { transition: .2s ease; }
+    .btn-ghost:hover { background: #f1f5f9; transform: translateY(-1px); }
+
+    .idea-card { transition: all .22s ease; }
+    .idea-card:hover { transform: translateY(-3px); box-shadow: 0 20px 45px rgba(15,23,42,.12); }
+
+    .column { min-height: 440px; }
+    .drag-over { outline: 2px dashed #2563eb; outline-offset: -8px; background: rgba(37,99,235,.06); }
+
+    .priority-dot { width: .65rem; height: .65rem; border-radius: 999px; display: inline-block; }
+    .modal-shell { animation: rise .22s ease both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    .toast { animation: toastIn .25s ease both; }
+    @keyframes toastIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+    .pulse-ring { position: relative; }
+    .pulse-ring:after {
+      content: ""; position: absolute; inset: -6px; border-radius: 999px;
+      background: rgba(37,99,235,.16); z-index: -1; animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { transform: scale(.9); opacity:.4; } 50% { transform: scale(1.1); opacity:.15; } }
+
+    input, select, textarea { outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #2563eb !important; box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+
+    ::-webkit-scrollbar { width: 9px; height: 9px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body>
+  <div id="toastHost" class="fixed bottom-6 right-6 z-[80] space-y-3"></div>
+
+  <div class="min-h-screen flex">
+    <aside class="hidden xl:flex w-72 shrink-0 p-5 sticky top-0 h-screen">
+      <div class="glass rounded-[2rem] w-full p-5 flex flex-col">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center font-black text-xl shadow-lg">R</div>
+          <div>
+            <h1 class="font-black text-lg tracking-tight">IdeaOps</h1>
+            <p class="text-xs text-slate-500">R&D Command Center</p>
+          </div>
+        </div>
+
+        <nav class="space-y-2 text-sm font-semibold">
+          <button onclick="switchView('dashboard')" data-view-btn="dashboard" class="nav-item active w-full rounded-2xl px-4 py-3 text-left">Overview Dashboard</button>
+          <button onclick="switchView('board')" data-view-btn="board" class="nav-item w-full rounded-2xl px-4 py-3 text-left">Idea Kanban Board</button>
+          <button onclick="switchView('list')" data-view-btn="list" class="nav-item w-full rounded-2xl px-4 py-3 text-left">Idea Register</button>
+          <button onclick="switchView('notes')" data-view-btn="notes" class="nav-item w-full rounded-2xl px-4 py-3 text-left">Work Notes Stream</button>
+        </nav>
+
+        <div class="mt-auto rounded-3xl bg-gradient-to-br from-slate-900 to-blue-900 text-white p-5 overflow-hidden relative">
+          <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10"></div>
+          <p class="text-xs uppercase tracking-[.2em] text-blue-100">Local storage</p>
+          <h2 class="font-extrabold mt-1">Device-only data</h2>
+          <p class="text-xs text-blue-100 mt-2 leading-relaxed">Records are saved in this browser using localStorage. Export backups regularly.</p>
+          <button onclick="exportData()" class="mt-4 bg-white/15 hover:bg-white/25 rounded-xl px-3 py-2 text-xs font-bold">Export JSON</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-7">
+      <header class="glass rounded-[2rem] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 text-xs text-slate-500 font-bold uppercase tracking-[.18em]"><span class="w-2 h-2 bg-emerald-500 rounded-full pulse-ring"></span> Innovation Management Workspace</div>
+          <h1 class="text-2xl md:text-4xl font-black tracking-tight mt-1">Research & Development Ideas</h1>
+          <p class="text-slate-500 text-sm mt-1">Capture, evaluate, track, and document ideas from concept to delivery.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openIdeaModal()" class="btn-primary rounded-2xl px-5 py-3 font-extrabold text-sm">+ New Idea</button>
+          <button onclick="seedDemoData()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white">Load Demo</button>
+          <button onclick="clearAllData()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white text-red-600">Clear</button>
+        </div>
+      </header>
+
+      <section class="glass rounded-[2rem] p-4 mb-6">
+        <div class="grid md:grid-cols-5 gap-3">
+          <div class="md:col-span-2 relative">
+            <input id="searchInput" oninput="renderAll()" class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 pl-11 text-sm" placeholder="Search ideas, owners, notes, tags..." />
+            <span class="absolute left-4 top-3.5 text-slate-400">⌕</span>
+          </div>
+          <select id="statusFilter" onchange="renderAll()" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm"><option value="all">All statuses</option></select>
+          <select id="priorityFilter" onchange="renderAll()" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+            <option value="all">All priorities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+          </select>
+          <select id="sortBy" onchange="renderAll()" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
+            <option value="updatedDesc">Recently updated</option><option value="createdDesc">Newest created</option><option value="scoreDesc">Highest score</option><option value="dueAsc">Due date</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="dashboardView" data-view class="space-y-6"></section>
+      <section id="boardView" data-view class="hidden"></section>
+      <section id="listView" data-view class="hidden"></section>
+      <section id="notesView" data-view class="hidden"></section>
+    </main>
+  </div>
+
+  <div id="ideaModal" class="fixed inset-0 bg-slate-900/40 hidden z-50 p-4 overflow-y-auto">
+    <div class="modal-shell max-w-5xl mx-auto my-8 glass rounded-[2rem] overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+        <div>
+          <h2 id="modalTitle" class="text-2xl font-black">New R&D Idea</h2>
+          <p class="text-sm text-slate-500">ServiceNow-style form with work notes and activity tracking.</p>
+        </div>
+        <button onclick="closeIdeaModal()" class="w-10 h-10 rounded-2xl hover:bg-slate-100 text-xl">×</button>
+      </div>
+
+      <form id="ideaForm" onsubmit="saveIdea(event)" class="p-5 grid lg:grid-cols-3 gap-5">
+        <input type="hidden" id="ideaId" />
+        <div class="lg:col-span-2 space-y-4">
+          <div class="soft-card rounded-3xl p-5 space-y-4">
+            <h3 class="font-black text-lg">Idea Details</h3>
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Title</label>
+              <input required id="title" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Example: AI-powered customer support knowledge engine" />
+            </div>
+            <div>
+              <label class="text-xs font-extrabold text-slate-500 uppercase">Problem / Opportunity</label>
+              <textarea required id="description" rows="5" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Explain the idea, user pain, business benefit, and expected result..."></textarea>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div><label class="text-xs font-extrabold text-slate-500 uppercase">Owner</label><input id="owner" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Idea owner" /></div>
+              <div><label class="text-xs font-extrabold text-slate-500 uppercase">Department</label><input id="department" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="IT, Operations, Product..." /></div>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div><label class="text-xs font-extrabold text-slate-500 uppercase">Tags</label><input id="tags" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="AI, automation, mobile" /></div>
+              <div><label class="text-xs font-extrabold text-slate-500 uppercase">Due / Review Date</label><input type="date" id="dueDate" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3" /></div>
+            </div>
+          </div>
+
+          <div class="soft-card rounded-3xl p-5 space-y-4">
+            <h3 class="font-black text-lg">Work Notes</h3>
+            <textarea id="newWorkNote" rows="4" class="w-full rounded-2xl border border-slate-200 px-4 py-3" placeholder="Add an update, decision, blocker, test result, research finding..."></textarea>
+            <p class="text-xs text-slate-500">A note is added to the activity stream when this form is saved.</p>
+            <div id="modalNotes" class="space-y-3 max-h-72 overflow-y-auto"></div>
+          </div>
+        </div>
+
+        <aside class="space-y-4">
+          <div class="soft-card rounded-3xl p-5 space-y-4">
+            <h3 class="font-black text-lg">Tracking</h3>
+            <div><label class="text-xs font-extrabold text-slate-500 uppercase">Status</label><select id="status" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"></select></div>
+            <div><label class="text-xs font-extrabold text-slate-500 uppercase">Priority</label><select id="priority" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+            <div><label class="text-xs font-extrabold text-slate-500 uppercase">Business Value</label><input id="value" type="range" min="1" max="10" value="5" class="w-full" oninput="scorePreview()"><span id="valueOut" class="text-sm font-bold"></span></div>
+            <div><label class="text-xs font-extrabold text-slate-500 uppercase">Feasibility</label><input id="feasibility" type="range" min="1" max="10" value="5" class="w-full" oninput="scorePreview()"><span id="feasibilityOut" class="text-sm font-bold"></span></div>
+            <div><label class="text-xs font-extrabold text-slate-500 uppercase">Risk</label><input id="risk" type="range" min="1" max="10" value="4" class="w-full" oninput="scorePreview()"><span id="riskOut" class="text-sm font-bold"></span></div>
+            <div class="rounded-2xl bg-blue-50 border border-blue-100 p-4"><p class="text-xs text-blue-700 font-extrabold uppercase">Idea Score</p><p id="scoreOut" class="text-4xl font-black text-blue-700">0</p></div>
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn-primary rounded-2xl px-5 py-3 font-extrabold flex-1">Save Idea</button>
+            <button type="button" onclick="deleteCurrentIdea()" id="deleteBtn" class="hidden rounded-2xl px-4 py-3 font-bold bg-red-50 text-red-600 border border-red-100">Delete</button>
+          </div>
+        </aside>
+      </form>
+    </div>
+  </div>
+
+  <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)" />
+
+  <script>
+    const STORAGE_KEY = 'ideaops_rd_manager_v1';
+    const statuses = ['Backlog', 'Research', 'Business Case', 'Prototype', 'Testing', 'Approved', 'Delivered', 'Rejected'];
+    let ideas = [];
+    let currentView = 'dashboard';
+    let chart;
+
+    const priorityColors = { Critical: 'bg-red-500', High: 'bg-orange-500', Medium: 'bg-blue-500', Low: 'bg-emerald-500' };
+    const statusColors = { Backlog:'bg-slate-100 text-slate-700', Research:'bg-cyan-100 text-cyan-700', 'Business Case':'bg-indigo-100 text-indigo-700', Prototype:'bg-violet-100 text-violet-700', Testing:'bg-amber-100 text-amber-700', Approved:'bg-emerald-100 text-emerald-700', Delivered:'bg-green-100 text-green-700', Rejected:'bg-red-100 text-red-700' };
+
+    function uid(){ return 'IDEA-' + Math.random().toString(36).slice(2, 7).toUpperCase(); }
+    function now(){ return new Date().toISOString(); }
+    function fmt(date){ return date ? new Date(date).toLocaleString() : '—'; }
+    function fmtDate(date){ return date ? new Date(date).toLocaleDateString() : 'No date'; }
+    function escapeHtml(str=''){ return str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+    function load(){
+      ideas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      populateSelects();
+      renderAll();
+    }
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas)); }
+
+    function populateSelects(){
+      const statusFilter = document.getElementById('statusFilter');
+      const statusSelect = document.getElementById('status');
+      statusFilter.innerHTML = '<option value="all">All statuses</option>' + statuses.map(s => `<option>${s}</option>`).join('');
+      statusSelect.innerHTML = statuses.map(s => `<option>${s}</option>`).join('');
+    }
+
+    function getFilteredIdeas(){
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const status = document.getElementById('statusFilter').value;
+      const priority = document.getElementById('priorityFilter').value;
+      const sort = document.getElementById('sortBy').value;
+      let data = ideas.filter(i => {
+        const blob = [i.id,i.title,i.description,i.owner,i.department,i.tags,(i.notes||[]).map(n=>n.text).join(' ')].join(' ').toLowerCase();
+        return (!q || blob.includes(q)) && (status === 'all' || i.status === status) && (priority === 'all' || i.priority === priority);
+      });
+      data.sort((a,b)=>{
+        if(sort==='scoreDesc') return score(b)-score(a);
+        if(sort==='createdDesc') return new Date(b.createdAt)-new Date(a.createdAt);
+        if(sort==='dueAsc') return new Date(a.dueDate || '2999-01-01')-new Date(b.dueDate || '2999-01-01');
+        return new Date(b.updatedAt)-new Date(a.updatedAt);
+      });
+      return data;
+    }
+
+    function score(i){ return Math.max(1, Math.round((Number(i.value||5)*1.2 + Number(i.feasibility||5) - Number(i.risk||4)*.7) * 10)); }
+
+    function renderAll(){ renderDashboard(); renderBoard(); renderList(); renderNotes(); }
+
+    function switchView(view){
+      currentView = view;
+      document.querySelectorAll('[data-view]').forEach(v => v.classList.add('hidden'));
+      document.getElementById(view + 'View').classList.remove('hidden');
+      document.querySelectorAll('[data-view-btn]').forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-view-btn="${view}"]`)?.classList.add('active');
+      renderAll();
+    }
+
+    function renderDashboard(){
+      const data = getFilteredIdeas();
+      const active = data.filter(i => !['Delivered','Rejected'].includes(i.status)).length;
+      const avgScore = data.length ? Math.round(data.reduce((a,i)=>a+score(i),0)/data.length) : 0;
+      const critical = data.filter(i => i.priority === 'Critical').length;
+      const delivered = data.filter(i => i.status === 'Delivered').length;
+      document.getElementById('dashboardView').innerHTML = `
+        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+          ${metric('Total Ideas', data.length, 'All captured opportunities', 'from-blue-600 to-cyan-500')}
+          ${metric('Active Pipeline', active, 'In progress ideas', 'from-violet-600 to-indigo-500')}
+          ${metric('Average Score', avgScore, 'Value + feasibility - risk', 'from-emerald-600 to-teal-500')}
+          ${metric('Critical Priority', critical, 'Needs manager attention', 'from-red-600 to-orange-500')}
+        </div>
+        <div class="grid xl:grid-cols-3 gap-5">
+          <div class="xl:col-span-2 soft-card rounded-[2rem] p-5"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-black">Pipeline by Status</h3><button onclick="document.getElementById('importFile').click()" class="btn-ghost border rounded-xl px-3 py-2 text-xs font-bold">Import JSON</button></div><canvas id="statusChart" height="105"></canvas></div>
+          <div class="soft-card rounded-[2rem] p-5"><h3 class="text-xl font-black mb-4">Top Scored Ideas</h3><div class="space-y-3">${data.slice(0,5).map(cardMini).join('') || empty('No ideas yet')}</div></div>
+        </div>
+        <div class="soft-card rounded-[2rem] p-5"><h3 class="text-xl font-black mb-4">Latest Activity</h3><div class="space-y-3">${latestNotes(8).map(noteRow).join('') || empty('No work notes yet')}</div></div>
+      `;
+      drawChart(data);
+    }
+
+    function metric(label, value, sub, gradient){
+      return `<div class="soft-card rounded-[2rem] p-5 relative overflow-hidden"><div class="absolute -right-5 -top-5 w-24 h-24 rounded-full bg-gradient-to-br ${gradient} opacity-10"></div><p class="text-xs font-black uppercase tracking-[.18em] text-slate-500">${label}</p><p class="text-4xl font-black mt-2">${value}</p><p class="text-sm text-slate-500 mt-1">${sub}</p></div>`;
+    }
+
+    function drawChart(data){
+      setTimeout(()=>{
+        const ctx = document.getElementById('statusChart');
+        if(!ctx) return;
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, { type:'bar', data:{ labels: statuses, datasets:[{ label:'Ideas', data: statuses.map(s => data.filter(i=>i.status===s).length), borderRadius: 12 }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } } });
+      });
+    }
+
+    function renderBoard(){
+      const data = getFilteredIdeas();
+      document.getElementById('boardView').innerHTML = `<div class="grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-4">${statuses.map(s => `
+        <div class="soft-card rounded-[2rem] p-4 column" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="dropIdea(event, '${s}')">
+          <div class="flex items-center justify-between mb-4"><h3 class="font-black">${s}</h3><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black">${data.filter(i=>i.status===s).length}</span></div>
+          <div class="space-y-3">${data.filter(i=>i.status===s).map(ideaCard).join('') || `<div class="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400">Drop ideas here</div>`}</div>
+        </div>`).join('')}</div>`;
+    }
+
+    function renderList(){
+      const data = getFilteredIdeas();
+      document.getElementById('listView').innerHTML = `<div class="soft-card rounded-[2rem] overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-slate-50 text-slate-500 uppercase text-xs"><tr><th class="text-left p-4">Idea</th><th class="text-left p-4">Owner</th><th class="text-left p-4">Status</th><th class="text-left p-4">Priority</th><th class="text-left p-4">Score</th><th class="text-left p-4">Due</th><th class="text-left p-4">Updated</th></tr></thead><tbody>${data.map(row).join('') || `<tr><td colspan="7" class="p-8 text-center text-slate-400">No records found</td></tr>`}</tbody></table></div></div>`;
+    }
+
+    function renderNotes(){
+      const notes = latestNotes(50);
+      document.getElementById('notesView').innerHTML = `<div class="soft-card rounded-[2rem] p-5"><h3 class="text-xl font-black mb-4">All Work Notes</h3><div class="space-y-3">${notes.map(noteRow).join('') || empty('No work notes recorded')}</div></div>`;
+    }
+
+    function ideaCard(i){
+      return `<article draggable="true" ondragstart="dragIdea(event, '${i.id}')" onclick="openIdeaModal('${i.id}')" class="idea-card rounded-3xl bg-white border border-slate-200 p-4 cursor-pointer">
+        <div class="flex items-start justify-between gap-3"><div><p class="text-xs font-black text-slate-400">${i.id}</p><h4 class="font-black leading-tight mt-1">${escapeHtml(i.title)}</h4></div><span class="priority-dot ${priorityColors[i.priority]}"></span></div>
+        <p class="text-sm text-slate-500 mt-3 line-clamp-3">${escapeHtml(i.description)}</p>
+        <div class="flex flex-wrap gap-2 mt-4">${(i.tags||'').split(',').filter(Boolean).slice(0,3).map(t=>`<span class="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-600">${escapeHtml(t.trim())}</span>`).join('')}</div>
+        <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100"><span class="text-xs text-slate-500">${escapeHtml(i.owner || 'Unassigned')}</span><span class="text-sm font-black text-blue-700">${score(i)}</span></div>
+      </article>`;
+    }
+
+    function row(i){ return `<tr onclick="openIdeaModal('${i.id}')" class="border-t border-slate-100 hover:bg-blue-50/40 cursor-pointer"><td class="p-4"><p class="font-black">${escapeHtml(i.title)}</p><p class="text-xs text-slate-400">${i.id}</p></td><td class="p-4">${escapeHtml(i.owner||'—')}</td><td class="p-4"><span class="rounded-full px-3 py-1 text-xs font-black ${statusColors[i.status]}">${i.status}</span></td><td class="p-4"><span class="priority-dot ${priorityColors[i.priority]}"></span> ${i.priority}</td><td class="p-4 font-black text-blue-700">${score(i)}</td><td class="p-4">${fmtDate(i.dueDate)}</td><td class="p-4 text-slate-500">${fmtDate(i.updatedAt)}</td></tr>`; }
+    function cardMini(i){ return `<button onclick="openIdeaModal('${i.id}')" class="w-full text-left rounded-2xl border border-slate-100 p-3 hover:bg-slate-50"><div class="flex justify-between gap-3"><p class="font-black text-sm">${escapeHtml(i.title)}</p><span class="text-blue-700 font-black">${score(i)}</span></div><p class="text-xs text-slate-500 mt-1">${i.status} • ${escapeHtml(i.owner||'Unassigned')}</p></button>`; }
+    function latestNotes(limit){ return ideas.flatMap(i => (i.notes||[]).map(n => ({...n, idea:i}))).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,limit); }
+    function noteRow(n){ return `<div class="rounded-2xl border border-slate-100 bg-white p-4"><div class="flex flex-wrap items-center justify-between gap-2"><button onclick="openIdeaModal('${n.idea.id}')" class="font-black text-blue-700">${escapeHtml(n.idea.title)}</button><span class="text-xs text-slate-400">${fmt(n.date)}</span></div><p class="text-sm text-slate-600 mt-2 whitespace-pre-wrap">${escapeHtml(n.text)}</p></div>`; }
+    function empty(text){ return `<div class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-400">${text}</div>`; }
+
+    function openIdeaModal(id=null){
+      document.getElementById('ideaForm').reset();
+      document.getElementById('ideaId').value = id || '';
+      document.getElementById('deleteBtn').classList.toggle('hidden', !id);
+      document.getElementById('modalTitle').textContent = id ? 'Update R&D Idea' : 'New R&D Idea';
+      if(id){
+        const i = ideas.find(x=>x.id===id);
+        ['title','description','owner','department','tags','dueDate','status','priority','value','feasibility','risk'].forEach(k => document.getElementById(k).value = i[k] || '');
+        renderModalNotes(i);
+      } else {
+        document.getElementById('status').value = 'Backlog'; document.getElementById('priority').value = 'Medium'; document.getElementById('modalNotes').innerHTML = empty('Notes will appear here after save');
+      }
+      scorePreview();
+      document.getElementById('ideaModal').classList.remove('hidden');
+    }
+    function closeIdeaModal(){ document.getElementById('ideaModal').classList.add('hidden'); }
+    function renderModalNotes(i){ document.getElementById('modalNotes').innerHTML = (i.notes||[]).slice().reverse().map(n=>`<div class="rounded-2xl bg-slate-50 border border-slate-100 p-3"><p class="text-xs text-slate-400 font-bold">${fmt(n.date)}</p><p class="text-sm mt-1 whitespace-pre-wrap">${escapeHtml(n.text)}</p></div>`).join('') || empty('No notes yet'); }
+
+    function scorePreview(){
+      const v = document.getElementById('value').value || 5, f = document.getElementById('feasibility').value || 5, r = document.getElementById('risk').value || 4;
+      document.getElementById('valueOut').textContent = v + '/10'; document.getElementById('feasibilityOut').textContent = f + '/10'; document.getElementById('riskOut').textContent = r + '/10';
+      document.getElementById('scoreOut').textContent = score({value:v, feasibility:f, risk:r});
+    }
+
+    function saveIdea(e){
+      e.preventDefault();
+      const id = document.getElementById('ideaId').value || uid();
+      const existing = ideas.find(i=>i.id===id);
+      const noteText = document.getElementById('newWorkNote').value.trim();
+      const payload = {
+        id,
+        title: title.value.trim(), description: description.value.trim(), owner: owner.value.trim(), department: department.value.trim(), tags: tags.value.trim(), dueDate: dueDate.value,
+        status: status.value, priority: priority.value, value: value.value, feasibility: feasibility.value, risk: risk.value,
+        createdAt: existing?.createdAt || now(), updatedAt: now(), notes: existing?.notes || []
+      };
+      if(noteText) payload.notes.push({ text: noteText, date: now() });
+      if(existing) ideas = ideas.map(i => i.id === id ? payload : i); else ideas.unshift(payload);
+      save(); renderAll(); closeIdeaModal(); toast('Idea saved successfully');
+    }
+
+    function deleteCurrentIdea(){
+      const id = document.getElementById('ideaId').value;
+      if(!id || !confirm('Delete this idea permanently from this browser?')) return;
+      ideas = ideas.filter(i=>i.id!==id); save(); renderAll(); closeIdeaModal(); toast('Idea deleted');
+    }
+
+    function dragIdea(e, id){ e.dataTransfer.setData('ideaId', id); }
+    function allowDrop(e){ e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+    function dragLeave(e){ e.currentTarget.classList.remove('drag-over'); }
+    function dropIdea(e, statusName){
+      e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+      const id = e.dataTransfer.getData('ideaId');
+      const i = ideas.find(x=>x.id===id); if(!i) return;
+      i.status = statusName; i.updatedAt = now(); i.notes = i.notes || []; i.notes.push({ text: `Status changed to ${statusName}`, date: now() });
+      save(); renderAll(); toast('Status updated');
+    }
+
+    function exportData(){
+      const blob = new Blob([JSON.stringify(ideas, null, 2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ideaops-backup.json'; a.click(); URL.revokeObjectURL(a.href);
+    }
+    function importData(e){
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader(); reader.onload = () => { try { ideas = JSON.parse(reader.result); save(); renderAll(); toast('Imported successfully'); } catch { toast('Invalid JSON file'); } }; reader.readAsText(file);
+    }
+    function clearAllData(){ if(confirm('Clear all ideas saved in this browser?')){ ideas=[]; save(); renderAll(); toast('All local data cleared'); } }
+
+    function seedDemoData(){
+      ideas = [
+        {id:'IDEA-AI921', title:'AI Knowledge Assistant for Internal Teams', description:'Create a secure assistant that searches SOPs, policies, project documents, and ticket history to reduce repeated support requests.', owner:'Zain', department:'IT', tags:'AI, Knowledge, Automation', dueDate:'2026-06-30', status:'Prototype', priority:'Critical', value:10, feasibility:7, risk:5, createdAt:now(), updatedAt:now(), notes:[{text:'Prototype scope drafted. Need to review data access model and governance.', date:now()}]},
+        {id:'IDEA-MOB44', title:'Mobile Field Inspection App', description:'Digitize field inspections with offline checklists, photo evidence, GPS stamping, and automatic report generation.', owner:'Operations Lead', department:'Operations', tags:'Mobile, Field, Workflow', dueDate:'2026-07-15', status:'Business Case', priority:'High', value:8, feasibility:8, risk:4, createdAt:now(), updatedAt:now(), notes:[{text:'Business case needs estimated device and training cost.', date:now()}]},
+        {id:'IDEA-DATA7', title:'Predictive Maintenance Dashboard', description:'Use equipment service logs and sensor readings to forecast maintenance needs and reduce downtime.', owner:'R&D Team', department:'Engineering', tags:'Data, IoT, Dashboard', dueDate:'2026-08-01', status:'Research', priority:'Medium', value:8, feasibility:6, risk:6, createdAt:now(), updatedAt:now(), notes:[{text:'Research started on available sensor data quality.', date:now()}]}
+      ];
+      save(); renderAll(); toast('Demo ideas loaded');
+    }
+
+    function toast(msg){
+      const el = document.createElement('div'); el.className='toast glass rounded-2xl px-5 py-3 font-bold text-sm'; el.textContent = msg; document.getElementById('toastHost').appendChild(el); setTimeout(()=>el.remove(), 2600);
+    }
+
+    document.addEventListener('keydown', e => { if(e.key==='Escape') closeIdeaModal(); });
+    load();
+  </script>
+</body>
+</html>
