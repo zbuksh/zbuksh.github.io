@@ -124,6 +124,12 @@
     </aside>
 
     <main class="flex-1 p-4 md:p-7">
+      <div class="xl:hidden glass rounded-[1.5rem] p-3 mb-4 flex flex-wrap gap-2 text-sm font-bold">
+        <button onclick="switchView('dashboard')" data-view-btn-mobile="dashboard" class="rounded-xl px-3 py-2 bg-blue-600 text-white">Dashboard</button>
+        <button onclick="switchView('board')" data-view-btn-mobile="board" class="rounded-xl px-3 py-2 bg-white border border-slate-200">Board</button>
+        <button onclick="switchView('list')" data-view-btn-mobile="list" class="rounded-xl px-3 py-2 bg-white border border-slate-200">Register</button>
+        <button onclick="switchView('notes')" data-view-btn-mobile="notes" class="rounded-xl px-3 py-2 bg-white border border-slate-200">Notes</button>
+      </div>
       <header class="glass rounded-[2rem] p-4 md:p-5 flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
         <div class="flex-1">
           <div class="flex items-center gap-2 text-xs text-slate-500 font-bold uppercase tracking-[.18em]"><span class="w-2 h-2 bg-emerald-500 rounded-full pulse-ring"></span> Innovation Management Workspace</div>
@@ -132,7 +138,8 @@
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="openIdeaModal()" class="btn-primary rounded-2xl px-5 py-3 font-extrabold text-sm">+ New Idea</button>
-          <button onclick="seedDemoData()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white">Load Demo</button>
+          <button onclick="document.getElementById('importFile').click()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white">Import</button>
+          <button onclick="exportData()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white">Export</button>
           <button onclick="clearAllData()" class="btn-ghost rounded-2xl px-4 py-3 font-bold text-sm border border-slate-200 bg-white text-red-600">Clear</button>
         </div>
       </header>
@@ -240,11 +247,38 @@
     function escapeHtml(str=''){ return str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
 
     function load(){
-      ideas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        ideas = Array.isArray(stored) ? stored.map(normalizeIdea).filter(Boolean) : [];
+      } catch {
+        ideas = [];
+        localStorage.removeItem(STORAGE_KEY);
+      }
       populateSelects();
-      renderAll();
+      switchView(currentView);
     }
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas)); }
+
+    function normalizeIdea(i){
+      if(!i || !i.id || !i.title) return null;
+      return {
+        id: String(i.id),
+        title: String(i.title || '').trim(),
+        description: String(i.description || '').trim(),
+        owner: String(i.owner || '').trim(),
+        department: String(i.department || '').trim(),
+        tags: String(i.tags || '').trim(),
+        dueDate: i.dueDate || '',
+        status: statuses.includes(i.status) ? i.status : 'Backlog',
+        priority: ['Low','Medium','High','Critical'].includes(i.priority) ? i.priority : 'Medium',
+        value: Number(i.value || 5),
+        feasibility: Number(i.feasibility || 5),
+        risk: Number(i.risk || 4),
+        createdAt: i.createdAt || now(),
+        updatedAt: i.updatedAt || now(),
+        notes: Array.isArray(i.notes) ? i.notes.filter(n => n && n.text).map(n => ({ text: String(n.text), date: n.date || now() })) : []
+      };
+    }
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(ideas.map(normalizeIdea).filter(Boolean))); }
 
     function populateSelects(){
       const statusFilter = document.getElementById('statusFilter');
@@ -281,7 +315,22 @@
       document.getElementById(view + 'View').classList.remove('hidden');
       document.querySelectorAll('[data-view-btn]').forEach(b => b.classList.remove('active'));
       document.querySelector(`[data-view-btn="${view}"]`)?.classList.add('active');
+      document.querySelectorAll('[data-view-btn-mobile]').forEach(b => {
+        const active = b.dataset.viewBtnMobile === view;
+        b.classList.toggle('bg-blue-600', active);
+        b.classList.toggle('text-white', active);
+        b.classList.toggle('bg-white', !active);
+        b.classList.toggle('border', !active);
+        b.classList.toggle('border-slate-200', !active);
+      });
       renderAll();
+    }
+
+    function resetFilters(){
+      document.getElementById('searchInput').value = '';
+      document.getElementById('statusFilter').value = 'all';
+      document.getElementById('priorityFilter').value = 'all';
+      document.getElementById('sortBy').value = 'updatedDesc';
     }
 
     function renderDashboard(){
@@ -289,7 +338,6 @@
       const active = data.filter(i => !['Delivered','Rejected'].includes(i.status)).length;
       const avgScore = data.length ? Math.round(data.reduce((a,i)=>a+score(i),0)/data.length) : 0;
       const critical = data.filter(i => i.priority === 'Critical').length;
-      const delivered = data.filter(i => i.status === 'Delivered').length;
       document.getElementById('dashboardView').innerHTML = `
         <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
           ${metric('Total Ideas', data.length, 'All captured opportunities', 'from-blue-600 to-cyan-500')}
@@ -298,7 +346,7 @@
           ${metric('Critical Priority', critical, 'Needs manager attention', 'from-red-600 to-orange-500')}
         </div>
         <div class="grid xl:grid-cols-3 gap-5">
-          <div class="xl:col-span-2 soft-card rounded-[2rem] p-5"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-black">Pipeline by Status</h3><button onclick="document.getElementById('importFile').click()" class="btn-ghost border rounded-xl px-3 py-2 text-xs font-bold">Import JSON</button></div><canvas id="statusChart" height="105"></canvas></div>
+          <div class="xl:col-span-2 soft-card rounded-[2rem] p-5"><div class="flex items-center justify-between mb-4"><h3 class="text-xl font-black">Pipeline by Status</h3><button onclick="openIdeaModal()" class="btn-ghost border rounded-xl px-3 py-2 text-xs font-bold">Add Idea</button></div><canvas id="statusChart" height="105"></canvas></div>
           <div class="soft-card rounded-[2rem] p-5"><h3 class="text-xl font-black mb-4">Top Scored Ideas</h3><div class="space-y-3">${data.slice(0,5).map(cardMini).join('') || empty('No ideas yet')}</div></div>
         </div>
         <div class="soft-card rounded-[2rem] p-5"><h3 class="text-xl font-black mb-4">Latest Activity</h3><div class="space-y-3">${latestNotes(8).map(noteRow).join('') || empty('No work notes yet')}</div></div>
@@ -360,10 +408,16 @@
       document.getElementById('modalTitle').textContent = id ? 'Update R&D Idea' : 'New R&D Idea';
       if(id){
         const i = ideas.find(x=>x.id===id);
-        ['title','description','owner','department','tags','dueDate','status','priority','value','feasibility','risk'].forEach(k => document.getElementById(k).value = i[k] || '');
+        if(!i){ toast('Record not found'); return; }
+        ['title','description','owner','department','tags','dueDate','status','priority','value','feasibility','risk'].forEach(k => document.getElementById(k).value = i[k] ?? '');
         renderModalNotes(i);
       } else {
-        document.getElementById('status').value = 'Backlog'; document.getElementById('priority').value = 'Medium'; document.getElementById('modalNotes').innerHTML = empty('Notes will appear here after save');
+        document.getElementById('status').value = 'Backlog';
+        document.getElementById('priority').value = 'Medium';
+        document.getElementById('value').value = 5;
+        document.getElementById('feasibility').value = 5;
+        document.getElementById('risk').value = 4;
+        document.getElementById('modalNotes').innerHTML = empty('Notes will appear here after save');
       }
       scorePreview();
       document.getElementById('ideaModal').classList.remove('hidden');
@@ -379,18 +433,38 @@
 
     function saveIdea(e){
       e.preventDefault();
-      const id = document.getElementById('ideaId').value || uid();
-      const existing = ideas.find(i=>i.id===id);
-      const noteText = document.getElementById('newWorkNote').value.trim();
-      const payload = {
-        id,
-        title: title.value.trim(), description: description.value.trim(), owner: owner.value.trim(), department: department.value.trim(), tags: tags.value.trim(), dueDate: dueDate.value,
-        status: status.value, priority: priority.value, value: value.value, feasibility: feasibility.value, risk: risk.value,
-        createdAt: existing?.createdAt || now(), updatedAt: now(), notes: existing?.notes || []
+      const form = {
+        id: document.getElementById('ideaId').value || uid(),
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        owner: document.getElementById('owner').value.trim(),
+        department: document.getElementById('department').value.trim(),
+        tags: document.getElementById('tags').value.trim(),
+        dueDate: document.getElementById('dueDate').value,
+        status: document.getElementById('status').value || 'Backlog',
+        priority: document.getElementById('priority').value || 'Medium',
+        value: Number(document.getElementById('value').value || 5),
+        feasibility: Number(document.getElementById('feasibility').value || 5),
+        risk: Number(document.getElementById('risk').value || 4)
       };
-      if(noteText) payload.notes.push({ text: noteText, date: now() });
-      if(existing) ideas = ideas.map(i => i.id === id ? payload : i); else ideas.unshift(payload);
-      save(); renderAll(); closeIdeaModal(); toast('Idea saved successfully');
+      if(!form.title || !form.description){ toast('Title and description are required'); return; }
+      const existing = ideas.find(i => i.id === form.id);
+      const previousNotes = existing?.notes ? [...existing.notes] : [];
+      const noteText = document.getElementById('newWorkNote').value.trim();
+      if(noteText) previousNotes.push({ text: noteText, date: now() });
+      if(!existing) previousNotes.push({ text: 'Idea created and added to the Backlog board.', date: now() });
+      const payload = normalizeIdea({
+        ...form,
+        createdAt: existing?.createdAt || now(),
+        updatedAt: now(),
+        notes: previousNotes
+      });
+      if(existing) ideas = ideas.map(i => i.id === payload.id ? payload : i); else ideas.unshift(payload);
+      save();
+      resetFilters();
+      closeIdeaModal();
+      switchView('board');
+      toast(existing ? 'Idea updated successfully' : 'Idea added to board and register');
     }
 
     function deleteCurrentIdea(){
@@ -416,19 +490,19 @@
     }
     function importData(e){
       const file = e.target.files[0]; if(!file) return;
-      const reader = new FileReader(); reader.onload = () => { try { ideas = JSON.parse(reader.result); save(); renderAll(); toast('Imported successfully'); } catch { toast('Invalid JSON file'); } }; reader.readAsText(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          if(!Array.isArray(imported)) throw new Error('Expected an array');
+          ideas = imported.map(normalizeIdea).filter(Boolean);
+          save(); resetFilters(); switchView('board'); toast('Imported successfully');
+        } catch { toast('Invalid IdeaOps JSON file'); }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
     }
     function clearAllData(){ if(confirm('Clear all ideas saved in this browser?')){ ideas=[]; save(); renderAll(); toast('All local data cleared'); } }
-
-    function seedDemoData(){
-      ideas = [
-        {id:'IDEA-AI921', title:'AI Knowledge Assistant for Internal Teams', description:'Create a secure assistant that searches SOPs, policies, project documents, and ticket history to reduce repeated support requests.', owner:'Zain', department:'IT', tags:'AI, Knowledge, Automation', dueDate:'2026-06-30', status:'Prototype', priority:'Critical', value:10, feasibility:7, risk:5, createdAt:now(), updatedAt:now(), notes:[{text:'Prototype scope drafted. Need to review data access model and governance.', date:now()}]},
-        {id:'IDEA-MOB44', title:'Mobile Field Inspection App', description:'Digitize field inspections with offline checklists, photo evidence, GPS stamping, and automatic report generation.', owner:'Operations Lead', department:'Operations', tags:'Mobile, Field, Workflow', dueDate:'2026-07-15', status:'Business Case', priority:'High', value:8, feasibility:8, risk:4, createdAt:now(), updatedAt:now(), notes:[{text:'Business case needs estimated device and training cost.', date:now()}]},
-        {id:'IDEA-DATA7', title:'Predictive Maintenance Dashboard', description:'Use equipment service logs and sensor readings to forecast maintenance needs and reduce downtime.', owner:'R&D Team', department:'Engineering', tags:'Data, IoT, Dashboard', dueDate:'2026-08-01', status:'Research', priority:'Medium', value:8, feasibility:6, risk:6, createdAt:now(), updatedAt:now(), notes:[{text:'Research started on available sensor data quality.', date:now()}]}
-      ];
-      save(); renderAll(); toast('Demo ideas loaded');
-    }
-
     function toast(msg){
       const el = document.createElement('div'); el.className='toast glass rounded-2xl px-5 py-3 font-bold text-sm'; el.textContent = msg; document.getElementById('toastHost').appendChild(el); setTimeout(()=>el.remove(), 2600);
     }
