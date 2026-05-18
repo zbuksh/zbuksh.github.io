@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Dashboard Builder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--navy:#123d66;--blue:#075b78;--line:#123d66;--muted:#64748b;--green:#7ddc63;--amber:#ffb703;--red:#ef1717;}
+    *{box-sizing:border-box}
+    body{font-family:Inter,system-ui,sans-serif;margin:0;min-height:100vh;color:#0f172a;background:radial-gradient(circle at top left,rgba(37,99,235,.18),transparent 34rem),radial-gradient(circle at top right,rgba(14,165,233,.16),transparent 30rem),linear-gradient(135deg,#f8fafc,#eef6ff 50%,#f8fafc)}
+    .glass{background:rgba(255,255,255,.9);border:1px solid rgba(15,23,42,.1);box-shadow:0 22px 70px rgba(15,23,42,.08);backdrop-filter:blur(18px)}
+    .app-shell{display:grid;grid-template-columns:320px 1fr;gap:22px}.sidebar{height:calc(100vh - 32px);position:sticky;top:16px}.soft{background:rgba(255,255,255,.94);border:1px solid rgba(15,23,42,.08);box-shadow:0 14px 34px rgba(15,23,42,.06)}
+    .btn{transition:.2s}.btn:hover{transform:translateY(-1px)}.btn-primary{background:linear-gradient(135deg,#075b78,#2563eb);color:white;box-shadow:0 14px 28px rgba(37,99,235,.25)}
+    .input{border:1px solid #cbd5e1;border-radius:16px;padding:12px 14px;width:100%;outline:none;background:white}.input:focus{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    .dash-card{background:white;border:1px solid rgba(15,23,42,.08);border-radius:24px;padding:16px;cursor:pointer;transition:.2s}.dash-card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(15,23,42,.1)}.dash-card.active{border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+    .dashboard-sheet{background:white;border-radius:22px;box-shadow:0 30px 90px rgba(15,23,42,.14);border:1px solid rgba(15,23,42,.08)}
+    .title-line{color:var(--navy);letter-spacing:-.03em}.section-panel{background:white;border:2px solid var(--line);border-radius:28px;position:relative}.section-title{position:absolute;top:-14px;left:34px;background:white;padding:0 12px;color:var(--navy);font-weight:900;font-size:15px}.navy{background:var(--blue);color:white;font-weight:900}.cell{background:#f0f2f4}.dot{width:24px;height:24px;border-radius:999px;display:inline-block}.green{background:var(--green)}.amber{background:var(--amber)}.red{background:var(--red)}
+    .timeline-grid{background:linear-gradient(to right,#f1f5f9 0 33.1%,#fff 33.1% 33.6%,#f1f5f9 33.6% 66.5%,#fff 66.5% 67%,#f1f5f9 67% 100%);position:relative}.bar{height:18px;border:1px solid rgba(0,0,0,.35);border-radius:999px;position:absolute;box-shadow:0 6px 12px rgba(15,23,42,.12);top:50%;transform:translateY(-50%)}.timeline-row{height:42px;position:relative;border-top:1px solid rgba(15,23,42,.06)}.timeline-label-row{height:42px;border-top:1px solid rgba(15,23,42,.06);display:flex;align-items:center;padding:0 10px;font-weight:900}.milestone{position:absolute;width:15px;height:15px;background:#111;transform:rotate(45deg);top:50%;margin-top:-7px;box-shadow:0 4px 8px rgba(0,0,0,.25)}
+    .modal-in{animation:rise .22s ease both}@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}.toast{animation:toast .22s ease both}@keyframes toast{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:1100px){.app-shell{grid-template-columns:1fr}.sidebar{height:auto;position:relative;top:0}.dashboard-sheet{overflow-x:auto}.sheet-inner{min-width:980px}}
+    @media print{.no-print{display:none!important}body{background:white}.app-shell{display:block}.dashboard-sheet{box-shadow:none!important;border:none!important;border-radius:0!important}.page-wrap{padding:0!important}.sheet-inner{min-width:0!important}}
+  </style>
+</head>
+<body>
+  <div id="toastHost" class="fixed right-6 bottom-6 z-[80] space-y-3 no-print"></div>
+  <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+
+  <div class="page-wrap p-4">
+    <div class="app-shell">
+      <aside class="sidebar glass rounded-[2rem] p-5 no-print flex flex-col gap-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-700 to-cyan-500 text-white grid place-items-center font-black text-xl">PD</div>
+          <div><h1 class="font-black text-lg">DashForge</h1><p class="text-xs text-slate-500">Project dashboard builder</p></div>
+        </div>
+        <button onclick="newDashboard()" class="btn btn-primary rounded-2xl px-5 py-3 font-black w-full">+ Create New Project Dashboard</button>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportData()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Export JSON</button>
+          <button onclick="document.getElementById('importFile').click()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Import JSON</button>
+          <button onclick="window.print()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Print</button>
+          <button onclick="clearAll()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm text-red-600">Clear</button>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-3"><h2 class="font-black">Dashboards</h2><span id="countBadge" class="text-xs font-black bg-slate-100 rounded-full px-3 py-1">0</span></div>
+          <div id="dashboardList" class="space-y-3 overflow-y-auto pr-1" style="max-height:calc(100vh - 360px)"></div>
+        </div>
+        <div class="mt-auto rounded-3xl bg-gradient-to-br from-slate-950 to-blue-900 text-white p-5 overflow-hidden relative">
+          <div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/10"></div>
+          <p class="text-xs uppercase tracking-[.2em] text-blue-100">Local storage</p>
+          <h3 class="font-black mt-1">Device-only data</h3>
+          <p class="text-xs text-blue-100 mt-2 leading-relaxed">Your dashboards are stored in this browser as JSON using localStorage.</p>
+        </div>
+      </aside>
+
+      <main>
+        <header class="glass rounded-[2rem] p-5 mb-5 no-print flex flex-col xl:flex-row xl:items-center gap-4">
+          <div class="flex-1">
+            <p class="text-xs uppercase tracking-[.2em] text-slate-500 font-black">Executive Project Dashboard Tool</p>
+            <h1 class="text-3xl md:text-4xl font-black tracking-tight">Create and Update Project Dashboards</h1>
+            <p class="text-sm text-slate-500 mt-1">No sample data is loaded. Create a project dashboard and enter your own details.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="openEditor()" class="btn btn-primary rounded-2xl px-5 py-3 font-black">Edit Selected</button>
+            <button onclick="duplicateDashboard()" class="btn bg-white border border-slate-200 rounded-2xl px-5 py-3 font-bold">Duplicate</button>
+            <button onclick="deleteDashboard()" class="btn bg-red-50 border border-red-100 text-red-600 rounded-2xl px-5 py-3 font-bold">Delete</button>
+          </div>
+        </header>
+
+        <div id="emptyState" class="hidden glass rounded-[2rem] p-10 text-center no-print">
+          <div class="mx-auto w-20 h-20 rounded-[1.5rem] bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center text-3xl font-black mb-5">+</div>
+          <h2 class="text-3xl font-black">Create your first project dashboard</h2>
+          <p class="text-slate-500 mt-2 max-w-2xl mx-auto">Start with a blank dashboard. You will enter the project number, manager, sponsor, status, schedule, financials, timeline workstreams and risks.</p>
+          <button onclick="newDashboard()" class="btn btn-primary rounded-2xl px-6 py-4 font-black mt-6">Create Blank Dashboard</button>
+        </div>
+
+        <main id="previewWrap" class="dashboard-sheet p-5">
+          <div class="sheet-inner">
+            <section class="mb-4">
+              <div class="flex items-end justify-between gap-4">
+                <div>
+                  <h1 id="dashTitle" class="title-line text-[34px] leading-none font-semibold uppercase border-l-4 border-[#123d66] pl-3">PROJECT DASHBOARD</h1>
+                  <p id="dashSub" class="text-xs text-slate-500 font-bold mt-2 ml-4">Project Number: —</p>
+                </div>
+                <button onclick="openEditor()" class="no-print btn btn-primary rounded-2xl px-4 py-2 text-sm font-black">Update Dashboard</button>
+              </div>
+              <div class="grid grid-cols-12 mt-4 border-2 border-[#075b78] text-sm overflow-hidden rounded-xl">
+                <div class="navy col-span-2 px-3 py-3">Project Status</div><div class="cell col-span-1 px-3 py-2 flex items-center justify-center"><span id="projectStatusDot" class="dot green"></span></div>
+                <div class="navy col-span-2 px-3 py-3">Project Manager</div><div id="dashManager" class="col-span-2 px-3 py-3">—</div>
+                <div class="navy col-span-2 px-3 py-3">Project Sponsor</div><div id="dashSponsor" class="col-span-3 px-3 py-3">—</div>
+                <div class="navy col-span-2 px-3 py-3 border-t border-white/20">Status Date</div><div id="dashStatusDate" class="col-span-4 px-3 py-3 border-t border-slate-200">—</div>
+                <div class="navy col-span-2 px-3 py-3 border-t border-white/20">Project Number</div><div id="dashNumber" class="col-span-4 px-3 py-3 border-t border-slate-200">—</div>
+              </div>
+            </section>
+
+            <section class="grid grid-cols-12 gap-4 mb-5">
+              <div class="section-panel col-span-5 p-7 pt-9">
+                <div class="section-title">Schedule <span id="scheduleDot" class="dot green align-middle ml-2"></span></div>
+                <table class="w-full text-sm"><tbody>
+                  <tr><td class="navy px-3 py-2 w-1/2">Start Date</td><td id="dashStart" class="cell px-3 py-2">—</td></tr>
+                  <tr><td class="navy px-3 py-2">Go-Live Date</td><td id="dashGoLive" class="cell px-3 py-2">—</td></tr>
+                  <tr><td class="navy px-3 py-2">Finish Date</td><td id="dashFinish" class="cell px-3 py-2">—</td></tr>
+                </tbody></table>
+              </div>
+              <div class="section-panel col-span-5 p-7 pt-9">
+                <div class="section-title">Financials <span id="financialDot" class="dot green align-middle ml-2"></span></div>
+                <table class="w-full text-sm"><tbody>
+                  <tr><td class="navy px-3 py-2 w-1/2">Percentage Utilised</td><td id="dashPercent" class="cell px-3 py-2">—</td></tr>
+                  <tr><td class="navy px-3 py-2">Spend To-Date</td><td id="dashSpend" class="cell px-3 py-2">—</td></tr>
+                  <tr><td class="navy px-3 py-2">Spend To Complete</td><td id="dashComplete" class="cell px-3 py-2">—</td></tr>
+                </tbody></table>
+              </div>
+              <div class="col-span-2 flex flex-col items-center justify-center gap-4">
+                <div class="section-panel w-full p-4 pt-7 text-center"><div class="section-title left-8">Budget</div><div id="dashBudget" class="cell rounded-xl py-5 text-xl font-black">—</div></div>
+                <div class="flex gap-5"><span id="budgetGreen" class="dot green opacity-30"></span><span id="budgetAmber" class="dot amber opacity-30"></span><span id="budgetRed" class="dot red opacity-30"></span></div>
+              </div>
+            </section>
+
+            <section class="grid grid-cols-12 gap-5 mb-5">
+              <div class="section-panel col-span-9 p-7 pt-9 min-h-[285px]">
+                <div class="section-title">Timeline</div>
+                <div class="grid grid-cols-12 text-sm">
+                  <div class="col-span-3 bg-[#d1d5db] font-black p-2 rounded-tl-lg">Work Stream</div>
+                  <div class="col-span-9 timeline-grid relative overflow-hidden rounded-tr-lg">
+                    <div class="grid grid-cols-3 font-black bg-[#f1f5f9]"><div class="p-2">APR</div><div class="p-2 border-l border-dashed border-black">MAY</div><div class="p-2 border-l border-dashed border-black">JUN</div></div>
+                    <div id="timelineBars" class="relative"></div>
+                  </div>
+                  <div id="timelineLabels" class="col-span-3 bg-[#d1d5db] rounded-bl-lg"></div>
+                </div>
+              </div>
+              <div class="section-panel col-span-3 p-7 pt-10 min-h-[285px]">
+                <div class="section-title">Timeline Notes</div>
+                <div id="timelineNotes" class="text-sm leading-7 whitespace-pre-wrap"></div>
+              </div>
+            </section>
+
+            <section class="section-panel p-7 pt-7 min-h-[180px]">
+              <div class="section-title">Risks / Issues</div>
+              <table class="w-full text-sm"><thead><tr class="navy"><th class="p-2 text-left w-16">No</th><th class="p-2 text-left">Description</th><th class="p-2 text-left w-32">Severity</th><th class="p-2 text-left w-32">Status</th><th class="p-2 text-left w-40">Assigned</th><th class="p-2 text-left w-32">Due</th></tr></thead><tbody id="issuesBody"></tbody></table>
+            </section>
+          </div>
+        </main>
+      </main>
+    </div>
+  </div>
+
+  <div id="editorModal" class="fixed inset-0 hidden z-40 bg-slate-900/40 p-4 overflow-y-auto no-print">
+    <div class="modal-in glass rounded-[2rem] max-w-7xl mx-auto my-6 overflow-hidden">
+      <div class="p-5 border-b border-slate-200 flex justify-between items-center">
+        <div><h2 id="editorTitle" class="text-2xl font-black">Create Project Dashboard</h2><p class="text-sm text-slate-500">Enter dashboard information. Fields marked * are required.</p></div>
+        <button onclick="closeEditor()" class="text-2xl w-10 h-10 rounded-2xl hover:bg-slate-100">×</button>
+      </div>
+      <div class="p-5 grid xl:grid-cols-4 gap-5">
+        <section class="soft rounded-3xl p-5 space-y-4">
+          <h3 class="font-black text-lg">Project Details</h3>
+          <label class="block text-xs font-black text-slate-500 uppercase">Dashboard Title *</label><input id="fTitle" class="input" placeholder="PROJECT DASHBOARD">
+          <label class="block text-xs font-black text-slate-500 uppercase">Project Number *</label><input id="fNumber" class="input" placeholder="PRJ-2026-001">
+          <label class="block text-xs font-black text-slate-500 uppercase">Project Manager</label><input id="fManager" class="input" placeholder="Project Manager">
+          <label class="block text-xs font-black text-slate-500 uppercase">Project Sponsor</label><input id="fSponsor" class="input" placeholder="Project Sponsor">
+          <label class="block text-xs font-black text-slate-500 uppercase">Status Date</label><input id="fStatusDate" type="date" class="input">
+          <label class="block text-xs font-black text-slate-500 uppercase">Overall Status</label><select id="fProjectStatus" class="input"><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option></select>
+        </section>
+        <section class="soft rounded-3xl p-5 space-y-4">
+          <h3 class="font-black text-lg">Schedule & Financials</h3>
+          <label class="block text-xs font-black text-slate-500 uppercase">Start Date</label><input id="fStart" type="date" class="input">
+          <label class="block text-xs font-black text-slate-500 uppercase">Go-Live Date</label><input id="fGoLive" type="date" class="input">
+          <label class="block text-xs font-black text-slate-500 uppercase">Finish Date</label><input id="fFinish" type="date" class="input">
+          <label class="block text-xs font-black text-slate-500 uppercase">Schedule Status</label><select id="fScheduleStatus" class="input"><option value="green">Green</option><option value="amber">Amber</option><option value="red">Red</option></select>
+          <div class="grid grid-cols-2 gap-3"><input id="fBudget" type="number" class="input" placeholder="Budget"><input id="fSpend" type="number" class="input" placeholder="Spend To-Date"></div>
+          <input id="fComplete" type="number" class="input" placeholder="Spend To Complete">
+          <div class="grid grid-cols-2 gap-3"><select id="fFinancialStatus" class="input"><option value="green">Financial Green</option><option value="amber">Financial Amber</option><option value="red">Financial Red</option></select><select id="fBudgetStatus" class="input"><option value="green">Budget Green</option><option value="amber">Budget Amber</option><option value="red">Budget Red</option></select></div>
+        </section>
+        <section class="soft rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between"><h3 class="font-black text-lg">Timeline Workstreams</h3><button onclick="addWorkstream()" class="btn btn-primary rounded-xl px-3 py-2 text-xs font-black">+ Add</button></div>
+          <div id="workstreamEditor" class="space-y-3 max-h-[520px] overflow-y-auto pr-1"></div>
+        </section>
+        <section class="soft rounded-3xl p-5 space-y-4">
+          <h3 class="font-black text-lg">Timeline Notes</h3>
+          <textarea id="fTimelineNotes" rows="7" class="input" placeholder="Overall: Add project summary&#10;&#10;Task 1: Progress&#10;Task 2: Blocker"></textarea>
+          <div class="flex items-center justify-between pt-3"><h3 class="font-black text-lg">Risks / Issues</h3><button onclick="addIssue()" class="btn btn-primary rounded-xl px-3 py-2 text-xs font-black">+ Add</button></div>
+          <div id="issueEditor" class="space-y-3 max-h-72 overflow-y-auto pr-1"></div>
+        </section>
+      </div>
+      <div class="p-5 border-t border-slate-200 flex justify-between gap-3"><button onclick="closeEditor()" class="btn bg-white border border-slate-200 rounded-2xl px-5 py-3 font-bold">Cancel</button><button onclick="saveEditor()" class="btn-primary rounded-2xl px-6 py-3 font-black">Save Dashboard</button></div>
+    </div>
+  </div>
+
+<script>
+'use strict';
+const KEY='project_dashboard_builder_v2';
+let dashboards=[], activeId=null, tempWorkstreams=[], tempIssues=[], editingNew=false;
+const $=id=>document.getElementById(id);
+const money=n=>Number(n||0)>0?'$'+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const dateFmt=d=>d?new Date(d+'T00:00:00').toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'—';
+const shortDate=d=>d?new Date(d+'T00:00:00').toLocaleDateString():'—';
+const esc=s=>String(s||'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function uid(){return'DASH-'+Math.random().toString(36).slice(2,8).toUpperCase()}
+function today(){return new Date().toISOString().slice(0,10)}
+function blankDashboard(){return{id:uid(),title:'PROJECT DASHBOARD',number:'',manager:'',sponsor:'',statusDate:today(),projectStatus:'green',start:'',goLive:'',finish:'',scheduleStatus:'green',budget:'',spend:'',complete:'',financialStatus:'green',budgetStatus:'green',timelineNotes:'',workstreams:[],issues:[]}}
+function normalize(d){return{id:d.id||uid(),title:d.title||'PROJECT DASHBOARD',number:d.number||'',manager:d.manager||'',sponsor:d.sponsor||'',statusDate:d.statusDate||'',projectStatus:['green','amber','red'].includes(d.projectStatus)?d.projectStatus:'green',start:d.start||'',goLive:d.goLive||'',finish:d.finish||'',scheduleStatus:['green','amber','red'].includes(d.scheduleStatus)?d.scheduleStatus:'green',budget:d.budget||'',spend:d.spend||'',complete:d.complete||'',financialStatus:['green','amber','red'].includes(d.financialStatus)?d.financialStatus:'green',budgetStatus:['green','amber','red'].includes(d.budgetStatus)?d.budgetStatus:'green',timelineNotes:d.timelineNotes||'',workstreams:Array.isArray(d.workstreams)?d.workstreams:[],issues:Array.isArray(d.issues)?d.issues:[]}}
+function load(){try{dashboards=JSON.parse(localStorage.getItem(KEY)||'[]').map(normalize)}catch{dashboards=[]} activeId=dashboards[0]?.id||null; renderApp()}
+function save(){localStorage.setItem(KEY,JSON.stringify(dashboards))}
+function active(){return dashboards.find(d=>d.id===activeId)||null}
+function renderApp(){renderList();const has=!!active();$('emptyState').classList.toggle('hidden',has);$('previewWrap').classList.toggle('hidden',!has);if(has)renderPreview();}
+function renderList(){ $('countBadge').textContent=dashboards.length; $('dashboardList').innerHTML=dashboards.map(d=>`<div onclick="selectDashboard('${d.id}')" class="dash-card ${d.id===activeId?'active':''}"><div class="flex justify-between gap-2"><div><p class="text-xs font-black text-slate-400">${esc(d.number||'No project number')}</p><h3 class="font-black leading-tight mt-1">${esc(d.title||'PROJECT DASHBOARD')}</h3></div><span class="dot ${dotClass(d.projectStatus)}" style="width:14px;height:14px"></span></div><p class="text-xs text-slate-500 mt-3">Manager: ${esc(d.manager||'Unassigned')}</p></div>`).join('')||'<div class="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-400">No dashboards yet</div>';}
+function selectDashboard(id){activeId=id;renderApp()}
+function dotClass(v){return v==='red'?'red':v==='amber'?'amber':'green'}
+function setDot(id,v){$(id).className='dot '+dotClass(v)}
+function renderPreview(){const d=active();if(!d)return;$('dashTitle').textContent=d.title||'PROJECT DASHBOARD';$('dashSub').textContent='Project Number: '+(d.number||'—');$('dashManager').textContent=d.manager||'—';$('dashSponsor').textContent=d.sponsor||'—';$('dashNumber').textContent=d.number||'—';$('dashStatusDate').textContent=dateFmt(d.statusDate);setDot('projectStatusDot',d.projectStatus);setDot('scheduleDot',d.scheduleStatus);setDot('financialDot',d.financialStatus);$('dashStart').textContent=shortDate(d.start);$('dashGoLive').textContent=shortDate(d.goLive);$('dashFinish').textContent=shortDate(d.finish);const budget=Number(d.budget||0),spend=Number(d.spend||0);$('dashPercent').textContent=budget?Math.round(spend/budget*100)+'%':'—';$('dashSpend').textContent=money(d.spend);$('dashComplete').textContent=money(d.complete);$('dashBudget').textContent=money(d.budget);['budgetGreen','budgetAmber','budgetRed'].forEach(x=>$(x).classList.add('opacity-30'));$('budget'+(d.budgetStatus==='red'?'Red':d.budgetStatus==='amber'?'Amber':'Green')).classList.remove('opacity-30');renderTimeline(d);renderIssues(d);$('timelineNotes').textContent=d.timelineNotes||'No timeline notes entered.';}
+function clamp(num,min,max){return Math.min(Math.max(Number(num)||0,min),max)}
+function renderTimeline(d){
+  const streams = Array.isArray(d.workstreams) ? d.workstreams : [];
+  if(!streams.length){
+    $('timelineLabels').innerHTML='<div class="h-24 px-2 py-8 text-slate-500">No workstreams</div>';
+    $('timelineBars').style.height='96px';
+    $('timelineBars').innerHTML='<div class="text-center text-slate-400 pt-9">Add workstreams from the editor</div>';
+    return;
+  }
+  $('timelineLabels').innerHTML = streams.map(w=>`<div class="timeline-label-row">${esc(w.name||'Untitled')}</div>`).join('');
+  $('timelineBars').style.height = `${streams.length * 42}px`;
+  $('timelineBars').innerHTML = streams.map((w,i)=>{
+    const start = clamp(w.start,0,95);
+    const width = clamp(w.width,5,100-start);
+    return `<div class="timeline-row"><div class="bar" style="left:${start}%;width:${width}%;background:${w.color||'#2563eb'}"></div></div>`;
+  }).join('') + '<div class="milestone" style="right:4%;top:calc(100% - 21px)"></div>';
+}
+function renderIssues(d){const rows=(d.issues||[]).map((r,i)=>`<tr class="bg-[#e2e8f0] border-b border-white"><td class="p-2 border-r border-dashed border-black">${i+1}</td><td class="p-2 border-r border-dashed border-black">${esc(r.description)}</td><td class="p-2 border-r border-dashed border-black">${esc(r.severity)}</td><td class="p-2 border-r border-dashed border-black">${esc(r.status)}</td><td class="p-2 border-r border-dashed border-black">${esc(r.assigned)}</td><td class="p-2">${shortDate(r.due)}</td></tr>`).join('');$('issuesBody').innerHTML=rows||'<tr class="bg-[#e2e8f0]"><td class="p-8 text-center text-slate-500" colspan="6">No risks or issues entered</td></tr>'}
+function newDashboard(){editingNew=true;const d=blankDashboard();activeId=d.id;openEditor(d)}
+function openEditor(source=null){const d=source||active();if(!d){toast('Create a dashboard first');return}editingNew=!!source && !dashboards.some(x=>x.id===source.id);$('editorTitle').textContent=editingNew?'Create Project Dashboard':'Update Project Dashboard';setForm(d);$('editorModal').classList.remove('hidden')}
+function setForm(d){['Title','Number','Manager','Sponsor','StatusDate','ProjectStatus','Start','GoLive','Finish','ScheduleStatus','Budget','Spend','Complete','FinancialStatus','BudgetStatus','TimelineNotes'].forEach(k=>{$('f'+k).value=d[k.charAt(0).toLowerCase()+k.slice(1)]??''});tempWorkstreams=JSON.parse(JSON.stringify(d.workstreams||[]));tempIssues=JSON.parse(JSON.stringify(d.issues||[]));drawEditors()}
+function closeEditor(){if(editingNew&&!dashboards.some(d=>d.id===activeId))activeId=dashboards[0]?.id||null;editingNew=false;$('editorModal').classList.add('hidden');renderApp()}
+function drawEditors(){$('workstreamEditor').innerHTML=tempWorkstreams.map((w,i)=>`<div class="rounded-2xl border border-slate-200 p-3 space-y-2 bg-white"><input class="input" placeholder="Workstream name" value="${esc(w.name)}" oninput="tempWorkstreams[${i}].name=this.value"><div class="grid grid-cols-3 gap-2"><label class="text-[11px] font-black text-slate-500 uppercase">Start %<input class="input mt-1" type="number" min="0" max="95" value="${w.start||0}" oninput="tempWorkstreams[${i}].start=this.value" title="Start %"></label><label class="text-[11px] font-black text-slate-500 uppercase">Duration %<input class="input mt-1" type="number" min="5" max="100" value="${w.width||15}" oninput="tempWorkstreams[${i}].width=this.value" title="Width %"></label><label class="text-[11px] font-black text-slate-500 uppercase">Color<input class="input h-[50px] mt-1" type="color" value="${w.color||'#2563eb'}" oninput="tempWorkstreams[${i}].color=this.value"></label></div><button class="text-red-600 font-bold text-sm" onclick="tempWorkstreams.splice(${i},1);drawEditors()">Remove workstream</button></div>`).join('')||'<div class="rounded-2xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-400">No workstreams added</div>';$('issueEditor').innerHTML=tempIssues.map((r,i)=>`<div class="rounded-2xl border border-slate-200 p-3 space-y-2 bg-white"><input class="input" placeholder="Description" value="${esc(r.description)}" oninput="tempIssues[${i}].description=this.value"><div class="grid grid-cols-2 gap-2"><input class="input" placeholder="Severity" value="${esc(r.severity)}" oninput="tempIssues[${i}].severity=this.value"><input class="input" placeholder="Status" value="${esc(r.status)}" oninput="tempIssues[${i}].status=this.value"><input class="input" placeholder="Assigned" value="${esc(r.assigned)}" oninput="tempIssues[${i}].assigned=this.value"><input class="input" type="date" value="${r.due||''}" oninput="tempIssues[${i}].due=this.value"></div><button class="text-red-600 font-bold text-sm" onclick="tempIssues.splice(${i},1);drawEditors()">Remove issue</button></div>`).join('')||'<div class="rounded-2xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-400">No issues added</div>'}
+function addWorkstream(){tempWorkstreams.push({name:'',start:10,width:20,color:'#2563eb'});drawEditors()}
+function addIssue(){tempIssues.push({description:'',severity:'',status:'Open',assigned:'',due:''});drawEditors()}
+function saveEditor(){const id=activeId||uid();const title=$('fTitle').value.trim();const number=$('fNumber').value.trim();if(!title){toast('Dashboard title is required');return}if(!number){toast('Project number is required');return}const duplicate=dashboards.find(d=>d.number.toLowerCase()===number.toLowerCase()&&d.id!==id);if(duplicate){toast('Project number already exists');return}const data=normalize({id,title,number,manager:$('fManager').value,sponsor:$('fSponsor').value,statusDate:$('fStatusDate').value,projectStatus:$('fProjectStatus').value,start:$('fStart').value,goLive:$('fGoLive').value,finish:$('fFinish').value,scheduleStatus:$('fScheduleStatus').value,budget:$('fBudget').value,spend:$('fSpend').value,complete:$('fComplete').value,financialStatus:$('fFinancialStatus').value,budgetStatus:$('fBudgetStatus').value,timelineNotes:$('fTimelineNotes').value,workstreams:tempWorkstreams,issues:tempIssues});const exists=dashboards.some(d=>d.id===id);dashboards=exists?dashboards.map(d=>d.id===id?data:d):[data,...dashboards];activeId=id;save();editingNew=false;$('editorModal').classList.add('hidden');renderApp();toast(exists?'Dashboard updated':'Dashboard created')}
+function duplicateDashboard(){const d=active();if(!d){toast('Create a dashboard first');return}const copy=JSON.parse(JSON.stringify(d));copy.id=uid();copy.number='';copy.title=(copy.title||'PROJECT DASHBOARD')+' COPY';activeId=copy.id;openEditor(copy)}
+function deleteDashboard(){const d=active();if(!d){toast('No dashboard selected');return}if(!confirm('Delete this dashboard?'))return;dashboards=dashboards.filter(x=>x.id!==d.id);activeId=dashboards[0]?.id||null;save();renderApp();toast('Dashboard deleted')}
+function exportData(){if(!dashboards.length){toast('No dashboards to export');return}const blob=new Blob([JSON.stringify(dashboards,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='project-dashboards-backup.json';a.click();URL.revokeObjectURL(a.href)}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);if(!Array.isArray(data))throw new Error();dashboards=data.map(normalize).filter(d=>d.number);activeId=dashboards[0]?.id||null;save();renderApp();toast('Imported successfully')}catch{toast('Invalid JSON backup')}e.target.value=''};r.readAsText(f)}
+function clearAll(){if(!dashboards.length){toast('Nothing to clear');return}if(confirm('Clear all dashboards from this browser?')){dashboards=[];activeId=null;save();renderApp();toast('All dashboards cleared')}}
+function toast(msg){const el=document.createElement('div');el.className='toast glass rounded-2xl px-5 py-3 font-bold text-sm';el.textContent=msg;$('toastHost').appendChild(el);setTimeout(()=>el.remove(),2600)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEditor()});
+load();
+</script>
+</body>
+</html>
