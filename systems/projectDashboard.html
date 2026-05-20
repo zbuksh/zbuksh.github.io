@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Dashboard Builder</title>
+<title>DashForge Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
@@ -37,6 +37,34 @@ body{
   background:white;
   border:1px solid rgba(15,23,42,.08);
   box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+
+.login-screen{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
+
+.login-card{
+  width:100%;
+  max-width:430px;
+  border-radius:32px;
+  padding:34px;
+}
+
+.loader{
+  width:34px;
+  height:34px;
+  border:4px solid #dbeafe;
+  border-top-color:#2563eb;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+  margin:auto;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
 }
 
 .app-shell{
@@ -241,6 +269,31 @@ body{
 </head>
 
 <body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card glass">
+    <div class="text-center mb-8">
+      <div class="mx-auto w-16 h-16 rounded-3xl bg-gradient-to-br from-blue-700 to-cyan-500 text-white grid place-items-center font-black text-2xl mb-4">PD</div>
+      <h1 class="text-3xl font-black">DashForge Login</h1>
+      <p class="text-sm text-slate-500 mt-2">Enter your credentials to open the dashboard app.</p>
+    </div>
+
+    <div id="loginFormArea" class="space-y-4">
+      <input id="loginUsername" class="input" placeholder="Username">
+      <input id="loginPassword" type="password" class="input" placeholder="Password">
+      <button onclick="loginUser()" class="btn btn-primary rounded-2xl px-5 py-3 font-black w-full">Login</button>
+      <p id="loginError" class="hidden text-center text-sm font-bold text-red-600">Invalid username or password</p>
+    </div>
+
+    <div id="loginLoading" class="hidden text-center py-6">
+      <div class="loader"></div>
+      <p class="text-sm font-bold text-slate-600 mt-4">Authenticating...</p>
+      <p class="text-xs text-slate-400 mt-1">Launching dashboard app</p>
+    </div>
+  </div>
+</div>
+
+<div id="appRoot" class="hidden">
 <div id="toastHost" class="fixed right-6 bottom-6 z-[80] space-y-3 no-print"></div>
 <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
 
@@ -257,7 +310,7 @@ body{
       </div>
 
       <div id="syncStatus" class="rounded-2xl bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 text-xs font-bold">
-        Connecting to JSONBin...
+        Connected
       </div>
 
       <button onclick="newDashboard()" class="btn btn-primary rounded-2xl px-5 py-3 font-black w-full">+ Create New Project Dashboard</button>
@@ -267,7 +320,8 @@ body{
         <button onclick="exportData()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Export</button>
         <button onclick="document.getElementById('importFile').click()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Import</button>
         <button onclick="window.print()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm">Print</button>
-        <button onclick="clearAll()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm text-red-600 col-span-2">Clear Cloud</button>
+        <button onclick="logoutUser()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm text-slate-700">Logout</button>
+        <button onclick="clearAll()" class="btn soft rounded-2xl px-4 py-3 font-bold text-sm text-red-600">Clear</button>
       </div>
 
       <div>
@@ -281,7 +335,7 @@ body{
       <div class="mt-auto rounded-3xl bg-gradient-to-br from-slate-950 to-blue-900 text-white p-5">
         <p class="text-xs uppercase tracking-[.2em] text-blue-100">Cloud Storage</p>
         <h3 class="font-black mt-1">JSONBin API</h3>
-        <p class="text-xs text-blue-100 mt-2">Data is saved to the configured JSONBin bin.</p>
+        <p class="text-xs text-blue-100 mt-2">Login and dashboard data are stored in the same JSONBin file.</p>
       </div>
     </aside>
 
@@ -290,7 +344,7 @@ body{
         <div class="flex-1">
           <p class="text-xs uppercase tracking-[.2em] text-slate-500 font-black">Executive Project Dashboard Tool</p>
           <h1 class="text-3xl md:text-4xl font-black tracking-tight">Create and Update Project Dashboards</h1>
-          <p class="text-sm text-slate-500 mt-1">Timeline rows now align correctly with workstream names.</p>
+          <p class="text-sm text-slate-500 mt-1">Timeline rows align with workstream names and use task dates.</p>
         </div>
         <div class="flex flex-wrap gap-2">
           <button onclick="openEditor()" class="btn btn-primary rounded-2xl px-5 py-3 font-black">Edit Selected</button>
@@ -398,13 +452,14 @@ body{
     </main>
   </div>
 </div>
+</div>
 
 <div id="editorModal" class="fixed inset-0 hidden z-40 bg-slate-900/40 p-4 overflow-y-auto no-print">
   <div class="modal-in glass rounded-[2rem] max-w-7xl mx-auto my-6 overflow-hidden">
     <div class="p-5 border-b border-slate-200 flex justify-between items-center">
       <div>
         <h2 id="editorTitle" class="text-2xl font-black">Create Project Dashboard</h2>
-        <p class="text-sm text-slate-500">Timeline workstreams now use task start date and end date.</p>
+        <p class="text-sm text-slate-500">Timeline workstreams use task start date and end date.</p>
       </div>
       <button onclick="closeEditor()" class="text-2xl w-10 h-10 rounded-2xl hover:bg-slate-100">×</button>
     </div>
@@ -510,12 +565,18 @@ const JSONBIN_BIN_ID = '6a0d19e36610dd3ae8732f53';
 const JSONBIN_MASTER_KEY = '$2a$10$bfv33VpBUuXPQlQmIAFJWep2FMYpGNXOOPHVjc.pri7NUwlzrr88.';
 const JSONBIN_BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
+let appRecord = null;
 let dashboards = [];
 let activeId = null;
 let tempWorkstreams = [];
 let tempIssues = [];
 let editingNew = false;
 let isSaving = false;
+
+const DEFAULT_AUTH = {
+  username:'zbuksh',
+  password:'Greenapple@2026##'
+};
 
 const $ = id => document.getElementById(id);
 
@@ -578,23 +639,102 @@ async function jsonbinPut(payload){
   return await res.json();
 }
 
+function normalizeRecord(record){
+  if(Array.isArray(record)){
+    return {
+      app:'DashForge Project Dashboard Builder',
+      updatedAt:new Date().toISOString(),
+      auth:DEFAULT_AUTH,
+      dashboards:record
+    };
+  }
+
+  if(record && typeof record === 'object'){
+    return {
+      app:record.app || 'DashForge Project Dashboard Builder',
+      updatedAt:record.updatedAt || new Date().toISOString(),
+      auth:record.auth && record.auth.username && record.auth.password ? record.auth : DEFAULT_AUTH,
+      dashboards:Array.isArray(record.dashboards) ? record.dashboards : []
+    };
+  }
+
+  return {
+    app:'DashForge Project Dashboard Builder',
+    updatedAt:new Date().toISOString(),
+    auth:DEFAULT_AUTH,
+    dashboards:[]
+  };
+}
+
+async function initLogin(){
+  try{
+    const record = await jsonbinGet();
+    appRecord = normalizeRecord(record);
+
+    if(!appRecord.auth){
+      appRecord.auth = DEFAULT_AUTH;
+      await jsonbinPut(appRecord);
+    }
+
+  }catch(e){
+    console.error(e);
+    appRecord = {
+      app:'DashForge Project Dashboard Builder',
+      updatedAt:new Date().toISOString(),
+      auth:DEFAULT_AUTH,
+      dashboards:[]
+    };
+  }
+}
+
+async function loginUser(){
+  const username = $('loginUsername').value.trim();
+  const password = $('loginPassword').value;
+
+  $('loginError').classList.add('hidden');
+
+  if(!appRecord){
+    await initLogin();
+  }
+
+  const auth = appRecord.auth || DEFAULT_AUTH;
+
+  if(username !== auth.username || password !== auth.password){
+    $('loginError').classList.remove('hidden');
+    return;
+  }
+
+  $('loginFormArea').classList.add('hidden');
+  $('loginLoading').classList.remove('hidden');
+
+  setTimeout(()=>{
+    $('loginScreen').classList.add('hidden');
+    $('appRoot').classList.remove('hidden');
+    loadFromCloud();
+  },2500);
+}
+
+function logoutUser(){
+  $('appRoot').classList.add('hidden');
+  $('loginScreen').classList.remove('hidden');
+  $('loginFormArea').classList.remove('hidden');
+  $('loginLoading').classList.add('hidden');
+  $('loginPassword').value = '';
+}
+
 async function loadFromCloud(){
   try{
     setSyncStatus('Loading from JSONBin...','blue');
-    const record = await jsonbinGet();
 
-    if(Array.isArray(record)){
-      dashboards = record.map(normalize);
-    }else if(record && Array.isArray(record.dashboards)){
-      dashboards = record.dashboards.map(normalize);
-    }else{
-      dashboards = [];
-      await saveToCloud(false);
-    }
+    const record = await jsonbinGet();
+    appRecord = normalizeRecord(record);
+    dashboards = appRecord.dashboards.map(normalize);
 
     activeId = dashboards[0]?.id || null;
+
     setSyncStatus('Cloud data loaded','green');
     renderApp();
+
   }catch(e){
     console.error(e);
     dashboards = [];
@@ -612,14 +752,16 @@ async function saveToCloud(showToast=true){
 
     setSyncStatus('Saving to JSONBin...','amber');
 
-    await jsonbinPut({
-      app:'DashForge Project Dashboard Builder',
-      updatedAt:new Date().toISOString(),
-      dashboards
-    });
+    appRecord = normalizeRecord(appRecord);
+    appRecord.updatedAt = new Date().toISOString();
+    appRecord.auth = appRecord.auth || DEFAULT_AUTH;
+    appRecord.dashboards = dashboards;
+
+    await jsonbinPut(appRecord);
 
     setSyncStatus('Saved to JSONBin','green');
     if(showToast) toast('Saved to JSONBin');
+
   }catch(e){
     console.error(e);
     setSyncStatus('Save failed','red');
@@ -775,12 +917,6 @@ function parseDate(d){
 
 function daysBetween(a,b){
   return Math.round((b - a) / 86400000);
-}
-
-function addDays(date,days){
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
 }
 
 function monthKey(date){
@@ -1119,6 +1255,7 @@ function exportData(){
   const blob = new Blob([JSON.stringify({
     app:'DashForge Project Dashboard Builder',
     exportedAt:new Date().toISOString(),
+    auth:appRecord?.auth || DEFAULT_AUTH,
     dashboards
   },null,2)],{type:'application/json'});
 
@@ -1164,7 +1301,7 @@ async function clearAll(){
     return;
   }
 
-  if(confirm('Clear all dashboards from JSONBin?')){
+  if(confirm('Clear all dashboards from JSONBin? Login info will remain saved.')){
     dashboards = [];
     activeId = null;
     await saveToCloud(false);
@@ -1183,9 +1320,13 @@ function toast(msg){
 
 document.addEventListener('keydown',e=>{
   if(e.key === 'Escape') closeEditor();
+
+  if(e.key === 'Enter' && !$('loginScreen').classList.contains('hidden')){
+    loginUser();
+  }
 });
 
-loadFromCloud();
+initLogin();
 </script>
 </body>
 </html>
