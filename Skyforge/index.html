@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Skyforge Vale: Relic Dawn is a retro-inspired browser RPG with modern design, artifacts, weapons, interiors, creature battles, and a classic loading launcher." />
+  <title>Skyforge Vale: Relic Dawn | Official Game Site</title>
+  <style>
+    :root {
+      --bg: #060611;
+      --bg2: #10102a;
+      --bg3: #071a2b;
+      --glass: rgba(255,255,255,.075);
+      --glass2: rgba(255,255,255,.105);
+      --line: rgba(255,255,255,.16);
+      --cream: #fff4d2;
+      --muted: #c9c2ee;
+      --muted2: #9e96ca;
+      --ink: #151224;
+      --gold: #ffd66b;
+      --cyan: #72e7ff;
+      --green: #72e68a;
+      --pink: #ff7194;
+      --purple: #8e78ff;
+      --pixel: "Courier New", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --smooth: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --max: 1200px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--cream);
+      font-family: var(--smooth);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(114,231,255,.26), transparent 29%),
+        radial-gradient(circle at 88% 12%, rgba(255,214,107,.20), transparent 25%),
+        radial-gradient(circle at 78% 74%, rgba(255,113,148,.15), transparent 30%),
+        radial-gradient(circle at 36% 86%, rgba(142,120,255,.14), transparent 30%),
+        linear-gradient(135deg, var(--bg), var(--bg2) 48%, var(--bg3));
+    }
+    body.noScroll { overflow: hidden; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(255,255,255,.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.028) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: linear-gradient(to bottom, black, transparent 88%);
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      pointer-events: none;
+      opacity: .14;
+      mix-blend-mode: overlay;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,.045) 0 1px, transparent 2px 5px);
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; }
+    .wrap { width: min(var(--max), calc(100% - 36px)); margin: 0 auto; }
+
+    .pixelBg { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+    .sparkle { position: absolute; width: 4px; height: 4px; opacity: .72; background: var(--cyan); box-shadow: 0 0 16px currentColor; animation: drift linear infinite; }
+    @keyframes drift { from { transform: translate3d(0, 20vh, 0) rotate(0deg); } to { transform: translate3d(0, -125vh, 0) rotate(220deg); } }
+    .noiseOrb { position: fixed; z-index: -1; width: 380px; height: 380px; border-radius: 999px; filter: blur(38px); opacity: .20; pointer-events: none; animation: slowFloat 8s ease-in-out infinite; }
+    .orb1 { left: -120px; top: 180px; background: var(--cyan); }
+    .orb2 { right: -130px; top: 520px; background: var(--gold); animation-delay: -2.6s; }
+    .orb3 { left: 40%; bottom: -190px; background: var(--purple); animation-delay: -4s; }
+    @keyframes slowFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-28px) scale(1.04); } }
+
+    .nav { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid rgba(255,255,255,.12); background: linear-gradient(180deg, rgba(6,6,17,.90), rgba(6,6,17,.62)); backdrop-filter: blur(20px); }
+    .navInner { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brandMark { position: relative; width: 48px; height: 48px; display: grid; place-items: center; flex: 0 0 auto; border: 3px solid rgba(255,255,255,.22); border-radius: 16px; background: linear-gradient(135deg, #345cff, #35d7c0 56%, var(--gold)); box-shadow: inset -6px -6px 0 rgba(0,0,0,.22), 0 0 32px rgba(114,231,255,.22); font-family: var(--pixel); font-size: 22px; overflow: hidden; }
+    .brandMark::after { content: ""; position: absolute; inset: -40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transform: translateX(-140%) rotate(22deg); animation: markShine 4.2s infinite; }
+    @keyframes markShine { 0%,50% { transform: translateX(-140%) rotate(22deg); } 70%,100% { transform: translateX(140%) rotate(22deg); } }
+    .brandText b { display: block; color: var(--gold); font-family: var(--pixel); letter-spacing: .5px; text-shadow: 2px 2px 0 #000; white-space: nowrap; }
+    .brandText span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .navLinks { display: flex; align-items: center; gap: 5px; color: #efeaff; font-size: 14px; }
+    .navLinks a { padding: 10px 12px; border-radius: 999px; transition: background .18s ease, color .18s ease, transform .18s ease; }
+    .navLinks a:hover { background: rgba(255,255,255,.09); color: #fff; transform: translateY(-1px); }
+    .navCta { margin-left: 6px; border: 1px solid rgba(255,214,107,.35); background: rgba(255,214,107,.13) !important; color: var(--gold) !important; box-shadow: inset 0 0 18px rgba(255,214,107,.06); }
+    .menuBtn { display: none; width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 16px; color: #fff; background: rgba(255,255,255,.08); cursor: pointer; }
+    .menuIcon { width: 20px; height: 14px; display: inline-grid; gap: 4px; }
+    .menuIcon i { display: block; height: 2px; background: #fff; border-radius: 99px; }
+    .mobileMenu { display: none; padding: 0 0 14px; }
+    .mobileMenu.active { display: block; }
+    .mobileMenu a, .mobileMenu button { width: 100%; display: block; margin-top: 8px; padding: 14px 16px; border-radius: 18px; color: #fff; background: rgba(255,255,255,.075); border: 1px solid rgba(255,255,255,.12); text-align: left; }
+    .mobileMenu button { color: var(--ink); font-weight: 900; background: linear-gradient(135deg, var(--gold), var(--cyan)); }
+
+    .hero { position: relative; padding: 76px 0 54px; }
+    .heroGrid { display: grid; grid-template-columns: minmax(0, 1.03fr) minmax(360px, .97fr); align-items: center; gap: 44px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; padding: 8px 12px; border: 1px solid rgba(114,231,255,.28); border-radius: 999px; color: #ccf8ff; background: rgba(114,231,255,.08); box-shadow: inset 0 0 18px rgba(114,231,255,.06), 0 0 28px rgba(114,231,255,.08); font-family: var(--pixel); font-size: 12px; }
+    .pulseDot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(114,230,138,.55); animation: pulse 1.55s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(114,230,138,.55); } 70% { box-shadow: 0 0 0 10px rgba(114,230,138,0); } 100% { box-shadow: 0 0 0 0 rgba(114,230,138,0); } }
+    h1 { margin: 22px 0 18px; max-width: 770px; color: #fff8dc; font-size: clamp(46px, 7vw, 92px); line-height: .91; letter-spacing: -3.8px; text-shadow: 0 22px 52px rgba(0,0,0,.5); }
+    h1 .gradient { display: block; color: transparent; background: linear-gradient(90deg, var(--gold), var(--cyan), var(--green)); -webkit-background-clip: text; background-clip: text; font-family: var(--pixel); letter-spacing: -5px; text-shadow: none; filter: drop-shadow(0 10px 28px rgba(114,231,255,.16)); }
+    .heroText { max-width: 680px; margin: 0; color: #e0dbff; font-size: 18px; line-height: 1.76; }
+    .heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin: 28px 0; }
+    .tryBtn { position: relative; isolation: isolate; min-height: 58px; border: 0; border-radius: 22px; padding: 18px 28px; color: var(--ink); background: linear-gradient(135deg, var(--gold), #fff2aa 46%, var(--cyan)); box-shadow: 0 12px 0 #7b5b25, 0 24px 48px rgba(255,214,107,.20); cursor: pointer; overflow: hidden; font-weight: 950; font-size: 17px; letter-spacing: -.2px; transition: transform .08s ease, box-shadow .08s ease, filter .2s ease; }
+    .tryBtn::before { content: ""; position: absolute; inset: -60% -20%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255,255,255,.76), transparent); transform: translateX(-120%) rotate(12deg); animation: shine 3s infinite; }
+    @keyframes shine { 0%,44% { transform: translateX(-120%) rotate(12deg); } 70%,100% { transform: translateX(120%) rotate(12deg); } }
+    .tryBtn:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 14px 0 #7b5b25, 0 28px 58px rgba(255,214,107,.25); }
+    .tryBtn:active { transform: translateY(8px); box-shadow: 0 4px 0 #7b5b25, 0 12px 28px rgba(255,214,107,.18); }
+    .secondaryBtn { min-height: 56px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.18); border-radius: 20px; padding: 16px 22px; color: #f6f0ff; background: rgba(255,255,255,.075); backdrop-filter: blur(10px); font-weight: 800; transition: background .18s ease, transform .18s ease; }
+    .secondaryBtn:hover { background: rgba(255,255,255,.12); transform: translateY(-2px); }
+    .trustedBar { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+    .trustedBar span { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; background: rgba(255,255,255,.055); }
+    .miniStats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 28px; max-width: 720px; }
+    .miniStat { position: relative; padding: 14px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,.065); box-shadow: inset 0 0 24px rgba(255,255,255,.035); overflow: hidden; }
+    .miniStat::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 0% 0%, rgba(114,231,255,.16), transparent 42%); pointer-events: none; }
+    .miniStat b { position: relative; display: block; color: #fff; font-family: var(--pixel); font-size: 22px; margin-bottom: 4px; }
+    .miniStat span { position: relative; color: var(--muted); font-size: 12px; }
+
+    .showcase { position: relative; min-height: 590px; perspective: 1000px; }
+    .skyOrb { position: absolute; width: 300px; height: 300px; right: 4%; top: -18px; border-radius: 50%; background: radial-gradient(circle at 34% 28%, #fff, var(--cyan) 15%, #386dff 42%, transparent 70%); opacity: .30; filter: blur(.2px); animation: float 5s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+    .gameDevice { position: relative; margin: 34px 0 0 auto; max-width: 550px; padding: 18px 18px 20px; border: 5px solid #5e4ca0; border-radius: 38px; background: linear-gradient(180deg, #34295b, #171326); box-shadow: 0 28px 0 rgba(0,0,0,.30), 0 0 80px rgba(114,231,255,.22), inset 0 0 0 3px rgba(255,255,255,.08); transform: rotate(1.3deg); transform-style: preserve-3d; transition: transform .18s ease; }
+    .gameDevice::before { content: "SKYFORGE HANDHELD // WEB DEMO"; display: block; margin: 0 0 12px; color: #d7d0ff; font-family: var(--pixel); font-size: 11px; letter-spacing: .5px; opacity: .86; }
+    .gameScreen { position: relative; height: 316px; overflow: hidden; border: 4px solid rgba(0,0,0,.48); border-radius: 22px; background: #5fc66c; box-shadow: inset 0 0 42px rgba(0,0,0,.34); isolation: isolate; }
+    .gameScreen::after { content: ""; position: absolute; inset: 0; z-index: 25; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255,255,255,.08) 0 1px, transparent 2px 4px); opacity: .18; mix-blend-mode: overlay; }
+    .mapLayer { position: absolute; inset: 0; background: radial-gradient(circle at 22% 70%, #4ca8e8 0 11%, #2f83c6 12%, transparent 13%), radial-gradient(circle at 72% 38%, #4ca8e8 0 16%, #2f83c6 17%, transparent 18%), linear-gradient(#6fd179 0 20%, transparent 20%), linear-gradient(135deg, #76c96e, #55b75d); }
+    .pathLayer { position: absolute; inset: 0; background: linear-gradient(90deg, transparent 0 44%, #d8b96d 44% 54%, transparent 54%), linear-gradient(transparent 0 40%, #d8b96d 40% 50%, transparent 50%), linear-gradient(135deg, transparent 0 46%, #c7a85c 46% 50%, transparent 50%); opacity: .96; }
+    .mockHouse { position: absolute; left: 52px; top: 72px; width: 78px; height: 62px; background: #f2d79a; box-shadow: inset -10px -10px 0 rgba(0,0,0,.12), 0 10px 0 rgba(0,0,0,.16); }
+    .mockHouse::before { content: ""; position: absolute; left: -6px; top: -22px; width: 90px; height: 26px; background: #d8586b; box-shadow: inset -8px -8px 0 rgba(0,0,0,.12); }
+    .mockHouse::after { content: ""; position: absolute; left: 32px; bottom: 0; width: 18px; height: 28px; background: #6a3a30; }
+    .mockGate { position: absolute; right: 70px; bottom: 48px; width: 58px; height: 78px; border-left: 12px solid #392960; border-right: 12px solid #392960; border-top: 14px solid #392960; filter: drop-shadow(0 0 14px rgba(114,231,255,.24)); }
+    .mockGate::before { content: ""; position: absolute; left: 15px; top: 19px; width: 6px; height: 38px; background: var(--cyan); box-shadow: 0 0 18px var(--cyan); animation: gateGlow 1.4s ease-in-out infinite; }
+    @keyframes gateGlow { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+    .tileTree, .tileTree::before, .tileTree::after { position: absolute; width: 34px; height: 34px; background: #236b3c; border-radius: 8px 8px 12px 12px; box-shadow: inset -6px -6px 0 rgba(0,0,0,.18); }
+    .tileTree { left: 28px; top: 38px; }
+    .tileTree::before { content: ""; left: 390px; top: 20px; }
+    .tileTree::after { content: ""; left: 360px; top: 190px; }
+    .pondGlow { position: absolute; right: 64px; top: 82px; width: 126px; height: 82px; border-radius: 50%; background: radial-gradient(circle, #84f0ff, #2f83c6 65%, #236ba4); box-shadow: 0 0 28px rgba(114,231,255,.30), inset -13px -12px 0 rgba(0,0,0,.10); animation: pondWave 2.4s ease-in-out infinite; }
+    @keyframes pondWave { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+    .heroSprite { position: absolute; left: 238px; top: 166px; width: 30px; height: 38px; border-radius: 6px 6px 3px 3px; background: #263c8f; box-shadow: 0 8px 0 rgba(0,0,0,.25); animation: spriteBob 1s steps(2) infinite; z-index: 10; }
+    .heroSprite::before { content: ""; position: absolute; left: 5px; top: -16px; width: 20px; height: 18px; border-radius: 6px; background: #ffdfad; box-shadow: 0 -7px 0 #e54f62; }
+    .heroSprite::after { content: ""; position: absolute; left: 8px; top: 30px; width: 7px; height: 9px; background: #17245c; box-shadow: 10px 0 0 #17245c; }
+    .partnerSprite { position: absolute; left: 282px; top: 184px; width: 36px; height: 27px; border-radius: 12px; background: #70d86f; box-shadow: inset -8px -7px 0 #286f42, 0 8px 0 rgba(0,0,0,.20); animation: spriteBob 1.15s steps(2) infinite; z-index: 11; }
+    .partnerSprite::before { content: "✦"; position: absolute; top: -21px; left: 10px; color: var(--gold); font-size: 16px; text-shadow: 0 0 12px var(--gold); }
+    @keyframes spriteBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    .screenHud { position: absolute; left: 15px; top: 15px; z-index: 20; padding: 8px 10px; border: 2px solid rgba(255,255,255,.18); border-radius: 10px; color: #fff6cf; background: rgba(21,17,37,.86); font-family: var(--pixel); font-size: 11px; line-height: 1.35; }
+    .screenDialog { position: absolute; left: 20px; right: 20px; bottom: 18px; z-index: 18; padding: 12px 14px; border: 3px solid #1a1730; border-radius: 14px; background: #fff3c2; color: #1a1730; font-family: var(--pixel); font-size: 12px; box-shadow: 0 8px 0 rgba(0,0,0,.20); }
+    .deviceControls { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 16px 8px 0; }
+    .caption b { display: block; margin-bottom: 4px; color: #fff; font-family: var(--pixel); font-size: 13px; }
+    .caption span { color: var(--muted); font-size: 13px; line-height: 1.4; }
+    .rating { color: var(--gold); font-family: var(--pixel); white-space: nowrap; }
+    .floatingBadge { position: absolute; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; background: rgba(15,13,32,.82); backdrop-filter: blur(14px); box-shadow: 0 14px 38px rgba(0,0,0,.24); color: #fff; font-size: 13px; animation: badgeFloat 4s ease-in-out infinite; }
+    .floatingBadge b { color: var(--gold); font-family: var(--pixel); }
+    .badge1 { left: -20px; top: 118px; }
+    .badge2 { right: -6px; bottom: 128px; animation-delay: -1.5s; }
+    @keyframes badgeFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+    section { padding: 70px 0; }
+    .sectionHead { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
+    .sectionHead.center { display: block; max-width: 760px; margin-inline: auto; text-align: center; }
+    .kicker { display: inline-block; margin-bottom: 12px; color: var(--gold); font-family: var(--pixel); font-size: 12px; letter-spacing: .6px; text-transform: uppercase; }
+    .sectionHead h2 { margin: 0; color: #fff8dc; font-size: clamp(31px, 4.2vw, 56px); line-height: 1.02; letter-spacing: -2px; }
+    .sectionHead p { margin: 0; max-width: 540px; color: var(--muted); line-height: 1.7; }
+    .sectionHead.center p { margin: 16px auto 0; }
+    .featureGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .featureCard { position: relative; min-height: 230px; padding: 24px; border: 1px solid var(--line); border-radius: 28px; background: linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035)); box-shadow: 0 20px 60px rgba(0,0,0,.18), inset 0 0 0 1px rgba(255,255,255,.04); overflow: hidden; transition: transform .18s ease, border-color .18s ease, background .18s ease; }
+    .featureCard:hover { transform: translateY(-5px); border-color: rgba(114,231,255,.34); background: linear-gradient(180deg, rgba(255,255,255,.105), rgba(255,255,255,.048)); }
+    .featureCard::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 18% 0%, rgba(114,231,255,.18), transparent 30%); }
+    .featureIcon { position: relative; width: 52px; height: 52px; display: grid; place-items: center; margin-bottom: 18px; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; background: rgba(255,255,255,.08); font-size: 24px; font-family: var(--pixel); }
+    .featureCard h3 { position: relative; margin: 0 0 10px; color: #fff; font-size: 20px; }
+    .featureCard p { position: relative; margin: 0; color: var(--muted); line-height: 1.65; font-size: 14px; }
+    .wideCard { grid-column: span 2; display: grid; grid-template-columns: 1fr 180px; gap: 20px; align-items: center; }
+    .miniMap { position: relative; height: 160px; border: 3px solid rgba(0,0,0,.34); border-radius: 20px; background: radial-gradient(circle at 24% 64%, #4ca8e8 0 15%, transparent 16%), radial-gradient(circle at 72% 34%, #4ca8e8 0 18%, transparent 19%), linear-gradient(90deg, transparent 0 42%, #d8b96d 42% 52%, transparent 52%), linear-gradient(transparent 0 45%, #d8b96d 45% 55%, transparent 55%), linear-gradient(135deg, #70c96b, #4ea657); box-shadow: inset 0 0 24px rgba(0,0,0,.28); }
+    .miniMap i { position: absolute; width: 14px; height: 14px; border-radius: 4px; background: var(--gold); box-shadow: 0 0 12px var(--gold); animation: blink 1.2s ease-in-out infinite; }
+    .miniMap i:nth-child(1) { left: 30%; top: 34%; }
+    .miniMap i:nth-child(2) { right: 22%; top: 22%; animation-delay: -.3s; }
+    .miniMap i:nth-child(3) { right: 18%; bottom: 22%; animation-delay: -.6s; }
+    @keyframes blink { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+
+    .demoStrip { display: grid; grid-template-columns: 1.05fr .95fr; gap: 18px; align-items: stretch; border: 1px solid var(--line); border-radius: 36px; padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.035)); box-shadow: 0 26px 74px rgba(0,0,0,.24); }
+    .poster { position: relative; min-height: 430px; overflow: hidden; border: 1px solid rgba(255,255,255,.14); border-radius: 28px; background: radial-gradient(circle at 50% 24%, rgba(255,214,107,.42), transparent 20%), radial-gradient(circle at 30% 52%, rgba(114,231,255,.34), transparent 22%), radial-gradient(circle at 76% 70%, rgba(142,120,255,.28), transparent 24%), linear-gradient(160deg, #30245f, #0c1025 58%, #071829); }
+    .poster::before { content: ""; position: absolute; left: 50%; top: 14%; width: 170px; height: 170px; transform: translateX(-50%) rotate(45deg); background: linear-gradient(135deg, var(--gold), var(--cyan)); clip-path: polygon(50% 0%, 100% 45%, 50% 100%, 0 45%); box-shadow: 0 0 90px rgba(114,231,255,.35); opacity: .94; animation: relicSpin 7s linear infinite; }
+    @keyframes relicSpin { from { transform: translateX(-50%) rotate(45deg); } to { transform: translateX(-50%) rotate(405deg); } }
+    .poster::after { content: "SKYFORGE VALE"; position: absolute; left: 28px; bottom: 26px; color: white; font-family: var(--pixel); font-size: 38px; line-height: 1.05; text-shadow: 4px 4px 0 #000; }
+    .posterBadge { position: absolute; right: 22px; top: 22px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.20); border-radius: 999px; background: rgba(8,7,19,.55); backdrop-filter: blur(10px); color: #fff; font-family: var(--pixel); font-size: 12px; }
+    .demoCopy { align-self: center; padding: 32px; }
+    .demoCopy h2 { margin: 0 0 14px; color: #fff8dc; font-size: clamp(30px, 4vw, 52px); line-height: 1.02; letter-spacing: -1.8px; }
+    .demoCopy p { margin: 0 0 22px; color: var(--muted); line-height: 1.75; }
+    .checkList { display: grid; gap: 12px; margin: 20px 0 28px; }
+    .checkItem { display: flex; align-items: flex-start; gap: 12px; color: #eee9ff; line-height: 1.45; }
+    .check { width: 27px; height: 27px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid rgba(114,230,138,.28); border-radius: 50%; background: rgba(114,230,138,.16); color: var(--green); font-weight: 950; }
+
+    .artifactTabs { display: grid; grid-template-columns: 310px 1fr; gap: 18px; align-items: stretch; }
+    .tabList { display: grid; gap: 12px; }
+    .tabBtn { width: 100%; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 22px; color: #fff; background: rgba(255,255,255,.065); cursor: pointer; text-align: left; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
+    .tabBtn:hover, .tabBtn.active { transform: translateY(-2px); border-color: rgba(255,214,107,.36); background: rgba(255,214,107,.10); }
+    .tabIcon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: rgba(255,255,255,.09); font-family: var(--pixel); color: var(--gold); }
+    .tabBtn b { display: block; margin-bottom: 3px; }
+    .tabBtn span { display: block; color: var(--muted); font-size: 12px; }
+    .artifactStage { position: relative; min-height: 360px; overflow: hidden; border: 1px solid var(--line); border-radius: 32px; background: radial-gradient(circle at 50% 20%, rgba(255,214,107,.18), transparent 30%), linear-gradient(135deg, rgba(255,255,255,.085), rgba(255,255,255,.035)); box-shadow: 0 22px 70px rgba(0,0,0,.20); }
+    .artifactPanel { position: absolute; inset: 0; display: none; grid-template-columns: .9fr 1.1fr; gap: 20px; align-items: center; padding: 32px; }
+    .artifactPanel.active { display: grid; }
+    .relicArt { position: relative; height: 250px; display: grid; place-items: center; }
+    .relicShape { width: 120px; height: 120px; transform: rotate(45deg); background: linear-gradient(135deg, var(--gold), var(--cyan)); clip-path: polygon(50% 0%, 100% 45%, 50% 100%, 0 45%); box-shadow: 0 0 60px rgba(114,231,255,.35), 0 0 0 18px rgba(255,255,255,.04); animation: relicFloat 3.4s ease-in-out infinite; }
+    .relicShape.prism { background: linear-gradient(135deg, #75e08c, #72e7ff, #fff); }
+    .relicShape.lens { border-radius: 50%; clip-path: none; background: radial-gradient(circle at 35% 30%, #fff, #72e7ff 30%, #8e78ff 72%); }
+    .relicShape.weapon { width: 46px; height: 180px; clip-path: polygon(42% 0, 60% 0, 66% 72%, 92% 88%, 50% 100%, 8% 88%, 34% 72%); background: linear-gradient(180deg, #fff, var(--cyan), #4968ff); }
+    @keyframes relicFloat { 0%,100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(-12px) rotate(45deg); } }
+    .artifactText h3 { margin: 0 0 10px; color: #fff8dc; font-size: 30px; letter-spacing: -1px; }
+    .artifactText p { margin: 0 0 20px; color: var(--muted); line-height: 1.72; }
+    .statsGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .statPill { padding: 12px; border: 1px solid rgba(255,255,255,.14); border-radius: 16px; background: rgba(0,0,0,.18); }
+    .statPill b { display: block; color: var(--gold); font-family: var(--pixel); font-size: 13px; margin-bottom: 4px; }
+    .statPill span { color: #fff; font-size: 13px; }
+
+    .timeline { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .step { position: relative; padding: 22px; border: 1px solid var(--line); border-radius: 26px; background: rgba(255,255,255,.058); overflow: hidden; }
+    .step::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--gold), var(--cyan)); opacity: .8; }
+    .step .tag { display: inline-block; margin-bottom: 12px; color: var(--gold); font-family: var(--pixel); font-size: 12px; }
+    .step h3 { margin: 0 0 8px; color: #fff; font-size: 18px; }
+    .step p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.62; }
+    .reviews { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .review { padding: 24px; border: 1px solid var(--line); border-radius: 28px; background: rgba(255,255,255,.062); }
+    .stars { color: var(--gold); font-family: var(--pixel); margin-bottom: 12px; }
+    .review p { margin: 0 0 16px; color: #eee9ff; line-height: 1.65; }
+    .review b { color: #fff; }
+    .review span { color: var(--muted2); font-size: 13px; }
+    .faqGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    details { border: 1px solid var(--line); border-radius: 22px; padding: 18px; background: rgba(255,255,255,.06); }
+    summary { cursor: pointer; color: #fff; font-weight: 850; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    details p { margin: 12px 0 0; color: var(--muted); line-height: 1.65; }
+    .finalCta { position: relative; overflow: hidden; text-align: center; border: 1px solid var(--line); border-radius: 38px; padding: 62px 24px; background: radial-gradient(circle at 50% 0%, rgba(255,214,107,.20), transparent 34%), radial-gradient(circle at 20% 80%, rgba(114,231,255,.16), transparent 28%), linear-gradient(135deg, rgba(255,255,255,.095), rgba(255,255,255,.038)); box-shadow: 0 28px 78px rgba(0,0,0,.25); }
+    .finalCta h2 { margin: 0 0 14px; color: #fff8dc; font-size: clamp(36px, 5vw, 68px); letter-spacing: -2.2px; line-height: 1; }
+    .finalCta p { max-width: 660px; margin: 0 auto 28px; color: var(--muted); line-height: 1.72; }
+    footer { padding: 36px 0 110px; border-top: 1px solid var(--line); color: #aaa4d3; font-size: 13px; }
+    .footerInner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .footerLinks { display: flex; gap: 12px; flex-wrap: wrap; }
+    .footerLinks a { color: #d9d3ff; }
+    .stickyPlay { position: fixed; left: 50%; bottom: 16px; z-index: 38; width: min(560px, calc(100% - 26px)); display: none; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px solid rgba(255,255,255,.16); border-radius: 24px; background: rgba(13,11,28,.78); backdrop-filter: blur(18px); box-shadow: 0 20px 60px rgba(0,0,0,.32); transform: translateX(-50%); }
+    .stickyPlay b { display: block; color: #fff; font-size: 13px; }
+    .stickyPlay span { display: block; color: var(--muted); font-size: 12px; }
+    .stickyPlay .tryBtn { min-height: 48px; padding: 12px 18px; border-radius: 16px; font-size: 13px; box-shadow: 0 7px 0 #7b5b25, 0 16px 32px rgba(255,214,107,.18); }
+
+    .loadingOverlay { position: fixed; inset: 0; z-index: 90; display: none; place-items: center; padding: 22px; background: radial-gradient(circle at 50% 30%, rgba(114,231,255,.22), transparent 26%), radial-gradient(circle at 40% 68%, rgba(255,214,107,.16), transparent 24%), linear-gradient(180deg, rgba(6,6,17,.95), rgba(6,6,17,.995)); }
+    .loadingOverlay.active { display: grid; }
+    .loadBox { width: min(660px, 100%); padding: 24px; border: 5px solid #fff0a6; border-radius: 28px; text-align: center; background: linear-gradient(180deg, rgba(53,43,91,.98), rgba(25,21,44,.98)); box-shadow: 0 18px 0 rgba(0,0,0,.35), 0 0 70px rgba(114,231,255,.18), inset 0 0 0 3px rgba(255,255,255,.08); font-family: var(--pixel); }
+    .loadEmblem { width: 74px; height: 74px; margin: 0 auto 14px; display: grid; place-items: center; border: 3px solid rgba(255,255,255,.22); border-radius: 24px; background: linear-gradient(135deg, var(--gold), var(--cyan)); box-shadow: inset -8px -8px 0 rgba(0,0,0,.18), 0 0 32px rgba(255,214,107,.20); color: var(--ink); font-size: 30px; animation: emblemBeat 1.3s ease-in-out infinite; }
+    @keyframes emblemBeat { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+    .loadBox h2 { margin: 0 0 10px; color: var(--gold); font-size: clamp(24px, 5vw, 42px); text-shadow: 3px 3px 0 #000; }
+    .loadBox p { margin: 0; color: #fff8df; line-height: 1.5; font-size: 13px; }
+    .classicBar { position: relative; height: 24px; margin: 20px 0 10px; overflow: hidden; border: 4px solid #151020; border-radius: 999px; background: #0d0a17; box-shadow: inset 0 0 0 2px rgba(255,255,255,.06); }
+    .classicBar span { display: block; width: 0%; height: 100%; background: repeating-linear-gradient(90deg, #72e7ff 0 16px, #75e08c 16px 32px, #ffd66b 32px 48px); transition: width .16s linear; }
+    .loadMeta { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; color: #d8d0ff; font-size: 12px; }
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1020px) {
+      .heroGrid, .demoStrip, .artifactTabs { grid-template-columns: 1fr; }
+      .showcase { min-height: auto; }
+      .gameDevice { margin: 20px auto 0; transform: none; }
+      .featureGrid { grid-template-columns: 1fr 1fr; }
+      .wideCard { grid-column: span 2; }
+      .timeline, .reviews { grid-template-columns: 1fr 1fr; }
+      .faqGrid { grid-template-columns: 1fr; }
+      .sectionHead { align-items: flex-start; flex-direction: column; }
+      .floatingBadge { display: none; }
+    }
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 26px, var(--max)); }
+      .navInner { min-height: 68px; }
+      .navLinks { display: none; }
+      .menuBtn { display: grid; place-items: center; }
+      .brandText span { display: none; }
+      .brandMark { width: 44px; height: 44px; }
+      .hero { padding: 44px 0 34px; }
+      h1 { font-size: clamp(44px, 14vw, 72px); letter-spacing: -2.4px; }
+      h1 .gradient { letter-spacing: -3px; }
+      .heroText { font-size: 16px; line-height: 1.68; }
+      .heroActions { flex-direction: column; align-items: stretch; }
+      .tryBtn, .secondaryBtn { width: 100%; text-align: center; }
+      .trustedBar span { width: 100%; justify-content: center; }
+      .miniStats { grid-template-columns: 1fr 1fr; }
+      .showcase { margin-top: 12px; }
+      .gameDevice { padding: 12px; border-width: 4px; border-radius: 28px; }
+      .gameScreen { height: 250px; border-radius: 18px; }
+      .mockHouse { transform: scale(.8); transform-origin: left top; }
+      .mockGate { transform: scale(.82); transform-origin: right bottom; }
+      .heroSprite { left: 44%; top: 56%; }
+      .partnerSprite { left: 56%; top: 61%; }
+      .deviceControls { grid-template-columns: 1fr; }
+      .rating { display: none; }
+      section { padding: 50px 0; }
+      .sectionHead h2, .demoCopy h2 { letter-spacing: -1.2px; }
+      .featureGrid, .timeline, .reviews { grid-template-columns: 1fr; }
+      .wideCard { grid-column: span 1; grid-template-columns: 1fr; }
+      .demoStrip { padding: 12px; border-radius: 28px; }
+      .poster { min-height: 310px; border-radius: 22px; }
+      .poster::after { font-size: 30px; }
+      .demoCopy { padding: 14px 6px 8px; }
+      .artifactPanel { position: relative; display: none; grid-template-columns: 1fr; min-height: auto; padding: 22px; }
+      .artifactPanel.active { display: grid; }
+      .artifactStage { min-height: auto; }
+      .relicArt { height: 190px; }
+      .statsGrid { grid-template-columns: 1fr; }
+      .finalCta { padding: 44px 16px; border-radius: 28px; }
+      .stickyPlay { display: flex; }
+      footer { padding-bottom: 118px; }
+      .loadMeta { flex-direction: column; align-items: center; }
+    }
+    @media (max-width: 430px) {
+      .miniStats { grid-template-columns: 1fr; }
+      .eyebrow { font-size: 11px; }
+      .screenDialog { font-size: 10px; left: 12px; right: 12px; }
+      .tabBtn { grid-template-columns: 1fr; }
+      .stickyPlay { align-items: stretch; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pixelBg" id="sparkles" aria-hidden="true"></div>
+  <div class="noiseOrb orb1" aria-hidden="true"></div>
+  <div class="noiseOrb orb2" aria-hidden="true"></div>
+  <div class="noiseOrb orb3" aria-hidden="true"></div>
+
+  <nav class="nav">
+    <div class="wrap">
+      <div class="navInner">
+        <a class="brand" href="#top" aria-label="Skyforge Vale home">
+          <div class="brandMark">✦</div>
+          <div class="brandText"><b>Skyforge Vale</b><span>Relic Dawn · Level 1 Demo</span></div>
+        </a>
+        <div class="navLinks" aria-label="Main navigation">
+          <a href="#features">Features</a><a href="#world">World</a><a href="#artifacts">Artifacts</a><a href="#roadmap">How It Plays</a><a href="#faq">FAQ</a><a class="navCta" href="#play">Play Demo</a>
+        </div>
+        <button class="menuBtn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><span class="menuIcon"><i></i><i></i><i></i></span></button>
+      </div>
+      <div class="mobileMenu" id="mobileMenu">
+        <a href="#features">Features</a><a href="#world">World</a><a href="#artifacts">Artifacts</a><a href="#roadmap">How It Plays</a><a href="#faq">FAQ</a><button class="launchBtn">▶ Try Game Now</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap heroGrid">
+        <div class="heroCopy reveal visible">
+          <div class="eyebrow"><span class="pulseDot"></span> Play the browser RPG demo today</div>
+          <h1>Discover relics.<span class="gradient">Awaken the sky.</span></h1>
+          <p class="heroText">Skyforge Vale: Relic Dawn is a polished retro-inspired creature RPG demo with a larger overworld, enterable buildings, collectible artifacts, weapon upgrades, turn-based battles, and a final guardian boss.</p>
+          <div class="heroActions" id="play"><button class="tryBtn launchBtn">▶ TRY GAME NOW</button><a class="secondaryBtn" href="#world">Watch the pitch</a></div>
+          <div class="trustedBar" aria-label="Game highlights"><span>⚡ Instant browser launch</span><span>📱 Mobile + tablet friendly</span><span>🎮 Classic RPG feel</span></div>
+          <div class="miniStats"><div class="miniStat"><b>3</b><span>Ancient artifacts</span></div><div class="miniStat"><b>4+</b><span>Playable maps</span></div><div class="miniStat"><b>5-10m</b><span>Level 1 quest</span></div><div class="miniStat"><b>100%</b><span>Single-file game</span></div></div>
+        </div>
+        <div class="showcase reveal visible" aria-label="Animated game preview">
+          <div class="skyOrb"></div><div class="floatingBadge badge1"><span>🗺️</span><div><b>Expanded Map</b><br>ponds, gates, paths</div></div><div class="floatingBadge badge2"><span>⚔️</span><div><b>Weapon Drops</b><br>Gale Saber + Tide Bow</div></div>
+          <div class="gameDevice" id="gameDevice">
+            <div class="gameScreen"><div class="mapLayer"></div><div class="pathLayer"></div><div class="mockHouse"></div><div class="mockGate"></div><div class="tileTree"></div><div class="pondGlow"></div><div class="heroSprite"></div><div class="partnerSprite"></div><div class="screenHud">Skyforge Vale<br>Artifacts 0/3<br>Weapon: Star Twig</div><div class="screenDialog">Spriglit senses a relic beyond the pond...</div></div>
+            <div class="deviceControls"><div class="caption"><b>Level 1: Relic Dawn</b><span>Explore the valley, enter buildings, collect relics, and challenge the Skyspire.</span></div><div class="rating">★★★★★</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <div class="sectionHead reveal"><div><span class="kicker">Game Features</span><h2>Made to feel like a real indie RPG launch.</h2></div><p>More depth, stronger visuals, better UX, and a smoother landing page experience that sells the game before the player clicks start.</p></div>
+        <div class="featureGrid">
+          <article class="featureCard wideCard reveal"><div><div class="featureIcon">🗺️</div><h3>Expanded exploration</h3><p>Travel across Skyforge Vale with ponds, bridges, tall grass, crystal zones, NPCs, gates, secrets, and a bigger overworld layout.</p></div><div class="miniMap"><i></i><i></i><i></i></div></article>
+          <article class="featureCard reveal"><div class="featureIcon">🏠</div><h3>Enterable buildings</h3><p>Step inside the Crystal Cottage, Gale Armory, Rain Shrine, and Skyspire Ruins with classic loading transitions.</p></article>
+          <article class="featureCard reveal"><div class="featureIcon">⚔️</div><h3>Weapons that matter</h3><p>Upgrade from Star Twig to Gale Saber and Tide Bow to make battles feel stronger as the level progresses.</p></article>
+          <article class="featureCard reveal"><div class="featureIcon">✦</div><h3>Artifact quest</h3><p>Find the Sun Gear, Rain Prism, and Storm Lens before the Skyspire Gate will open.</p></article>
+          <article class="featureCard reveal"><div class="featureIcon">👾</div><h3>Creature battles</h3><p>Train Spriglit through quick turn-based encounters and defeat the Skyforged Warden in the final ruins.</p></article>
+          <article class="featureCard reveal"><div class="featureIcon">📱</div><h3>Mobile friendly</h3><p>Responsive website layout, sticky mobile launch bar, touch-friendly buttons, and landscape-friendly game messaging.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="world"><div class="wrap"><div class="demoStrip reveal"><div class="poster" aria-label="Skyforge Vale poster art"><span class="posterBadge">LEVEL 1 DEMO</span></div><div class="demoCopy"><span class="kicker">The Pitch</span><h2>A valley built around relics, weather, and old sky machines.</h2><p>Ancient floating ruins begin to wake above the valley. Your job is to gather relics, power up Spriglit, and open the Skyspire Gate before the Warden seals the dawn engine forever.</p><div class="checkList"><div class="checkItem"><span class="check">✓</span><span>Short focused Level 1 RPG experience with a full quest loop.</span></div><div class="checkItem"><span class="check">✓</span><span>Retro art direction wrapped in a premium modern marketing website.</span></div><div class="checkItem"><span class="check">✓</span><span>One-click classic loading sequence into <b>skyforgeL1.html</b>.</span></div></div><button class="tryBtn launchBtn">▶ LAUNCH DEMO</button></div></div></div></section>
+
+    <section id="artifacts">
+      <div class="wrap">
+        <div class="sectionHead center reveal"><span class="kicker">Relics + Weapons</span><h2>Collect powerful items before the final gate opens.</h2><p>Each relic and weapon has a clear role in the Level 1 journey, making the demo feel more like a real RPG chapter.</p></div>
+        <div class="artifactTabs reveal">
+          <div class="tabList" role="tablist" aria-label="Artifact showcase">
+            <button class="tabBtn active" data-tab="sun" role="tab" aria-selected="true"><span class="tabIcon">☀</span><span><b>Sun Gear</b><span>Artifact · Cottage chest</span></span></button>
+            <button class="tabBtn" data-tab="rain" role="tab" aria-selected="false"><span class="tabIcon">◆</span><span><b>Rain Prism</b><span>Artifact · Rain Shrine</span></span></button>
+            <button class="tabBtn" data-tab="storm" role="tab" aria-selected="false"><span class="tabIcon">◉</span><span><b>Storm Lens</b><span>Artifact · Crystal clearing</span></span></button>
+            <button class="tabBtn" data-tab="weapons" role="tab" aria-selected="false"><span class="tabIcon">⚔</span><span><b>Gale Saber + Tide Bow</b><span>Weapon upgrades</span></span></button>
+          </div>
+          <div class="artifactStage">
+            <article class="artifactPanel active" data-panel="sun" role="tabpanel"><div class="relicArt"><div class="relicShape"></div></div><div class="artifactText"><h3>Sun Gear</h3><p>A warm mechanical relic hidden inside the Crystal Cottage. It proves the player understands the game’s first exploration rule: buildings are not decoration anymore.</p><div class="statsGrid"><div class="statPill"><b>Role</b><span>Gate key</span></div><div class="statPill"><b>Found</b><span>Cottage</span></div><div class="statPill"><b>Vibe</b><span>Ancient tech</span></div></div></div></article>
+            <article class="artifactPanel" data-panel="rain" role="tabpanel"><div class="relicArt"><div class="relicShape prism"></div></div><div class="artifactText"><h3>Rain Prism</h3><p>A bright water relic kept inside the Rain Shrine. It connects the pond, bridge, and interior map ideas into one clear moment of discovery.</p><div class="statsGrid"><div class="statPill"><b>Role</b><span>Gate key</span></div><div class="statPill"><b>Found</b><span>Shrine</span></div><div class="statPill"><b>Vibe</b><span>Weather magic</span></div></div></div></article>
+            <article class="artifactPanel" data-panel="storm" role="tabpanel"><div class="relicArt"><div class="relicShape lens"></div></div><div class="artifactText"><h3>Storm Lens</h3><p>A glass-like relic hidden in the outdoor crystal fields. This rewards overworld exploration and pushes players toward the final Skyspire Gate.</p><div class="statsGrid"><div class="statPill"><b>Role</b><span>Gate key</span></div><div class="statPill"><b>Found</b><span>Vale</span></div><div class="statPill"><b>Vibe</b><span>Wind relic</span></div></div></div></article>
+            <article class="artifactPanel" data-panel="weapons" role="tabpanel"><div class="relicArt"><div class="relicShape weapon"></div></div><div class="artifactText"><h3>Gale Saber + Tide Bow</h3><p>Weapon upgrades make the game feel more advanced than a simple walking demo. Each weapon changes the battle move names and attack strength.</p><div class="statsGrid"><div class="statPill"><b>Power</b><span>Higher damage</span></div><div class="statPill"><b>Found</b><span>Armory/Shrine</span></div><div class="statPill"><b>Battle</b><span>New specials</span></div></div></div></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap"><div class="wrap"><div class="sectionHead reveal"><div><span class="kicker">Gameplay Flow</span><h2>One small demo, complete RPG loop.</h2></div><p>The level is designed so players understand the world quickly, collect rewards, improve power, then finish with a boss battle.</p></div><div class="timeline"><article class="step reveal"><span class="tag">01 · EXPLORE</span><h3>Skyforge Vale</h3><p>Start in the overworld and discover ponds, paths, NPCs, tall grass, and hidden relic locations.</p></article><article class="step reveal"><span class="tag">02 · ENTER</span><h3>Interior maps</h3><p>Walk through doors and load new building maps with their own layouts, NPCs, chests, and secrets.</p></article><article class="step reveal"><span class="tag">03 · POWER UP</span><h3>Find weapons</h3><p>Upgrade from Star Twig to Gale Saber and Tide Bow for stronger attacks and better battle feel.</p></article><article class="step reveal"><span class="tag">04 · FINISH</span><h3>Boss finale</h3><p>Use all 3 artifacts to unlock the Skyspire Ruins and fight the Skyforged Warden.</p></article></div></div></section>
+
+    <section><div class="wrap"><div class="sectionHead center reveal"><span class="kicker">Player Reaction</span><h2>Built to feel polished from the first click.</h2><p>These review cards are marketing-style placeholders you can replace later with real player feedback.</p></div><div class="reviews"><article class="review reveal"><div class="stars">★★★★★</div><p>“The landing page makes the game feel like a real indie launch, not just a test file.”</p><b>Demo Tester</b><br><span>Retro RPG fan</span></article><article class="review reveal"><div class="stars">★★★★★</div><p>“The classic loading effect and mobile launch bar make the browser game feel premium.”</p><b>Mobile Player</b><br><span>Tablet landscape mode</span></article><article class="review reveal"><div class="stars">★★★★★</div><p>“Artifacts, buildings, weapons, and a boss make Level 1 feel complete.”</p><b>Indie Reviewer</b><br><span>Gameplay loop focused</span></article></div></div></section>
+
+    <section id="faq"><div class="wrap"><div class="sectionHead reveal"><div><span class="kicker">FAQ</span><h2>Launch notes.</h2></div><p>Everything here is made to work as a standalone website that opens the game file.</p></div><div class="faqGrid"><details class="reveal" open><summary>What file should this website be saved as?</summary><p>Save this landing page as <b>index.html</b>. Save the game page as <b>skyforgeL1.html</b> in the same folder.</p></details><details class="reveal"><summary>What happens when the Try Game button is clicked?</summary><p>A classic loading overlay appears, fills the progress bar, then redirects the browser to <b>skyforgeL1.html</b>.</p></details><details class="reveal"><summary>Is it mobile friendly?</summary><p>Yes. It includes responsive sections, a mobile menu, full-width CTA buttons, and a sticky play bar on smaller screens.</p></details><details class="reveal"><summary>Does this use external assets?</summary><p>No. The art, layout, animations, preview mockups, and effects are built with HTML, CSS, and JavaScript only.</p></details></div></div></section>
+
+    <section><div class="wrap"><div class="finalCta reveal"><span class="kicker">Ready?</span><h2>Awaken the Skyspire now.</h2><p>Start the classic loading sequence and jump directly into the playable Level 1 demo.</p><button class="tryBtn launchBtn">▶ TRY GAME</button></div></div></section>
+  </main>
+
+  <footer><div class="wrap footerInner"><div>© 2026 Skyforge Vale: Relic Dawn. Original browser RPG concept.</div><div class="footerLinks"><a href="#top">Top</a><a href="#features">Features</a><a href="#play">Play</a><span>Launch target: <b>skyforgeL1.html</b></span></div></div></footer>
+  <div class="stickyPlay" id="stickyPlay"><div><b>Skyforge Vale Demo</b><span>Classic RPG browser launch</span></div><button class="tryBtn launchBtn">PLAY</button></div>
+  <div class="loadingOverlay" id="loadingOverlay" role="dialog" aria-modal="true" aria-label="Loading Skyforge Vale"><div class="loadBox"><div class="loadEmblem">✦</div><h2>LOADING RELIC DAWN</h2><p id="loadText">Checking sky engine...</p><div class="classicBar"><span id="loadFill"></span></div><div class="loadMeta"><span id="loadPercent">0%</span><span>Target: skyforgeL1.html</span></div></div></div>
+
+  <script>
+    (() => {
+      const sparkles = document.getElementById("sparkles");
+      const overlay = document.getElementById("loadingOverlay");
+      const fill = document.getElementById("loadFill");
+      const percent = document.getElementById("loadPercent");
+      const loadText = document.getElementById("loadText");
+      const menuBtn = document.getElementById("menuBtn");
+      const mobileMenu = document.getElementById("mobileMenu");
+      const gameDevice = document.getElementById("gameDevice");
+      const tabButtons = document.querySelectorAll(".tabBtn");
+      const panels = document.querySelectorAll(".artifactPanel");
+      const revealItems = document.querySelectorAll(".reveal");
+      const launchButtons = document.querySelectorAll(".launchBtn");
+      const messages = ["Checking sky engine...", "Charging relic core...", "Packing ancient artifacts...", "Sharpening Gale Saber...", "Opening Skyspire Gate...", "Launching skyforgeL1.html..."];
+
+      function createSparkles() {
+        const count = Math.min(90, Math.floor(window.innerWidth / 14));
+        const colors = ["#72e7ff", "#ffd66b", "#75e08c", "#ff7194", "#8e78ff"];
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < count; i++) {
+          const s = document.createElement("i");
+          s.className = "sparkle";
+          s.style.left = Math.random() * 100 + "%";
+          s.style.top = 90 + Math.random() * 100 + "%";
+          s.style.animationDuration = 8 + Math.random() * 14 + "s";
+          s.style.animationDelay = -Math.random() * 16 + "s";
+          s.style.color = colors[Math.floor(Math.random() * colors.length)];
+          s.style.background = "currentColor";
+          frag.appendChild(s);
+        }
+        sparkles.appendChild(frag);
+      }
+
+      function launchGame() {
+        overlay.classList.add("active");
+        document.body.classList.add("noScroll");
+        let progress = 0;
+        let messageIndex = 0;
+        fill.style.width = "0%";
+        percent.textContent = "0%";
+        loadText.textContent = messages[0];
+        const timer = setInterval(() => {
+          progress += Math.floor(5 + Math.random() * 8);
+          if (progress > 100) progress = 100;
+          fill.style.width = progress + "%";
+          percent.textContent = progress + "%";
+          const nextIndex = Math.min(messages.length - 1, Math.floor(progress / 19));
+          if (nextIndex !== messageIndex) {
+            messageIndex = nextIndex;
+            loadText.textContent = messages[messageIndex];
+          }
+          if (progress >= 100) {
+            clearInterval(timer);
+            setTimeout(() => { window.location.href = "skyforgeL1.html"; }, 520);
+          }
+        }, 145);
+      }
+
+      function setupMenu() {
+        menuBtn.addEventListener("click", () => {
+          const open = mobileMenu.classList.toggle("active");
+          menuBtn.setAttribute("aria-expanded", String(open));
+        });
+        mobileMenu.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
+          mobileMenu.classList.remove("active");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }));
+      }
+
+      function setupTabs() {
+        tabButtons.forEach(btn => btn.addEventListener("click", () => {
+          const id = btn.dataset.tab;
+          tabButtons.forEach(b => {
+            b.classList.toggle("active", b === btn);
+            b.setAttribute("aria-selected", String(b === btn));
+          });
+          panels.forEach(panel => panel.classList.toggle("active", panel.dataset.panel === id));
+        }));
+      }
+
+      function setupReveal() {
+        if (!("IntersectionObserver" in window)) {
+          revealItems.forEach(item => item.classList.add("visible"));
+          return;
+        }
+        const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: .12 });
+        revealItems.forEach(item => observer.observe(item));
+      }
+
+      function setupTilt() {
+        if (!gameDevice || window.matchMedia("(pointer: coarse)").matches) return;
+        gameDevice.addEventListener("mousemove", e => {
+          const rect = gameDevice.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - .5;
+          const y = (e.clientY - rect.top) / rect.height - .5;
+          gameDevice.style.transform = `rotate(1.3deg) rotateY(${x * 7}deg) rotateX(${-y * 7}deg)`;
+        });
+        gameDevice.addEventListener("mouseleave", () => {
+          gameDevice.style.transform = "rotate(1.3deg) rotateY(0deg) rotateX(0deg)";
+        });
+      }
+
+      launchButtons.forEach(btn => btn.addEventListener("click", launchGame));
+      createSparkles();
+      setupMenu();
+      setupTabs();
+      setupReveal();
+      setupTilt();
+    })();
+  </script>
+</body>
+</html>
