@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Skyforge Vale: Relic Dawn</title>
+  <style>
+    :root {
+      --bg: #0d0b19;
+      --panel: #241f3d;
+      --panel2: #352b5b;
+      --cream: #fff4d4;
+      --ink: #171329;
+      --gold: #ffd66b;
+      --cyan: #79e7ff;
+      --green: #74df87;
+      --red: #ff6c82;
+      --pixel: "Courier New", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 16% 8%, rgba(121,231,255,.18), transparent 28%),
+        radial-gradient(circle at 84% 80%, rgba(255,214,107,.15), transparent 34%),
+        linear-gradient(135deg, #080713, #17122a 48%, #071a2d);
+      color: var(--cream);
+      font-family: var(--pixel);
+      image-rendering: pixelated;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 2px 4px);
+      mix-blend-mode: overlay;
+      opacity: .32;
+      z-index: 50;
+    }
+    .shell {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      padding: 10px;
+      gap: 10px;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 4px solid #5e4ca0;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(53,43,91,.96), rgba(31,27,52,.96));
+      box-shadow: 0 10px 0 rgba(0,0,0,.25), inset 0 0 0 2px rgba(255,255,255,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .logo {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border: 3px solid #ffe29a;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #365cff, #41d7bf 58%, #ffd66b);
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,.2);
+      font-size: 20px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(16px, 2.2vw, 28px);
+      letter-spacing: 1px;
+      color: var(--gold);
+      text-shadow: 2px 2px 0 #111;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .subtitle { font-size: 11px; color: #d8d0ff; }
+    .topStats { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; font-size: 12px; }
+    .chip {
+      border: 2px solid rgba(255,255,255,.24);
+      background: rgba(0,0,0,.18);
+      padding: 6px 8px;
+      border-radius: 999px;
+      color: #fff8d9;
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,.22);
+      white-space: nowrap;
+    }
+    .layout { min-height: 0; display: grid; grid-template-columns: 1fr minmax(230px, 290px); gap: 10px; }
+    .gameCard {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      display: grid;
+      place-items: center;
+      border: 5px solid #5e4ca0;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #2b2447, #151223);
+      box-shadow: 0 14px 0 rgba(0,0,0,.28), 0 0 46px rgba(90,128,255,.18), inset 0 0 0 3px rgba(255,255,255,.07);
+      overflow: hidden;
+    }
+    .gameCard::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 16px;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 4px rgba(0,0,0,.38), inset 0 0 44px rgba(0,0,0,.26);
+      z-index: 5;
+    }
+    canvas {
+      width: min(100%, calc((100vh - 110px) * 16 / 9));
+      height: auto;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      image-rendering: pixelated;
+      border-radius: 12px;
+    }
+    .sidePanel {
+      min-height: 0;
+      border: 5px solid #5e4ca0;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(53,43,91,.96), rgba(27,24,46,.96));
+      box-shadow: 0 14px 0 rgba(0,0,0,.28), inset 0 0 0 3px rgba(255,255,255,.07);
+      padding: 12px;
+      overflow: auto;
+    }
+    .sidePanel h2, .sidePanel h3 { margin: 0 0 8px; color: var(--gold); text-shadow: 2px 2px 0 #111; font-size: 16px; }
+    .questBox, .tipsBox, .partyBox, .invBox {
+      border: 3px solid rgba(255,255,255,.22);
+      background: rgba(0,0,0,.16);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: inset 0 -3px 0 rgba(0,0,0,.18);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .barWrap { width: 100%; height: 12px; border: 2px solid #160f25; background: #100d19; border-radius: 999px; overflow: hidden; margin-top: 4px; }
+    .barFill { height: 100%; width: 100%; background: linear-gradient(90deg, #5cff7d, #ffd66b); }
+    .btnRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    button {
+      font-family: var(--pixel);
+      color: #fff;
+      border: 3px solid #120e1c;
+      border-radius: 13px;
+      background: linear-gradient(180deg, #6658b5, #3e3272);
+      padding: 10px 8px;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #120e1c, inset 0 2px 0 rgba(255,255,255,.25);
+      transition: transform .06s ease, box-shadow .06s ease, filter .15s ease;
+      user-select: none;
+    }
+    button:active, button.pressed { transform: translateY(4px); box-shadow: 0 1px 0 #120e1c, inset 0 2px 0 rgba(255,255,255,.18); filter: brightness(1.1); }
+    .mobileControls {
+      position: fixed;
+      inset: auto 0 8px 0;
+      padding: 0 12px;
+      display: none;
+      justify-content: space-between;
+      align-items: end;
+      pointer-events: none;
+      z-index: 20;
+    }
+    .dpad, .abPad { pointer-events: auto; display: grid; gap: 8px; align-items: center; justify-items: center; }
+    .dpad { grid-template-columns: 48px 48px 48px; grid-template-rows: 48px 48px 48px; }
+    .dpad button, .abPad button { touch-action: none; width: 48px; height: 48px; padding: 0; border-radius: 14px; font-size: 17px; background: linear-gradient(180deg, #465072, #222943); }
+    .dpad .empty { visibility: hidden; }
+    .abPad { grid-template-columns: 58px 58px; grid-template-rows: 58px 34px; transform: rotate(-8deg); }
+    .abPad .a, .abPad .b { width: 58px; height: 58px; border-radius: 50%; font-size: 18px; }
+    .abPad .a { background: linear-gradient(180deg, #ff7585, #b62845); }
+    .abPad .b { background: linear-gradient(180deg, #78e6ff, #2874b6); }
+    .abPad .mini { width: 58px; height: 34px; border-radius: 999px; font-size: 9px; transform: rotate(8deg); }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 112px;
+      transform: translateX(-50%);
+      width: min(560px, calc(100vw - 24px));
+      padding: 10px 14px;
+      border: 4px solid #fff2b8;
+      border-radius: 14px;
+      background: rgba(22,18,36,.94);
+      color: #fff7cf;
+      text-align: center;
+      box-shadow: 0 10px 0 rgba(0,0,0,.25);
+      display: none;
+      z-index: 30;
+      font-size: 13px;
+    }
+    .startOverlay {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: radial-gradient(circle at 50% 32%, rgba(114,217,255,.18), transparent 28%), linear-gradient(180deg, rgba(15,13,27,.88), rgba(15,13,27,.98));
+    }
+    .startBox {
+      width: min(680px, 96%);
+      text-align: center;
+      border: 5px solid #fff0a6;
+      border-radius: 22px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(51,42,82,.98), rgba(31,26,53,.98));
+      box-shadow: 0 14px 0 rgba(0,0,0,.35), inset 0 0 0 3px rgba(255,255,255,.08);
+    }
+    .startBox h2 { margin: 0 0 8px; color: var(--gold); font-size: clamp(24px, 4vw, 44px); text-shadow: 3px 3px 0 #111; }
+    .startBox p { line-height: 1.5; color: #fff8df; font-size: 13px; }
+    .loader { height: 12px; border: 3px solid #151020; border-radius: 999px; overflow: hidden; background: #0d0a17; margin: 12px 0; }
+    .loader i { display: block; height: 100%; width: 35%; background: linear-gradient(90deg, #72d9ff, #76e38a, #ffd66b); animation: load 1.5s ease-in-out infinite alternate; }
+    @keyframes load { from { transform: translateX(-20%); } to { transform: translateX(210%); } }
+    @media (orientation: landscape) and (max-width: 1024px) {
+      .shell { padding: 5px; grid-template-rows: auto 1fr; gap: 5px; }
+      header { padding: 5px 8px; border-width: 3px; border-radius: 12px; }
+      .logo { width: 30px; height: 30px; font-size: 16px; border-radius: 8px; }
+      .topStats { font-size: 10px; gap: 4px; }
+      .chip { padding: 4px 6px; }
+      .layout { grid-template-columns: 1fr; }
+      .sidePanel { display: none; }
+      .gameCard { border-width: 4px; border-radius: 16px; }
+      canvas { width: min(100%, calc((100vh - 56px) * 16 / 9)); }
+      .mobileControls { display: flex; }
+      .gameCard::after { inset: 7px; }
+    }
+    @media (orientation: portrait) and (max-width: 900px) {
+      body { overflow: auto; }
+      .shell { position: static; min-height: 100vh; }
+      .layout { grid-template-columns: 1fr; }
+      .sidePanel { order: 2; padding-bottom: 120px; }
+      .gameCard { min-height: 54vh; }
+      canvas { width: 100%; }
+      .mobileControls { display: flex; bottom: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="logo">✦</div>
+        <div>
+          <h1>Skyforge Vale: Relic Dawn</h1>
+          <div class="subtitle">A larger original retro creature-RPG level with interiors</div>
+        </div>
+      </div>
+      <div class="topStats">
+        <span class="chip" id="chipQuest">Quest: Find Relics</span>
+        <span class="chip" id="chipShards">Artifacts 0/3</span>
+        <span class="chip" id="chipWeapon">Weapon: Star Twig</span>
+        <span class="chip" id="chipTime">00:00</span>
+      </div>
+    </header>
+
+    <section class="layout">
+      <div class="gameCard">
+        <canvas id="game" width="960" height="540" aria-label="Skyforge Vale game canvas"></canvas>
+        <div class="startOverlay" id="startOverlay">
+          <div class="startBox">
+            <h2>SKYFORGE VALE</h2>
+            <p>
+              The floating ruins above the valley are waking. Explore a larger world, enter buildings,
+              collect <b>3 ancient artifacts</b>, find better <b>weapons</b>, then open the Skyspire Gate.
+            </p>
+            <div class="loader"><i></i></div>
+            <p><b>Keyboard:</b> Arrow/WASD move · Z/Enter action · X/Esc back · M menu</p>
+            <p><b>Tablet:</b> use the on-screen D-pad and A/B buttons. Best in landscape.</p>
+            <button id="startBtn">START RELIC DAWN</button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidePanel">
+        <div class="questBox">
+          <h2>Mission</h2>
+          <div id="questText">Collect the Sun Gear, Rain Prism, and Storm Lens. Then open the Skyspire Gate.</div>
+        </div>
+        <div class="partyBox">
+          <h3>Partner</h3>
+          <b id="creatureName">Spriglit</b> <span id="creatureLv">Lv 5</span>
+          <div class="barWrap"><div class="barFill" id="hpBar"></div></div>
+          <div id="hpText">HP 24/24</div>
+          <div style="margin-top:8px;">XP</div>
+          <div class="barWrap"><div class="barFill" id="xpBar" style="width:0%;"></div></div>
+        </div>
+        <div class="invBox">
+          <h3>Inventory</h3>
+          <div id="inventoryText">Artifacts: none<br>Weapons: Star Twig</div>
+        </div>
+        <div class="tipsBox">
+          <h3>Controls</h3>
+          Step onto building doors to load interiors. Press A/Z near chests, NPCs, signs, gates, and relics.
+          <div class="btnRow">
+            <button id="saveBtn">Save</button>
+            <button id="resetBtn">Reset</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="mobileControls" aria-label="Touch controls">
+    <div class="dpad">
+      <span class="empty"></span><button data-key="up">▲</button><span class="empty"></span>
+      <button data-key="left">◀</button><button data-key="action">✦</button><button data-key="right">▶</button>
+      <span class="empty"></span><button data-key="down">▼</button><span class="empty"></span>
+    </div>
+    <div class="abPad">
+      <button class="b" data-key="back">B</button>
+      <button class="a" data-key="action">A</button>
+      <button class="mini" data-key="menu">MENU</button>
+      <button class="mini" data-key="run">RUN</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d");
+      const startOverlay = document.getElementById("startOverlay");
+      const startBtn = document.getElementById("startBtn");
+      const toast = document.getElementById("toast");
+      const hpBar = document.getElementById("hpBar");
+      const xpBar = document.getElementById("xpBar");
+      const hpText = document.getElementById("hpText");
+      const creatureLv = document.getElementById("creatureLv");
+      const chipShards = document.getElementById("chipShards");
+      const chipQuest = document.getElementById("chipQuest");
+      const chipWeapon = document.getElementById("chipWeapon");
+      const chipTime = document.getElementById("chipTime");
+      const questText = document.getElementById("questText");
+      const inventoryText = document.getElementById("inventoryText");
+
+      ctx.imageSmoothingEnabled = false;
+      const TILE = 32;
+      const ARTIFACTS_NEEDED = 3;
+
+      const COLORS = {
+        grass: "#72c96b", grass2: "#57b45e", flower: "#f3df71", tall: "#3f9a58",
+        path: "#d8b96d", path2: "#c7a85c", water: "#4ca8e8", water2: "#2f83c6",
+        tree: "#236b3c", tree2: "#164a2b", rock: "#756f82", roof: "#d8586b",
+        wall: "#f2d79a", stone: "#655e7e", floor: "#b69d6d", rug: "#9a3957",
+        door: "#6a3a30", fence: "#8c663b", crystal: "#8cf4ff", dark: "#151225",
+        white: "#fff7d7", ink: "#17132b", gold: "#ffd66b"
+      };
+
+      const tiles = {
+        G:{type:"grass",solid:false}, g:{type:"grass2",solid:false}, L:{type:"tall",solid:false,encounter:true},
+        P:{type:"path",solid:false}, p:{type:"path2",solid:false}, T:{type:"tree",solid:true}, W:{type:"water",solid:true},
+        B:{type:"bridge",solid:false}, X:{type:"reed",solid:false}, C:{type:"crystal",solid:false}, R:{type:"rock",solid:true},
+        h:{type:"roof",solid:true}, H:{type:"house",solid:true}, D:{type:"door",solid:false}, F:{type:"fence",solid:true},
+        S:{type:"sign",solid:true}, M:{type:"gate",solid:true}, f:{type:"floor",solid:false}, w:{type:"wall",solid:true},
+        r:{type:"rug",solid:false}, A:{type:"forge",solid:true}, O:{type:"table",solid:true}, Y:{type:"statue",solid:true}, v:{type:"void",solid:true}
+      };
+
+      const WEAPONS = [
+        { id:"starTwig", name:"Star Twig", power:1.0, special:"Leaf Spark" },
+        { id:"galeSaber", name:"Gale Saber", power:1.22, special:"Wind Slash" },
+        { id:"tideBow", name:"Tide Bow", power:1.38, special:"Prism Shot" }
+      ];
+
+      function blank(w,h,ch){ return Array.from({length:h},()=>Array.from({length:w},()=>ch)); }
+      function rect(g,x,y,w,h,ch){ for(let yy=y; yy<y+h; yy++) for(let xx=x; xx<x+w; xx++) if(g[yy]&&g[yy][xx]!==undefined) g[yy][xx]=ch; }
+      function lineH(g,x1,x2,y,ch){ for(let x=x1; x<=x2; x++) if(g[y]&&g[y][x]!==undefined) g[y][x]=ch; }
+      function lineV(g,x,y1,y2,ch){ for(let yy=y1; yy<=y2; yy++) if(g[yy]&&g[yy][x]!==undefined) g[yy][x]=ch; }
+      function ellipse(g,cx,cy,rx,ry,ch){
+        for(let y=cy-ry; y<=cy+ry; y++) for(let x=cx-rx; x<=cx+rx; x++) {
+          if(g[y]&&g[y][x]!==undefined && ((x-cx)*(x-cx))/(rx*rx)+((y-cy)*(y-cy))/(ry*ry)<=1) g[y][x]=ch;
+        }
+      }
+      function border(g,ch){ const h=g.length,w=g[0].length; rect(g,0,0,w,1,ch); rect(g,0,h-1,w,1,ch); rect(g,0,0,1,h,ch); rect(g,w-1,0,1,h,ch); }
+      function building(g,x,y,w,h,doorOffset){ rect(g,x,y,w,2,"h"); rect(g,x,y+2,w,h-2,"H"); g[y+h-1][x+doorOffset]="D"; }
+      function rows(g){ return g.map(r=>r.join("")); }
+
+      function makeVale(){
+        const g = blank(72,46,"G");
+        border(g,"T");
+        for(let x=2;x<70;x+=5){ if(g[1][x]) g[1][x]="T"; if(g[44][x]) g[44][x]="T"; }
+        for(let y=3;y<43;y+=7){ g[y][1]="T"; g[y][70]="T"; }
+
+        lineH(g,5,63,13,"P"); lineV(g,11,8,37,"P"); lineV(g,31,12,36,"P"); lineH(g,11,63,36,"P"); lineV(g,59,17,40,"P");
+        lineH(g,31,42,20,"p"); lineV(g,43,13,24,"p"); lineH(g,43,65,24,"p"); lineV(g,65,24,38,"p");
+
+        ellipse(g,45,7,8,4,"W"); rect(g,42,10,8,2,"B"); rect(g,38,6,2,3,"X"); rect(g,52,8,2,3,"X");
+        ellipse(g,18,33,7,5,"W"); rect(g,16,29,5,9,"B"); rect(g,12,33,2,3,"X");
+        ellipse(g,52,31,10,6,"W"); rect(g,58,29,2,8,"B"); rect(g,46,29,3,2,"X");
+
+        rect(g,4,4,8,4,"L"); rect(g,36,20,10,6,"L"); rect(g,50,4,12,5,"L"); rect(g,13,23,9,5,"L"); rect(g,61,32,6,6,"L");
+        rect(g,38,15,5,3,"C"); rect(g,66,10,3,4,"C"); rect(g,25,38,5,3,"C"); rect(g,62,20,4,3,"C");
+        rect(g,2,18,6,1,"F"); rect(g,3,19,1,4,"F"); rect(g,47,38,5,2,"R"); rect(g,26,27,4,2,"R");
+
+        building(g,6,7,8,6,3);
+        building(g,20,7,9,6,4);
+        rect(g,54,12,9,2,"h"); rect(g,54,14,9,5,"H"); g[18][58]="D";
+        rect(g,60,39,5,3,"M"); lineV(g,59,36,40,"P");
+        g[14][5]="S";
+        return rows(g);
+      }
+
+      function makeInterior(w,h,kind){
+        const g=blank(w,h,"f"); border(g,"w");
+        const doorX=Math.floor(w/2); g[h-1][doorX]="D";
+        if(kind==="home"){
+          rect(g,3,3,5,3,"r"); rect(g,15,4,5,2,"O"); rect(g,4,10,4,2,"O");
+        }
+        if(kind==="armory"){
+          rect(g,3,4,4,3,"A"); rect(g,17,4,5,2,"O"); rect(g,10,11,7,2,"r");
+        }
+        if(kind==="shrine"){
+          ellipse(g,14,9,6,4,"W"); rect(g,13,5,3,9,"B"); rect(g,13,3,3,2,"Y"); rect(g,4,14,5,2,"r");
+        }
+        if(kind==="spire"){
+          rect(g,5,5,w-10,h-10,"r"); rect(g,7,7,w-14,h-14,"f"); rect(g,13,4,6,2,"Y"); rect(g,6,15,3,2,"C"); rect(g,w-9,15,3,2,"C");
+        }
+        return rows(g);
+      }
+
+      const maps = {
+        vale: {
+          id:"vale", name:"Skyforge Vale", indoor:false, rows:makeVale(),
+          doors:[
+            {x:9,y:12,target:"home",tx:12,ty:15,label:"Crystal Cottage"},
+            {x:24,y:12,target:"armory",tx:13,ty:15,label:"Gale Armory"},
+            {x:58,y:18,target:"shrine",tx:14,ty:18,label:"Rain Shrine"}
+          ],
+          npcs:[
+            {id:"elder",x:7,y:14,color:"#7356bd",hair:"#2a1630",lines:["Elder: Welcome to Skyforge Vale.","Elder: Three relics unlock the Skyspire Gate: Sun Gear, Rain Prism, and Storm Lens.","Elder: Search homes, shrines, and crystal clearings. Better weapons will strengthen Spriglit in battle."]},
+            {id:"rival",x:33,y:13,color:"#416de0",hair:"#172345",lines:["Niko: The valley is bigger than it looks!", "Niko: Step onto doors to enter buildings. The inside has its own map.", "Niko: I heard the armory has a Gale Saber." ]},
+            {id:"scout",x:57,y:24,color:"#31a06d",hair:"#183b2b",lines:["Scout: The southern gate only opens for a true relic-bearer.","Scout: If you have 3 artifacts, press A at the Skyspire Gate."]}
+          ],
+          objects:[
+            {id:"signVale",x:5,y:14,type:"sign",text:"Sign: North-west Cottage heals you. East Shrine hides a relic. South-east Skyspire is the final challenge."},
+            {id:"stormLens",x:67,y:11,type:"artifact",name:"Storm Lens",text:"You found the Storm Lens! Wind bends around the glass relic."},
+            {id:"pondCache",x:49,y:28,type:"chest",kind:"item",amount:2,text:"You found 2 Patch Ups in the pond cache."},
+            {id:"spireGate",x:62,y:39,type:"gate",text:"The Skyspire Gate is sealed by ancient air."}
+          ]
+        },
+        home: {
+          id:"home", name:"Crystal Cottage", indoor:true, rows:makeInterior(24,18,"home"),
+          doors:[{x:12,y:17,target:"vale",tx:9,ty:13,label:"Skyforge Vale"}],
+          npcs:[{id:"nurse",x:12,y:8,color:"#ff7d95",hair:"#4b274e",heal:true,lines:["Nurse: Rest by the crystal lamp.","Nurse: Spriglit is fully healed!"]}],
+          objects:[
+            {id:"sunGear",x:18,y:6,type:"chest",kind:"artifact",name:"Sun Gear",text:"Inside the chest is the Sun Gear! It ticks with warm light."},
+            {id:"homeNote",x:5,y:4,type:"sign",text:"Journal: Old sky relics react to courage, kindness, and extremely suspicious treasure chests."}
+          ]
+        },
+        armory: {
+          id:"armory", name:"Gale Armory", indoor:true, rows:makeInterior(26,18,"armory"),
+          doors:[{x:13,y:17,target:"vale",tx:24,ty:13,label:"Skyforge Vale"}],
+          npcs:[{id:"smith",x:8,y:8,color:"#b86842",hair:"#362014",lines:["Smith: The sky winds broke most of my blades.","Smith: But one Gale Saber remains. Take it from the weapon chest if you can carry its breeze."]}],
+          objects:[
+            {id:"galeSaber",x:20,y:8,type:"chest",kind:"weapon",weaponId:"galeSaber",text:"You found the Gale Saber! Spriglit's attacks now cut like wind."},
+            {id:"armoryPatch",x:19,y:13,type:"chest",kind:"item",amount:1,text:"You found 1 Patch Up."}
+          ]
+        },
+        shrine: {
+          id:"shrine", name:"Rain Shrine", indoor:true, rows:makeInterior(28,20,"shrine"),
+          doors:[{x:14,y:19,target:"vale",tx:58,ty:19,label:"Skyforge Vale"}],
+          npcs:[{id:"sage",x:14,y:6,color:"#5f80d8",hair:"#182345",lines:["Sage: Water remembers every hero who crossed this bridge.","Sage: The Rain Prism waits beyond the pool. A second weapon sleeps nearby." ]}],
+          objects:[
+            {id:"rainPrism",x:14,y:4,type:"artifact",name:"Rain Prism",text:"You claimed the Rain Prism! Drops of light float inside it."},
+            {id:"tideBow",x:22,y:14,type:"chest",kind:"weapon",weaponId:"tideBow",text:"You found the Tide Bow! Spriglit learned Prism Shot."}
+          ]
+        },
+        spire: {
+          id:"spire", name:"Skyspire Ruins", indoor:true, rows:makeInterior(32,22,"spire"),
+          doors:[{x:16,y:21,target:"vale",tx:62,ty:40,label:"Skyforge Vale"}],
+          npcs:[],
+          objects:[
+            {id:"spireCore",x:16,y:5,type:"boss",text:"The Skyforged Warden stirs inside the relic core."},
+            {id:"spireText",x:6,y:15,type:"sign",text:"Inscription: Only a relic-bearer with courage may ignite the dawn engine."}
+          ]
+        }
+      };
+      for(const m of Object.values(maps)){ m.w=m.rows[0].length; m.h=m.rows.length; }
+
+      const wilds = [
+        { name:"Cloudbit", level:3, maxHp:16, hp:16, attack:5, defense:1, color1:"#a8f0ff", color2:"#4b9dd8", xp:8 },
+        { name:"Embermite", level:4, maxHp:18, hp:18, attack:6, defense:2, color1:"#ff9b54", color2:"#d9483b", xp:10 },
+        { name:"Mossbit", level:3, maxHp:15, hp:15, attack:5, defense:1, color1:"#62c86a", color2:"#1d713b", xp:8 }
+      ];
+      const bossTemplate = { name:"Skyforged Warden", level:7, maxHp:42, hp:42, attack:9, defense:4, color1:"#a68cff", color2:"#241740", xp:32, boss:true };
+
+      const state = {
+        started:false, mode:"overworld", mapId:"vale", camera:{x:0,y:0}, tick:0, timeStart:0, elapsed:0,
+        keys:new Set(), message:null, messageQueue:[], menuOpen:false, battle:null, battleLog:[], battleChoice:0,
+        battleMenu:["Strike","Special","Patch Up","Run"], collected:new Set(), artifacts:new Set(), weapons:new Set(["starTwig"]), weaponId:"starTwig",
+        bossBeaten:false, savedToastTimer:0, transition:null,
+        player:{x:11,y:14,px:11*TILE,py:14*TILE,dir:"down",moving:false,moveT:0,fromX:11,fromY:14,toX:11,toY:14,steps:0},
+        creature:{name:"Spriglit",level:5,hp:26,maxHp:26,xp:0,nextXp:18,attack:7,defense:3,items:3}
+      };
+
+      function currentMap(){ return maps[state.mapId]; }
+      function weapon(){ return WEAPONS.find(w=>w.id===state.weaponId) || WEAPONS[0]; }
+      function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+      function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+      function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+      function tileAt(x,y){
+        const m=currentMap();
+        if(x<0||y<0||x>=m.w||y>=m.h) return tiles[m.indoor ? "w" : "T"];
+        return tiles[m.rows[y][x]] || tiles.G;
+      }
+      function currentNpcs(){ return currentMap().npcs || []; }
+      function currentObjects(){ return currentMap().objects || []; }
+      function visibleObjects(){ return currentObjects().filter(o=>!state.collected.has(o.id)); }
+
+      function isSolid(x,y){
+        if(tileAt(x,y).solid) return true;
+        if(currentNpcs().some(n=>n.x===x && n.y===y)) return true;
+        if(visibleObjects().some(o=>o.x===x && o.y===y && o.solid!==false && !["sign","gate","boss"].includes(o.type))) return true;
+        if(visibleObjects().some(o=>o.x===x && o.y===y && o.type==="boss")) return true;
+        return false;
+      }
+
+      function facingTile(){
+        let dx=0,dy=0;
+        if(state.player.dir==="up") dy=-1;
+        if(state.player.dir==="down") dy=1;
+        if(state.player.dir==="left") dx=-1;
+        if(state.player.dir==="right") dx=1;
+        return {x:state.player.x+dx,y:state.player.y+dy};
+      }
+
+      function queueMessage(lines,after){
+        const arr=Array.isArray(lines)?lines.slice():[lines];
+        state.messageQueue.push(...arr);
+        if(after) state.messageQueue.push({action:after});
+        if(!state.message && state.mode!=="transition") nextMessage();
+      }
+      function nextMessage(){
+        if(!state.messageQueue.length){ state.message=null; if(state.mode==="dialogue") state.mode="overworld"; return; }
+        const next=state.messageQueue.shift();
+        if(typeof next==="object" && next.action){ next.action(); nextMessage(); return; }
+        state.message={text:String(next),chars:0}; state.mode="dialogue";
+      }
+      function showToast(text){ toast.textContent=text; toast.style.display="block"; clearTimeout(state.savedToastTimer); state.savedToastTimer=setTimeout(()=>toast.style.display="none",1900); }
+
+      function saveGame(){
+        const save={mapId:state.mapId,x:state.player.x,y:state.player.y,dir:state.player.dir,artifacts:[...state.artifacts],collected:[...state.collected],weapons:[...state.weapons],weaponId:state.weaponId,bossBeaten:state.bossBeaten,creature:state.creature,elapsed:state.elapsed};
+        localStorage.setItem("skyforgeValeSave",JSON.stringify(save)); showToast("Game saved in this browser.");
+      }
+      function loadGame(){
+        try{
+          const raw=localStorage.getItem("skyforgeValeSave"); if(!raw) return false;
+          const s=JSON.parse(raw); state.mapId=s.mapId||"vale"; state.player.x=s.x??11; state.player.y=s.y??14; state.player.dir=s.dir||"down";
+          state.player.px=state.player.x*TILE; state.player.py=state.player.y*TILE; state.artifacts=new Set(s.artifacts||[]); state.collected=new Set(s.collected||[]);
+          state.weapons=new Set(s.weapons||["starTwig"]); state.weaponId=s.weaponId||"starTwig"; state.bossBeaten=!!s.bossBeaten; Object.assign(state.creature,s.creature||{}); state.elapsed=s.elapsed||0;
+          updateUI(); showToast("Saved game loaded."); return true;
+        }catch(e){ return false; }
+      }
+      function resetGame(){ localStorage.removeItem("skyforgeValeSave"); location.reload(); }
+      function healParty(){ state.creature.hp=state.creature.maxHp; updateUI(); }
+
+      function collectArtifact(id,name){ state.artifacts.add(id); updateUI(); showToast(`Artifact obtained: ${name}`); }
+      function collectWeapon(id){ state.weapons.add(id); state.weaponId=id; updateUI(); showToast(`Equipped ${weapon().name}`); }
+      function openObject(obj){
+        if(obj.type==="artifact"){
+          state.collected.add(obj.id); collectArtifact(obj.id,obj.name); queueMessage([obj.text, `Artifacts: ${state.artifacts.size}/${ARTIFACTS_NEEDED}`]); return;
+        }
+        if(obj.type==="chest"){
+          state.collected.add(obj.id);
+          if(obj.kind==="artifact") collectArtifact(obj.id,obj.name);
+          if(obj.kind==="weapon") collectWeapon(obj.weaponId);
+          if(obj.kind==="item") { state.creature.items += obj.amount || 1; updateUI(); }
+          queueMessage(obj.text); return;
+        }
+        if(obj.type==="sign"){ queueMessage(obj.text); return; }
+        if(obj.type==="gate"){ handleGate(); return; }
+        if(obj.type==="boss"){
+          if(state.bossBeaten){ queueMessage("The Warden core is quiet. Relic Dawn has been restored."); return; }
+          queueMessage([obj.text,"The final guardian descends from the sky engine!"],()=>startBattle({...bossTemplate})); return;
+        }
+      }
+
+      function findDoorAt(x,y){ return (currentMap().doors||[]).find(d=>d.x===x && d.y===y); }
+      function startMapTransition(door){
+        if(door.target==="spire" && state.artifacts.size<ARTIFACTS_NEEDED){
+          queueMessage(`The Skyspire Gate needs ${ARTIFACTS_NEEDED-state.artifacts.size} more artifact${ARTIFACTS_NEEDED-state.artifacts.size===1?"":"s"}.`); return;
+        }
+        state.transition={timer:0,duration:38,switched:false,door}; state.mode="transition"; state.keys.clear();
+      }
+      function updateTransition(){
+        if(!state.transition) return;
+        const tr=state.transition; tr.timer++;
+        if(!tr.switched && tr.timer>=19){
+          const d=tr.door; state.mapId=d.target; state.player.x=d.tx; state.player.y=d.ty; state.player.px=d.tx*TILE; state.player.py=d.ty*TILE; state.player.toX=d.tx; state.player.toY=d.ty; state.player.moving=false; tr.switched=true;
+        }
+        if(tr.timer>=tr.duration){
+          const label=tr.door.label; state.transition=null; state.mode="overworld"; queueMessage(`Entered ${label}.`); updateUI();
+        }
+      }
+
+      function interact(){
+        if(state.mode==="dialogue"){
+          if(state.message && state.message.chars<state.message.text.length) state.message.chars=state.message.text.length; else nextMessage(); return;
+        }
+        if(state.mode==="battle"){ confirmBattleChoice(); return; }
+        if(state.mode!=="overworld" || state.player.moving) return;
+
+        const hereDoor=findDoorAt(state.player.x,state.player.y); if(hereDoor){ startMapTransition(hereDoor); return; }
+        const f=facingTile();
+        const door=findDoorAt(f.x,f.y); if(door){ startMapTransition(door); return; }
+        const npc=currentNpcs().find(n=>n.x===f.x && n.y===f.y);
+        if(npc){ if(npc.heal) healParty(); queueMessage(npc.lines); return; }
+        const obj=visibleObjects().find(o=>o.x===f.x && o.y===f.y) || visibleObjects().find(o=>o.x===state.player.x && o.y===state.player.y && o.type==="artifact");
+        if(obj){ openObject(obj); return; }
+        queueMessage("Nothing responds here.");
+      }
+
+      function handleGate(){
+        if(state.bossBeaten){ queueMessage(["The Skyspire Gate shines with dawn light.","Level complete! Skyforge Vale is safe."]); return; }
+        if(state.artifacts.size<ARTIFACTS_NEEDED){ queueMessage(`The gate whispers: bring ${ARTIFACTS_NEEDED-state.artifacts.size} more artifact${ARTIFACTS_NEEDED-state.artifacts.size===1?"":"s"}.`); return; }
+        startMapTransition({target:"spire",tx:16,ty:20,label:"Skyspire Ruins"});
+      }
+
+      function tryMove(dir){
+        if(state.mode!=="overworld" || state.player.moving) return;
+        const p=state.player; p.dir=dir; let dx=0,dy=0;
+        if(dir==="up") dy=-1; if(dir==="down") dy=1; if(dir==="left") dx=-1; if(dir==="right") dx=1;
+        const nx=p.x+dx, ny=p.y+dy; if(isSolid(nx,ny)) return;
+        p.moving=true; p.moveT=0; p.fromX=p.x; p.fromY=p.y; p.toX=nx; p.toY=ny;
+      }
+      function finishMove(){
+        const p=state.player; p.x=p.toX; p.y=p.toY; p.px=p.x*TILE; p.py=p.y*TILE; p.moving=false; p.steps++;
+        const door=findDoorAt(p.x,p.y); if(door){ startMapTransition(door); return; }
+        const t=tileAt(p.x,p.y);
+        if(t.encounter && !currentMap().indoor && Math.random()<0.14){ const w={...choice(wilds)}; queueMessage(`Wild ${w.name} swept from the skygrass!`,()=>startBattle(w)); }
+      }
+
+      function startBattle(enemy){ enemy.hp=enemy.maxHp; state.mode="battle"; state.battleChoice=0; state.battleLog=[`${enemy.boss?"Guardian":"Wild"} ${enemy.name} appeared!`]; state.battle={enemy,flash:0}; }
+      function damage(attacker,defender,power=1){ const base=attacker.attack+rand(0,3)+Math.floor((attacker.level||1)/2); const reduced=Math.max(2,base-(defender.defense||0)); return Math.max(2,Math.floor(reduced*power)); }
+      function addBattleLog(text){ state.battleLog.push(text); if(state.battleLog.length>4) state.battleLog.shift(); }
+      function confirmBattleChoice(){
+        if(!state.battle) return; const enemy=state.battle.enemy; const c=state.battleChoice; const w=weapon();
+        if(c===0){ const d=damage(state.creature,enemy,w.power); enemy.hp=Math.max(0,enemy.hp-d); addBattleLog(`${state.creature.name} used ${w.name}! ${d} damage.`); state.battle.flash=8; if(enemy.hp<=0) return winBattle(); enemyTurn(); }
+        if(c===1){ const d=damage(state.creature,enemy,w.power*1.28); enemy.hp=Math.max(0,enemy.hp-d); addBattleLog(`${state.creature.name} used ${w.special}! ${d} damage.`); if(Math.random()<0.25){ enemy.attack=Math.max(3,enemy.attack-1); addBattleLog(`${enemy.name}'s attack softened.`); } state.battle.flash=8; if(enemy.hp<=0) return winBattle(); enemyTurn(); }
+        if(c===2){ if(state.creature.items<=0){ addBattleLog("No Patch Ups left!"); return; } state.creature.items--; const heal=15; state.creature.hp=Math.min(state.creature.maxHp,state.creature.hp+heal); addBattleLog(`Used Patch Up. Restored ${heal} HP.`); updateUI(); enemyTurn(); }
+        if(c===3){ if(enemy.boss){ addBattleLog("The relic field blocks escape!"); enemyTurn(); } else if(Math.random()<0.65){ addBattleLog("Got away safely!"); setTimeout(endBattle,500); } else { addBattleLog("Couldn't escape!"); enemyTurn(); } }
+      }
+      function enemyTurn(){ const enemy=state.battle.enemy; setTimeout(()=>{ if(!state.battle) return; const d=damage(enemy,state.creature,enemy.boss?1.08:.92); state.creature.hp=Math.max(0,state.creature.hp-d); addBattleLog(`${enemy.name} struck back! ${d} damage.`); updateUI(); if(state.creature.hp<=0) loseBattle(); },280); }
+      function winBattle(){
+        const enemy=state.battle.enemy; addBattleLog(`${enemy.name} fell!`); gainXp(enemy.xp);
+        if(enemy.boss){ state.bossBeaten=true; setTimeout(()=>{ endBattle(); queueMessage(["The Skyforged Warden kneels.","The three artifacts ignite the dawn engine.","LEVEL COMPLETE — Skyforge Vale: Relic Dawn is cleared!"]); updateUI(); },900); }
+        else setTimeout(endBattle,850);
+      }
+      function loseBattle(){ addBattleLog(`${state.creature.name} fainted...`); setTimeout(()=>{ endBattle(); state.mapId="home"; state.player.x=12; state.player.y=15; state.player.px=12*TILE; state.player.py=15*TILE; healParty(); queueMessage(["You wake inside the Crystal Cottage.","Nurse: Easy now. Spriglit is healed and ready again!"]); },900); }
+      function endBattle(){ state.battle=null; state.battleLog=[]; state.mode="overworld"; }
+      function gainXp(amount){ state.creature.xp+=amount; addBattleLog(`${state.creature.name} gained ${amount} XP.`); while(state.creature.xp>=state.creature.nextXp){ state.creature.xp-=state.creature.nextXp; state.creature.level++; state.creature.nextXp=Math.floor(state.creature.nextXp*1.4); state.creature.maxHp+=4; state.creature.attack+=1; state.creature.defense+=1; state.creature.hp=state.creature.maxHp; addBattleLog(`${state.creature.name} reached Lv ${state.creature.level}!`); } updateUI(); }
+      function back(){ if(state.mode==="battle"){ state.battleChoice=3; confirmBattleChoice(); return; } if(state.mode==="dialogue"){ state.messageQueue=[]; state.message=null; state.mode="overworld"; return; } state.menuOpen=false; }
+
+      function updateUI(){
+        hpBar.style.width=`${(state.creature.hp/state.creature.maxHp)*100}%`; hpText.textContent=`HP ${state.creature.hp}/${state.creature.maxHp} · Patch Ups ${state.creature.items}`;
+        xpBar.style.width=`${(state.creature.xp/state.creature.nextXp)*100}%`; creatureLv.textContent=`Lv ${state.creature.level}`;
+        chipShards.textContent=`Artifacts ${state.artifacts.size}/${ARTIFACTS_NEEDED}`; chipWeapon.textContent=`Weapon: ${weapon().name}`;
+        const artifactNames=[...state.artifacts].map(id=>({sunGear:"Sun Gear",rainPrism:"Rain Prism",stormLens:"Storm Lens"}[id]||id));
+        const weaponNames=WEAPONS.filter(w=>state.weapons.has(w.id)).map(w=>w.name);
+        inventoryText.innerHTML=`Artifacts: ${artifactNames.length?artifactNames.join(", "):"none"}<br>Weapons: ${weaponNames.join(", ")}`;
+        if(state.bossBeaten){ chipQuest.textContent="Quest: Complete"; questText.textContent="Level complete! The Skyspire dawn engine is restored."; }
+        else if(state.artifacts.size>=ARTIFACTS_NEEDED){ chipQuest.textContent="Quest: Open Skyspire"; questText.textContent="You have all 3 artifacts. Go to the south-east Skyspire Gate."; }
+        else { chipQuest.textContent="Quest: Find Relics"; questText.textContent="Collect the Sun Gear, Rain Prism, and Storm Lens. Enter buildings to search for relics and weapons."; }
+      }
+
+      function drawTile(tx,ty,type){
+        const sx=tx*TILE-state.camera.x, sy=ty*TILE-state.camera.y; const wave=Math.floor(state.tick/18)%2;
+        if(type==="void"){ ctx.fillStyle="#080713"; ctx.fillRect(sx,sy,TILE,TILE); return; }
+        if(type==="grass"||type==="grass2"){ ctx.fillStyle=type==="grass"?COLORS.grass:COLORS.grass2; ctx.fillRect(sx,sy,TILE,TILE); if((tx+ty)%3===0){ctx.fillStyle="rgba(255,255,255,.10)";ctx.fillRect(sx+5,sy+8,3,8);} if((tx*7+ty)%5===0){ctx.fillStyle=COLORS.flower;ctx.fillRect(sx+21,sy+11,3,3);} }
+        if(type==="tall"){ ctx.fillStyle=COLORS.grass2; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.tall; for(let i=0;i<6;i++){ const ox=(i*6+(tx*3+ty)%4)%TILE; ctx.fillRect(sx+ox,sy+8+(i%3)*5,4,14); } }
+        if(type==="path"||type==="path2"){ ctx.fillStyle=type==="path"?COLORS.path:COLORS.path2; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="rgba(94,65,34,.2)"; ctx.fillRect(sx+4,sy+6,5,4); ctx.fillRect(sx+20,sy+22,6,3); }
+        if(type==="water"){ ctx.fillStyle=COLORS.water; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.water2; ctx.fillRect(sx+4+wave*3,sy+9,14,3); ctx.fillRect(sx+14-wave*2,sy+22,12,3); ctx.fillStyle="rgba(255,255,255,.16)"; ctx.fillRect(sx+7,sy+13,7,2); }
+        if(type==="bridge"){ ctx.fillStyle=COLORS.water; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#966a3e"; ctx.fillRect(sx,sy+9,TILE,14); ctx.fillStyle="#6d4b2c"; for(let i=0;i<4;i++) ctx.fillRect(sx+2+i*8,sy+9,4,14); }
+        if(type==="reed"){ ctx.fillStyle=COLORS.water; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#2d9a56"; ctx.fillRect(sx+9,sy+8,3,18); ctx.fillRect(sx+17,sy+6,3,20); ctx.fillRect(sx+22,sy+10,3,16); }
+        if(type==="tree"){ ctx.fillStyle=COLORS.grass2; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.tree2; ctx.fillRect(sx+12,sy+16,8,16); ctx.fillStyle=COLORS.tree; ctx.fillRect(sx+4,sy+4,24,18); ctx.fillRect(sx+8,sy,16,12); ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(sx+8,sy+5,6,4); }
+        if(type==="rock"){ ctx.fillStyle=COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.rock; ctx.fillRect(sx+5,sy+11,22,15); ctx.fillStyle="rgba(255,255,255,.18)"; ctx.fillRect(sx+9,sy+13,7,3); }
+        if(type==="roof"){ ctx.fillStyle=COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.roof; ctx.fillRect(sx-2,sy+2,TILE+4,22); ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(sx+5,sy+6,10,4); }
+        if(type==="house"){ ctx.fillStyle=COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.wall; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="rgba(0,0,0,.16)"; ctx.fillRect(sx,sy+27,TILE,5); ctx.fillStyle="#72d9ff"; if((tx+ty)%2===0) ctx.fillRect(sx+9,sy+11,12,9); }
+        if(type==="door"){ ctx.fillStyle=currentMap().indoor?COLORS.floor:COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.door; ctx.fillRect(sx+9,sy+9,14,22); ctx.fillStyle=COLORS.gold; ctx.fillRect(sx+21,sy+20,2,2); if(currentMap().indoor){ctx.fillStyle="#3c2a24";ctx.fillRect(sx+6,sy+25,20,5);} }
+        if(type==="fence"||type==="sign"){ ctx.fillStyle=COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle=COLORS.fence; ctx.fillRect(sx+4,sy+12,24,8); ctx.fillRect(sx+7,sy+8,4,18); ctx.fillRect(sx+21,sy+8,4,18); }
+        if(type==="crystal"){ ctx.fillStyle=currentMap().indoor?COLORS.floor:COLORS.grass2; ctx.fillRect(sx,sy,TILE,TILE); const pulse=Math.sin(state.tick/18+tx)*2; ctx.fillStyle=COLORS.crystal; ctx.fillRect(sx+11,sy+6+pulse,10,20); ctx.fillStyle="#bfffff"; ctx.fillRect(sx+14,sy+9+pulse,3,8); ctx.fillStyle="rgba(140,244,255,.25)"; ctx.fillRect(sx+6,sy+24,20,4); }
+        if(type==="gate"){ ctx.fillStyle=COLORS.grass; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#33265c"; ctx.fillRect(sx+4,sy+2,8,28); ctx.fillRect(sx+20,sy+2,8,28); ctx.fillRect(sx+4,sy+2,24,7); ctx.fillStyle=state.artifacts.size>=ARTIFACTS_NEEDED?COLORS.crystal:"#5b4d83"; ctx.fillRect(sx+14,sy+10,4,16); }
+        if(type==="floor"||type==="rug"){ ctx.fillStyle=type==="floor"?COLORS.floor:COLORS.rug; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="rgba(0,0,0,.08)"; ctx.fillRect(sx,sy+30,TILE,2); ctx.fillRect(sx+30,sy,2,TILE); }
+        if(type==="wall"){ ctx.fillStyle=COLORS.stone; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="rgba(255,255,255,.12)"; ctx.fillRect(sx+4,sy+5,14,4); ctx.fillStyle="rgba(0,0,0,.15)"; ctx.fillRect(sx,sy+26,TILE,6); }
+        if(type==="forge"){ ctx.fillStyle=COLORS.floor; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#3b3447"; ctx.fillRect(sx+5,sy+10,22,16); ctx.fillStyle="#ff8d4b"; ctx.fillRect(sx+10,sy+7,12,11); ctx.fillStyle="#ffd66b"; ctx.fillRect(sx+14,sy+9,4,7); }
+        if(type==="table"){ ctx.fillStyle=COLORS.floor; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#7a5231"; ctx.fillRect(sx+4,sy+9,24,14); ctx.fillStyle="#b9854e"; ctx.fillRect(sx+6,sy+7,20,5); }
+        if(type==="statue"){ ctx.fillStyle=COLORS.floor; ctx.fillRect(sx,sy,TILE,TILE); ctx.fillStyle="#77708b"; ctx.fillRect(sx+9,sy+8,14,18); ctx.fillStyle="#a9a2bd"; ctx.fillRect(sx+12,sy+4,8,8); ctx.fillStyle=COLORS.crystal; ctx.fillRect(sx+15,sy+1,3,5); }
+      }
+
+      function drawMap(){
+        const startX=Math.floor(state.camera.x/TILE)-1, startY=Math.floor(state.camera.y/TILE)-1;
+        const endX=startX+Math.ceil(canvas.width/TILE)+3, endY=startY+Math.ceil(canvas.height/TILE)+3;
+        for(let y=startY;y<endY;y++) for(let x=startX;x<endX;x++) drawTile(x,y,tileAt(x,y).type);
+      }
+
+      function drawCreatureIcon(x,y,scale=1,c1="#70d86f",c2="#286f42"){
+        const s=scale; ctx.fillStyle="rgba(0,0,0,.23)"; ctx.fillRect(x+3*s,y+29*s,30*s,5*s);
+        ctx.fillStyle=c2; ctx.fillRect(x+10*s,y+12*s,18*s,18*s); ctx.fillStyle=c1; ctx.fillRect(x+6*s,y+8*s,22*s,17*s); ctx.fillRect(x+12*s,y+3*s,12*s,8*s);
+        ctx.fillStyle="#fff"; ctx.fillRect(x+11*s,y+13*s,4*s,4*s); ctx.fillRect(x+23*s,y+13*s,4*s,4*s); ctx.fillStyle="#101020"; ctx.fillRect(x+12*s,y+14*s,2*s,2*s); ctx.fillRect(x+24*s,y+14*s,2*s,2*s); ctx.fillStyle="#ffe66f"; ctx.fillRect(x+17*s,y,5*s,5*s);
+      }
+      function drawNPC(n){ const sx=n.x*TILE-state.camera.x, sy=n.y*TILE-state.camera.y; ctx.fillStyle="rgba(0,0,0,.22)"; ctx.fillRect(sx+7,sy+27,18,4); ctx.fillStyle=n.color||"#416de0"; ctx.fillRect(sx+9,sy+12,14,15); ctx.fillStyle="#f3c08c"; ctx.fillRect(sx+10,sy+5,12,10); ctx.fillStyle=n.hair||"#2a1630"; ctx.fillRect(sx+9,sy+4,14,5); ctx.fillStyle="#101020"; ctx.fillRect(sx+13,sy+10,2,2); ctx.fillRect(sx+19,sy+10,2,2); }
+      function drawPlayer(){ const p=state.player, sx=p.px-state.camera.x, sy=p.py-state.camera.y; const bob=p.moving?Math.sin(p.moveT*Math.PI*4)*2:0; ctx.fillStyle="rgba(0,0,0,.28)"; ctx.fillRect(sx+6,sy+28,20,4); ctx.fillStyle="#263c8f"; ctx.fillRect(sx+9,sy+14+bob,14,14); ctx.fillStyle="#ffdfad"; ctx.fillRect(sx+10,sy+6+bob,12,10); ctx.fillStyle="#e54f62"; ctx.fillRect(sx+8,sy+4+bob,16,5); ctx.fillStyle="#fff"; ctx.fillRect(sx+14,sy+4+bob,5,5); ctx.fillStyle="#151225"; if(p.dir==="down"){ctx.fillRect(sx+13,sy+11+bob,2,2);ctx.fillRect(sx+19,sy+11+bob,2,2);} else if(p.dir==="up") ctx.fillRect(sx+10,sy+8+bob,12,3); else if(p.dir==="left") ctx.fillRect(sx+11,sy+11+bob,2,2); else ctx.fillRect(sx+20,sy+11+bob,2,2); }
+      function drawObject(o){
+        const sx=o.x*TILE-state.camera.x, sy=o.y*TILE-state.camera.y;
+        if(o.type==="artifact"){ const pulse=Math.sin(state.tick/12+o.x)*2; ctx.fillStyle="rgba(140,244,255,.22)"; ctx.fillRect(sx+5,sy+25,22,4); ctx.fillStyle=COLORS.gold; ctx.fillRect(sx+13,sy+8+pulse,8,15); ctx.fillStyle=COLORS.crystal; ctx.fillRect(sx+11,sy+13+pulse,12,5); ctx.fillStyle="#fff"; ctx.fillRect(sx+15,sy+10+pulse,3,4); }
+        if(o.type==="chest"){ ctx.fillStyle="rgba(0,0,0,.22)"; ctx.fillRect(sx+5,sy+25,22,4); ctx.fillStyle="#8b552f"; ctx.fillRect(sx+5,sy+13,22,13); ctx.fillStyle="#c78342"; ctx.fillRect(sx+7,sy+10,18,7); ctx.fillStyle=COLORS.gold; ctx.fillRect(sx+15,sy+15,4,5); }
+        if(o.type==="gate" && (state.artifacts.size>=ARTIFACTS_NEEDED || state.bossBeaten)){ ctx.fillStyle="#fff"; ctx.fillRect(sx+2+(state.tick%20),sy+4,3,3); ctx.fillRect(sx+20,sy+22-(state.tick%14),3,3); }
+        if(o.type==="boss"){ const pulse=Math.sin(state.tick/15)*3; ctx.fillStyle="rgba(140,244,255,.22)"; ctx.fillRect(sx+2,sy+25,28,5); ctx.fillStyle="#241740"; ctx.fillRect(sx+7,sy+8+pulse,18,18); ctx.fillStyle="#a68cff"; ctx.fillRect(sx+10,sy+4+pulse,12,12); ctx.fillStyle="#fff"; ctx.fillRect(sx+12,sy+11+pulse,3,3); ctx.fillRect(sx+18,sy+11+pulse,3,3); }
+      }
+      function drawObjects(){ visibleObjects().forEach(drawObject); }
+      function sortDrawables(){ const ds=[]; currentNpcs().forEach(n=>ds.push({y:n.y,draw:()=>drawNPC(n)})); ds.push({y:state.player.y,draw:drawPlayer}); ds.sort((a,b)=>a.y-b.y).forEach(d=>d.draw()); }
+
+      function drawPanel(x,y,w,h,fill="#fff3c2"){ ctx.fillStyle="rgba(0,0,0,.35)"; ctx.fillRect(x+6,y+8,w,h); ctx.fillStyle="#1a1730"; ctx.fillRect(x,y,w,h); ctx.fillStyle=fill; ctx.fillRect(x+6,y+6,w-12,h-12); ctx.strokeStyle="#67539a"; ctx.lineWidth=4; ctx.strokeRect(x+11,y+11,w-22,h-22); }
+      function drawWrappedText(text,x,y,maxWidth,lineHeight,size=16,color=COLORS.white){ ctx.font=`${size}px Courier New`; ctx.fillStyle=color; const words=String(text).split(" "); let line="", yy=y; for(let n=0;n<words.length;n++){ const test=line+words[n]+" "; if(ctx.measureText(test).width>maxWidth && n>0){ ctx.fillText(line,x,yy); line=words[n]+" "; yy+=lineHeight; } else line=test; } ctx.fillText(line,x,yy); }
+      function drawDialog(){ if(!state.message) return; const text=state.message.text.slice(0,Math.floor(state.message.chars)); const x=32,y=392,w=896,h=116; drawPanel(x,y,w,h); drawWrappedText(text,x+26,y+28,w-52,22,18,COLORS.ink); if(state.message.chars>=state.message.text.length){ ctx.fillStyle=COLORS.ink; ctx.fillRect(x+w-42,y+h-28+((Math.floor(state.tick/18)%2)*4),14,8); } }
+      function drawHUD(){ ctx.fillStyle="rgba(16,13,28,.75)"; ctx.fillRect(14,14,360,46); ctx.strokeStyle="rgba(255,255,255,.25)"; ctx.lineWidth=3; ctx.strokeRect(14,14,360,46); ctx.fillStyle="#fff6cf"; ctx.font="14px Courier New"; ctx.fillText(currentMap().name,28,33); ctx.fillText(`Artifacts ${state.artifacts.size}/${ARTIFACTS_NEEDED}`,180,33); ctx.fillText(`${weapon().name}`,28,51); ctx.fillText(`${state.creature.name} HP ${state.creature.hp}/${state.creature.maxHp}`,180,51); }
+      function drawMenuOverlay(){ if(!state.menuOpen) return; drawPanel(590,70,318,306,"#fff3c2"); ctx.fillStyle=COLORS.ink; ctx.font="22px Courier New"; ctx.fillText("FIELD MENU",630,112); ctx.font="16px Courier New"; const names=[...state.artifacts].map(id=>({sunGear:"Sun Gear",rainPrism:"Rain Prism",stormLens:"Storm Lens"}[id]||id)); const lines=[`Map: ${currentMap().name}`,`${state.creature.name} Lv ${state.creature.level}`,`HP ${state.creature.hp}/${state.creature.maxHp}`,`Weapon: ${weapon().name}`,`Patch Ups ${state.creature.items}`,`Artifacts: ${names.length?names.join(", "):"none"}`,"","Press M/B to close"]; lines.forEach((l,i)=>ctx.fillText(l,618,150+i*24)); }
+
+      function drawStatusBox(x,y,name,lv,hp,maxHp,enemy){ drawPanel(x,y,310,86,"#fff3c2"); ctx.fillStyle=COLORS.ink; ctx.font="18px Courier New"; ctx.fillText(name,x+22,y+32); ctx.fillText(`Lv${lv}`,x+232,y+32); ctx.fillStyle="#181225"; ctx.fillRect(x+60,y+50,210,12); ctx.fillStyle=hp/maxHp<.3?"#ff687a":hp/maxHp<.55?"#ffd66b":"#51d66a"; ctx.fillRect(x+62,y+52,Math.max(0,206*hp/maxHp),8); ctx.fillStyle=COLORS.ink; ctx.font="13px Courier New"; ctx.fillText(enemy?"HP":`${hp}/${maxHp}`,x+22,y+62); }
+      function drawBattle(){
+        const b=state.battle;if(!b)return; const e=b.enemy; ctx.fillStyle="#89d3ff"; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#cbf6b1"; ctx.fillRect(0,245,canvas.width,180); ctx.fillStyle="#8bc872"; ctx.fillRect(0,370,canvas.width,170);
+        for(let i=0;i<18;i++){ ctx.fillStyle=i%2?"rgba(255,255,255,.12)":"rgba(0,0,0,.05)"; ctx.fillRect(i*64-(state.tick%64),0,32,canvas.height); }
+        ctx.fillStyle="rgba(0,0,0,.22)"; ctx.fillRect(596,210,220,30); ctx.fillRect(140,350,230,34); drawCreatureIcon(160,244,4,"#70d86f","#286f42"); drawCreatureIcon(610,112+(b.flash>0?rand(-2,2):0),3.5,e.color1,e.color2); b.flash=Math.max(0,b.flash-1);
+        drawStatusBox(54,58,state.creature.name,state.creature.level,state.creature.hp,state.creature.maxHp,false); drawStatusBox(584,42,e.name,e.level,e.hp,e.maxHp,true);
+        drawPanel(32,390,896,118,"#fff3c2"); const menuX=560,menuY=406; ctx.font="17px Courier New"; const labels=[weapon().name,weapon().special,"Patch Up","Run"]; for(let i=0;i<labels.length;i++){ const col=i%2,row=Math.floor(i/2),tx=menuX+col*160,ty=menuY+row*38; if(i===state.battleChoice){ ctx.fillStyle="#67539a"; ctx.fillRect(tx-12,ty-19,142,28); ctx.fillStyle="#fff3c2"; } else ctx.fillStyle=COLORS.ink; ctx.fillText(labels[i],tx,ty); }
+        ctx.fillStyle=COLORS.ink; ctx.font="16px Courier New"; state.battleLog.slice(-3).forEach((l,i)=>ctx.fillText(l,62,424+i*24));
+      }
+      function drawTransition(){ if(!state.transition) return; const tr=state.transition; const half=tr.duration/2; const a=tr.timer<half?tr.timer/half:(tr.duration-tr.timer)/half; ctx.fillStyle=`rgba(5,4,14,${clamp(a,0,1)})`; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle="#fff4d4"; ctx.font="24px Courier New"; ctx.textAlign="center"; ctx.fillText("LOADING MAP...",canvas.width/2,canvas.height/2); ctx.textAlign="left"; }
+      function drawOverworld(){ updateCamera(); drawMap(); drawObjects(); sortDrawables(); drawHUD(); drawMenuOverlay(); drawDialog(); }
+
+      function updateCamera(){ const m=currentMap(); const targetX=state.player.px-canvas.width/2+TILE/2; const targetY=state.player.py-canvas.height/2+TILE/2; const maxX=Math.max(0,m.w*TILE-canvas.width); const maxY=Math.max(0,m.h*TILE-canvas.height); state.camera.x=clamp(targetX,0,maxX); state.camera.y=clamp(targetY,0,maxY); }
+      function updateMovement(){ if(state.mode!=="overworld") return; const p=state.player; if(p.moving){ p.moveT+=0.14; const t=Math.min(1,p.moveT); const ease=t<0.5?2*t*t:-1+(4-2*t)*t; p.px=(p.fromX+(p.toX-p.fromX)*ease)*TILE; p.py=(p.fromY+(p.toY-p.fromY)*ease)*TILE; if(t>=1) finishMove(); return; } if(state.keys.has("up")) tryMove("up"); else if(state.keys.has("down")) tryMove("down"); else if(state.keys.has("left")) tryMove("left"); else if(state.keys.has("right")) tryMove("right"); }
+      function updateDialogue(){ if(state.message && state.message.chars<state.message.text.length) state.message.chars+=0.9; }
+      function updateTimer(){ if(!state.started) return; const now=performance.now(); const total=state.elapsed+Math.floor((now-state.timeStart)/1000); chipTime.textContent=`${Math.floor(total/60).toString().padStart(2,"0")}:${(total%60).toString().padStart(2,"0")}`; }
+      function update(){ state.tick++; if(state.mode==="transition") updateTransition(); else { updateMovement(); updateDialogue(); } updateTimer(); }
+      function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); if(state.mode==="battle") drawBattle(); else drawOverworld(); drawTransition(); }
+      function loop(){ update(); draw(); requestAnimationFrame(loop); }
+
+      function keyToAction(key){ const k=key.toLowerCase(); if(k==="arrowup"||k==="w") return "up"; if(k==="arrowdown"||k==="s") return "down"; if(k==="arrowleft"||k==="a") return "left"; if(k==="arrowright"||k==="d") return "right"; if(k==="z"||k==="enter"||k===" ") return "action"; if(k==="x"||k==="escape") return "back"; if(k==="m") return "menu"; return null; }
+      function pressAction(action){
+        if(!state.started) return;
+        if(["up","down","left","right"].includes(action)){
+          if(state.mode==="battle"){ if(action==="left") state.battleChoice=state.battleChoice%2===1?state.battleChoice-1:state.battleChoice; if(action==="right") state.battleChoice=state.battleChoice%2===0?state.battleChoice+1:state.battleChoice; if(action==="up") state.battleChoice=Math.max(0,state.battleChoice-2); if(action==="down") state.battleChoice=Math.min(3,state.battleChoice+2); }
+          else state.keys.add(action);
+        }
+        if(action==="action") interact(); if(action==="back"||action==="run") back(); if(action==="menu" && state.mode==="overworld") state.menuOpen=!state.menuOpen;
+      }
+      function releaseAction(action){ if(["up","down","left","right"].includes(action)) state.keys.delete(action); }
+      window.addEventListener("keydown",e=>{ const a=keyToAction(e.key); if(!a) return; e.preventDefault(); pressAction(a); });
+      window.addEventListener("keyup",e=>{ const a=keyToAction(e.key); if(!a) return; e.preventDefault(); releaseAction(a); });
+      document.querySelectorAll("[data-key]").forEach(btn=>{ const a=btn.dataset.key; const down=e=>{ e.preventDefault(); btn.classList.add("pressed"); pressAction(a); }; const up=e=>{ e.preventDefault(); btn.classList.remove("pressed"); releaseAction(a); }; btn.addEventListener("pointerdown",down); btn.addEventListener("pointerup",up); btn.addEventListener("pointercancel",up); btn.addEventListener("pointerleave",up); });
+      document.getElementById("saveBtn").addEventListener("click",saveGame); document.getElementById("resetBtn").addEventListener("click",resetGame);
+      startBtn.addEventListener("click",()=>{ state.started=true; state.timeStart=performance.now(); startOverlay.style.display="none"; loadGame(); updateUI(); queueMessage(["You arrive in Skyforge Vale with Spriglit.","Enter the Cottage, Armory, and Rain Shrine to search for artifacts and weapons.","Collect 3 artifacts, then open the Skyspire Gate in the south-east."]); });
+      updateUI(); loop();
+    })();
+  </script>
+</body>
+</html>
