@@ -3,344 +3,171 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verified Recognition Badge | Shayal Singh</title>
-
-  <!-- Tailwind CSS CDN -->
-  https://cdn.tailwindcss.comscript>
-
-  <!-- Google Font -->
-  https://fonts.googleapis.com
-  https://fonts.gstatic.com
-  https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap
-
+  <title>Work Verification | Shayal Singh</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      font-family: 'Inter', sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.25), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(147,51,234,.25), transparent 35%),
+        #020617;
     }
-
     .glass {
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.15);
     }
-
-    .badge-glow {
-      box-shadow: 0 0 45px rgba(99, 102, 241, 0.45);
+    .shine {
+      position: relative;
+      overflow: hidden;
     }
-
-    .verified-pulse {
-      animation: pulseGlow 2s infinite;
+    .shine::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+      animation: shine 4s infinite;
     }
-
-    @keyframes pulseGlow {
-      0%, 100% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-      }
-      50% {
-        box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
-      }
-    }
-
-    .print-only {
-      display: none;
-    }
-
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-
-      .print-only {
-        display: block;
-      }
-
-      body {
-        background: white !important;
-      }
-
-      .glass {
-        box-shadow: none !important;
-        border: 1px solid #ddd;
-      }
+    @keyframes shine {
+      0% { left: -100%; }
+      50%,100% { left: 140%; }
     }
   </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-slate-900">
+<body class="min-h-screen text-white font-sans">
 
-  <!-- Background decoration -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-[-100px] left-[-100px] w-72 h-72 bg-indigo-500 rounded-full blur-3xl opacity-30"></div>
-    <div class="absolute bottom-[-120px] right-[-120px] w-96 h-96 bg-cyan-400 rounded-full blur-3xl opacity-20"></div>
-    <div class="absolute top-1/2 left-1/2 w-80 h-80 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
-  </div>
+  <main class="min-h-screen flex items-center justify-center px-4 py-10">
+    <section class="w-full max-w-5xl glass rounded-3xl shadow-2xl overflow-hidden">
 
-  <main class="relative z-10 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2">
 
-    <!-- Top Bar -->
-    <section class="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 no-print">
-      <div>
-        <p class="text-indigo-200 text-sm font-semibold tracking-wide uppercase">Digital Recognition Credential</p>
-        <h1 class="text-white text-2xl sm:text-4xl font-black mt-1">
-          Verified Contribution Badge
-        </h1>
-      </div>
-
-      <div class="flex gap-3">
-        <button onclick="copyVerificationLink()"
-          class="px-4 py-2 rounded-xl bg-white/10 text-white border border-white/20 hover:bg-white/20 transition text-sm font-semibold">
-          Copy Verification Link
-        </button>
-
-        <button onclick="window.print()"
-          class="px-4 py-2 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition text-sm font-semibold shadow-lg">
-          Print / Save PDF
-        </button>
-      </div>
-    </section>
-
-    <!-- Main Card -->
-    <section class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- Left Badge Panel -->
-      <aside class="glass rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30 lg:col-span-1">
-        <div class="flex flex-col items-center text-center">
-
-          <!-- Badge -->
-          <div class="relative badge-glow w-44 h-44 sm:w-56 sm:h-56 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-cyan-400 flex items-center justify-center mb-6">
-            <div class="absolute inset-3 rounded-full border-4 border-white/60"></div>
-            <div class="absolute inset-8 rounded-full bg-white/95 flex flex-col items-center justify-center">
-              <svg class="w-14 h-14 text-indigo-600 mb-2" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Verified</span>
-              <span class="text-lg font-black text-slate-900">Badge</span>
-            </div>
+        <!-- Left Section -->
+        <div class="p-8 md:p-12 bg-gradient-to-br from-blue-600/30 to-purple-700/30">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 text-green-300 text-sm font-semibold mb-8">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            Verified Work Relationship
           </div>
 
-          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-100 text-green-700 font-bold text-sm verified-pulse mb-4">
-            <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
-            Verification Active
-          </div>
+          <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6">
+            Employment Collaboration Verification
+          </h1>
 
-          <h2 class="text-2xl font-black text-slate-900">Shayal Singh</h2>
-          <p class="text-slate-600 mt-1">Microsoft 365 Applications Support</p>
-
-          <div class="mt-6 w-full border-t border-slate-200 pt-5">
-            <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Credential ID</p>
-            <p id="credentialId" class="text-sm font-mono text-slate-800 mt-1 break-all">KPMG-FJ-SHAYAL-2026-VERIFIED</p>
-          </div>
-
-          <div class="mt-5 w-full">
-            <div id="qrBox" class="mx-auto w-32 h-32 bg-white rounded-2xl border border-slate-200 p-2 flex items-center justify-center">
-              <!-- QR placeholder generated by JS -->
-            </div>
-            <p class="text-xs text-slate-500 mt-2">Scan to verify credential</p>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Right Details Panel -->
-      <section class="glass rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/30 lg:col-span-2">
-
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-          <div>
-            <p class="text-sm font-bold text-indigo-600 uppercase tracking-widest">Recognition Statement</p>
-            <h3 class="text-2xl sm:text-4xl font-black text-slate-900 mt-2">
-              Team Contribution Recognition
-            </h3>
-          </div>
-
-          <div class="text-left sm:text-right">
-            <p class="text-xs uppercase tracking-widest text-slate-500 font-bold">Issued By</p>
-            <p class="font-extrabold text-slate-900">Zain Buksh</p>
-            <p class="text-sm text-slate-500">KPMG Australia</p>
-          </div>
-        </div>
-
-        <div class="rounded-2xl bg-white/70 border border-slate-200 p-5 sm:p-6 mb-6">
-          <p class="text-slate-700 leading-relaxed">
-            This digital recognition badge acknowledges <strong>Shayal Singh</strong> for her contribution as a team member supporting
-            <strong>Microsoft 365 Applications</strong> while working with Zain Buksh at <strong>KPMG Australia</strong>.
-            Shayal was based in <strong>Fiji, Nadi — Star One Building</strong> and contributed across business analysis and testing activities
-            over an engagement period of <strong>8 months</strong>.
+          <p class="text-slate-300 text-lg mb-8">
+            This page confirms that <strong>Shayal Singh</strong> worked with me as a colleague at 
+            <strong>KPMG Australia</strong> within the <strong>CTG Project Team</strong>.
           </p>
-        </div>
 
-        <!-- Key Info Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div class="rounded-2xl bg-slate-900 text-white p-5">
-            <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold">Role</p>
-            <p class="text-xl font-black mt-2">BA / Test Analyst</p>
-          </div>
-
-          <div class="rounded-2xl bg-indigo-600 text-white p-5">
-            <p class="text-indigo-100 text-xs uppercase tracking-widest font-bold">Duration</p>
-            <p class="text-xl font-black mt-2">8 Months</p>
-          </div>
-
-          <div class="rounded-2xl bg-white/80 border border-slate-200 p-5">
-            <p class="text-slate-500 text-xs uppercase tracking-widest font-bold">Location</p>
-            <p class="text-lg font-black text-slate-900 mt-2">Fiji, Nadi — Star One Building</p>
-          </div>
-
-          <div class="rounded-2xl bg-white/80 border border-slate-200 p-5">
-            <p class="text-slate-500 text-xs uppercase tracking-widest font-bold">Focus Area</p>
-            <p class="text-lg font-black text-slate-900 mt-2">Microsoft 365 Applications</p>
-          </div>
-        </div>
-
-        <!-- Skills -->
-        <div class="mb-6">
-          <p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">Recognised Capabilities</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="skill-pill">Business Analysis</span>
-            <span class="skill-pill">Test Analysis</span>
-            <span class="skill-pill">Microsoft 365</span>
-            <span class="skill-pill">Application Support</span>
-            <span class="skill-pill">UAT Support</span>
-            <span class="skill-pill">Stakeholder Collaboration</span>
-            <span class="skill-pill">Process Understanding</span>
-            <span class="skill-pill">Team Delivery</span>
-          </div>
-        </div>
-
-        <!-- Verification System -->
-        <div class="rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-            <div>
-              <p class="text-indigo-200 text-xs uppercase tracking-widest font-bold">Verification System</p>
-              <h4 class="text-2xl font-black mt-2">Credly-style Digital Badge Verification</h4>
-              <p class="text-slate-300 mt-2 text-sm leading-relaxed">
-                This mock credential page includes a badge ID, verification status, issue metadata, and QR-style verification marker.
-                It is designed similar to modern badge platforms such as Credly-style digital credentials.
-              </p>
+          <div class="space-y-4">
+            <div class="glass rounded-2xl p-5">
+              <p class="text-sm text-slate-400">Organization</p>
+              <p class="text-xl font-bold">KPMG Australia</p>
             </div>
 
-            <div class="bg-white/10 border border-white/20 rounded-2xl p-4 min-w-[210px]">
-              <p class="text-xs text-indigo-200 uppercase tracking-widest font-bold">Status</p>
-              <div class="flex items-center gap-2 mt-2">
-                <span class="w-3 h-3 bg-green-400 rounded-full"></span>
-                <span class="font-black">Verified</span>
+            <div class="glass rounded-2xl p-5">
+              <p class="text-sm text-slate-400">Team / Department</p>
+              <p class="text-xl font-bold">CTG Project Team</p>
+            </div>
+
+            <div class="glass rounded-2xl p-5">
+              <p class="text-sm text-slate-400">Relationship</p>
+              <p class="text-xl font-bold">Professional Colleague</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Section -->
+        <div class="p-8 md:p-12 flex flex-col justify-between">
+
+          <div>
+            <div class="shine rounded-3xl p-6 bg-white text-slate-900 shadow-xl mb-8">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <p class="text-sm text-slate-500">Verification ID</p>
+                  <p id="verifyId" class="font-mono font-bold"></p>
+                </div>
+                <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <span class="text-3xl">✓</span>
+                </div>
               </div>
 
-              <p class="text-xs text-indigo-200 uppercase tracking-widest font-bold mt-4">Issued</p>
-              <p id="issueDate" class="font-bold mt-1"></p>
+              <h2 class="text-2xl font-extrabold mb-2">Shayal Singh</h2>
+              <p class="text-slate-600 mb-6">Confirmed professional association</p>
+
+              <div class="border-t pt-5 space-y-3 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Company</span>
+                  <span class="font-semibold">KPMG Australia</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Project Team</span>
+                  <span class="font-semibold">CTG</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Status</span>
+                  <span class="font-semibold text-green-600">Verified</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="glass rounded-2xl p-6 mb-8">
+              <h3 class="text-xl font-bold mb-3">Verification Statement</h3>
+              <p class="text-slate-300 leading-relaxed">
+                I confirm that Shayal Singh worked with me professionally as a colleague at KPMG Australia
+                as part of the CTG Project Team. This verification is provided as a professional reference
+                of our work association.
+              </p>
             </div>
           </div>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button onclick="downloadCertificate()"
+              class="w-full px-6 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-bold shadow-lg">
+              Download Verification
+            </button>
+
+            <button onclick="copyLink()"
+              class="w-full px-6 py-4 rounded-xl bg-white/10 hover:bg-white/20 transition font-bold">
+              Copy Page Link
+            </button>
+          </div>
+
         </div>
-
-      </section>
+      </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="max-w-6xl mx-auto mt-8 text-center text-indigo-100 text-sm no-print">
-      <p>
-        This is a custom recognition badge page. For official credentialing, validate through the issuing organisation’s approved process.
-      </p>
-    </footer>
-
-    <p class="print-only text-center text-sm text-slate-500 mt-6">
-      Printed copy of verified recognition badge for Shayal Singh.
-    </p>
-
   </main>
 
   <script>
-    // Tailwind custom reusable class setup
-    document.querySelectorAll('.skill-pill').forEach(el => {
-      el.className =
-        'skill-pill px-4 py-2 rounded-full bg-white/80 border border-slate-200 text-slate-700 text-sm font-bold shadow-sm';
-    });
+    const verificationId = "KPMG-CTG-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+    document.getElementById("verifyId").textContent = verificationId;
 
-    // Dynamic issue date
-    const today = new Date();
-    const formattedDate = today.toLocaleDateString('en-AU', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-
-    document.getElementById('issueDate').textContent = formattedDate;
-
-    // Generate QR-style visual placeholder using CSS grid
-    const qrBox = document.getElementById('qrBox');
-
-    function generateFakeQR() {
-      const grid = document.createElement('div');
-      grid.className = 'grid grid-cols-9 gap-[2px] w-full h-full';
-
-      const pattern = [
-        1,1,1,0,1,0,1,1,1,
-        1,0,1,0,0,1,1,0,1,
-        1,1,1,1,0,1,1,1,1,
-        0,1,0,1,1,0,0,1,0,
-        1,0,1,0,1,1,1,0,1,
-        0,1,1,1,0,0,1,1,0,
-        1,1,1,0,1,0,1,1,1,
-        1,0,1,1,0,1,1,0,1,
-        1,1,1,0,1,1,1,1,1
-      ];
-
-      pattern.forEach(cell => {
-        const dot = document.createElement('div');
-        dot.className = cell
-          ? 'bg-slate-900 rounded-sm'
-          : 'bg-slate-100 rounded-sm';
-        grid.appendChild(dot);
-      });
-
-      qrBox.innerHTML = '';
-      qrBox.appendChild(grid);
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Page link copied!");
     }
 
-    generateFakeQR();
+    function downloadCertificate() {
+      const text = `
+WORK RELATIONSHIP VERIFICATION
 
-    // Copy mock verification link
-    function copyVerificationLink() {
-      const credentialId = document.getElementById('credentialId').textContent;
-      const mockUrl = `${window.location.origin}${window.location.pathname}?verify=${credentialId}`;
+This is to confirm that Shayal Singh worked with me as a professional colleague at KPMG Australia within the CTG Project Team.
 
-      navigator.clipboard.writeText(mockUrl).then(() => {
-        showToast('Verification link copied.');
-      }).catch(() => {
-        showToast('Unable to copy link. Please copy manually.');
-      });
-    }
+Organization: KPMG Australia
+Team: CTG Project Team
+Relationship: Professional Colleague
+Verification ID: ${verificationId}
 
-    // Toast notification
-    function showToast(message) {
-      const toast = document.createElement('div');
-      toast.textContent = message;
-      toast.className =
-        'fixed bottom-5 left-1/2 -translate-x-1/2 bg-slate-950 text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold z-50';
+Generated on: ${new Date().toLocaleDateString()}
+      `;
 
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translate(-50%, 10px)';
-        toast.style.transition = 'all 0.3s ease';
-      }, 1800);
-
-      setTimeout(() => {
-        toast.remove();
-      }, 2300);
-    }
-
-    // Simple verification check based on URL parameter
-    const params = new URLSearchParams(window.location.search);
-    const verifyParam = params.get('verify');
-
-    if (verifyParam) {
-      const credentialId = document.getElementById('credentialId').textContent;
-
-      if (verifyParam === credentialId) {
-        setTimeout(() => showToast('Credential verified successfully.'), 500);
-      } else {
-        setTimeout(() => showToast('Credential ID mismatch.'), 500);
-      }
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "shayal-singh-work-verification.txt";
+      link.click();
     }
   </script>
 
