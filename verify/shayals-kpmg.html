@@ -39,8 +39,8 @@
       border-radius: 24px;
       padding: 1px;
       background: linear-gradient(135deg, #2563eb, #06b6d4, #22c55e);
-      -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
         linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -82,7 +82,7 @@
 
 <body class="min-h-screen bg-slate-950 text-slate-900">
 
-  <!-- Background Effects -->
+  <!-- Background -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl"></div>
     <div class="absolute top-1/3 -right-32 w-96 h-96 bg-cyan-500/25 rounded-full blur-3xl"></div>
@@ -122,7 +122,7 @@
     <!-- Main Card -->
     <section class="glass gradient-border print-card rounded-3xl shadow-2xl overflow-hidden">
 
-      <!-- Hero Section -->
+      <!-- Hero -->
       <div class="bg-gradient-to-br from-blue-700 via-cyan-600 to-emerald-500 text-white p-6 sm:p-10">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
 
@@ -142,13 +142,12 @@
 
             <p class="mt-4 text-white/85 max-w-2xl">
               This page verifies that Shayal Singh worked with Zain Buksh at KPMG Australia,
-              based in Fiji, Nadi — Star One Building. Shayal assisted with Microsoft 365
-              application-related work and contributed in Business Analyst and Test Analyst
-              project roles.
+              based in Fiji, Nadi — Star One Building, supporting Microsoft 365 application work
+              and contributing in Business Analyst and Test Analyst project roles.
             </p>
           </div>
 
-          <!-- Badge Card -->
+          <!-- Badge -->
           <div class="bg-white text-slate-950 rounded-3xl p-6 shadow-2xl w-full sm:w-80">
             <div class="flex items-center gap-4">
               <div class="w-16 h-16 rounded-2xl bg-green-100 flex items-center justify-center">
@@ -182,11 +181,6 @@
                 <span class="text-slate-500">Credential Type</span>
                 <span class="font-bold text-right">Reference Letter</span>
               </div>
-
-              <div class="flex justify-between gap-4">
-                <span class="text-slate-500">Credential ID</span>
-                <span class="font-bold text-right">ZB-REF-SS-2026-001</span>
-              </div>
             </div>
           </div>
 
@@ -198,10 +192,9 @@
 
         <div class="grid lg:grid-cols-3 gap-6">
 
-          <!-- Main Content -->
+          <!-- Candidate Details -->
           <div class="lg:col-span-2 space-y-6">
 
-            <!-- Candidate Details -->
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <div class="flex items-start justify-between gap-4 mb-6">
                 <div>
@@ -223,7 +216,7 @@
               <div class="grid sm:grid-cols-2 gap-4">
                 <div class="rounded-2xl bg-slate-50 p-4">
                   <p class="text-xs text-slate-500 font-bold uppercase">Full Name</p>
-                  <p class="mt-1 text-lg font-extrabold">Shayal Singh</p>
+                  <p class="mt-1 text-lg font800 font-extrabold">Shayal Singh</p>
                 </div>
 
                 <div class="rounded-2xl bg-slate-50 p-4">
@@ -243,7 +236,7 @@
               </div>
             </div>
 
-            <!-- Role Contribution -->
+            <!-- Roles -->
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p class="text-sm font-bold text-cyan-600 uppercase tracking-wider">
                 Role Contribution
@@ -278,7 +271,7 @@
               </div>
             </div>
 
-            <!-- Verification Trail -->
+            <!-- Credential Timeline -->
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p class="text-sm font-bold text-emerald-600 uppercase tracking-wider">
                 Verification Trail
@@ -295,9 +288,7 @@
                   </div>
                   <div>
                     <p class="font-extrabold">Reference Verified</p>
-                    <p class="text-slate-600 text-sm">
-                      Credential status confirmed as active and valid.
-                    </p>
+                    <p class="text-slate-600 text-sm">Credential status confirmed as active and valid.</p>
                   </div>
                 </div>
 
@@ -307,9 +298,7 @@
                   </div>
                   <div>
                     <p class="font-extrabold">Reference Issued</p>
-                    <p class="text-slate-600 text-sm">
-                      Issued by Zain Buksh as a professional reference verification.
-                    </p>
+                    <p class="text-slate-600 text-sm">Issued by Zain Buksh as a professional reference verification.</p>
                   </div>
                 </div>
 
@@ -319,9 +308,7 @@
                   </div>
                   <div>
                     <p class="font-extrabold">Employment Association Recorded</p>
-                    <p class="text-slate-600 text-sm">
-                      Worked together at KPMG Australia, Fiji, Nadi — Star One Building.
-                    </p>
+                    <p class="text-slate-600 text-sm">Worked together at KPMG Australia, Fiji, Nadi — Star One Building.</p>
                   </div>
                 </div>
               </div>
@@ -329,17 +316,16 @@
 
           </div>
 
-          <!-- Side Panel -->
+          <!-- Verification Panel -->
           <aside class="space-y-6">
 
-            <!-- Verification ID -->
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">
                 Verification ID
               </p>
 
-              <p id="verificationId" class="mt-2 text-2xl font-black tracking-tight break-words">
-                ZB-REF-SS-2026-001
+              <p id="verificationId" class="mt-2 text-2xl font-black tracking-tight">
+                ZB-REF-SHAYAL-2026
               </p>
 
               <div class="mt-5 rounded-2xl bg-green-50 border border-green-100 p-4">
@@ -358,7 +344,7 @@
               </div>
             </div>
 
-            <!-- QR Code -->
+            <!-- QR -->
             <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm text-center">
               <p class="text-sm font-bold text-slate-500 uppercase tracking-wider">
                 Scan to Verify
@@ -411,11 +397,6 @@
                 </div>
 
                 <div class="flex justify-between gap-4">
-                  <span class="text-slate-400">Credential ID</span>
-                  <span class="font-bold text-right">ZB-REF-SS-2026-001</span>
-                </div>
-
-                <div class="flex justify-between gap-4">
                   <span class="text-slate-400">Status</span>
                   <span class="font-bold text-green-300 text-right">Valid</span>
                 </div>
@@ -452,10 +433,9 @@
 
   <script>
     const verificationUrl = window.location.href;
-    const verificationId = "ZB-REF-SS-2026-001";
+    const verificationId = "ZB-REF-SHAYAL-2026";
 
     document.getElementById("currentUrl").textContent = verificationUrl;
-    document.getElementById("verificationId").textContent = verificationId;
     document.getElementById("year").textContent = new Date().getFullYear();
 
     document.getElementById("lastChecked").textContent = new Date().toLocaleDateString("en-AU", {
@@ -464,25 +444,23 @@
       day: "numeric"
     });
 
-    if (typeof QRCode !== "undefined") {
-      QRCode.toCanvas(
-        document.getElementById("qrCode"),
-        verificationUrl,
-        {
-          width: 180,
-          margin: 2,
-          color: {
-            dark: "#0f172a",
-            light: "#ffffff"
-          }
-        },
-        function (error) {
-          if (error) {
-            console.error(error);
-          }
+    QRCode.toCanvas(
+      document.getElementById("qrCode"),
+      verificationUrl,
+      {
+        width: 180,
+        margin: 2,
+        color: {
+          dark: "#0f172a",
+          light: "#ffffff"
         }
-      );
-    }
+      },
+      function (error) {
+        if (error) {
+          console.error(error);
+        }
+      }
+    );
 
     function copyVerificationLink() {
       navigator.clipboard.writeText(verificationUrl).then(() => {
