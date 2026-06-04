@@ -10,17 +10,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    :root {
-      --navy: #020617;
-      --blue: #2563eb;
-      --cyan: #06b6d4;
-      --violet: #7c3aed;
-    }
-
-    * {
-      scroll-behavior: smooth;
-    }
-
     body {
       min-height: 100vh;
       background:
@@ -58,12 +47,8 @@
     }
 
     @keyframes floatOrb {
-      from {
-        transform: translateY(0) scale(1);
-      }
-      to {
-        transform: translateY(-28px) scale(1.08);
-      }
+      from { transform: translateY(0) scale(1); }
+      to { transform: translateY(-28px) scale(1.08); }
     }
 
     .glass {
@@ -86,7 +71,6 @@
     }
 
     .gradient-border {
-      position: relative;
       background: linear-gradient(135deg, rgba(37,99,235,.8), rgba(6,182,212,.8), rgba(124,58,237,.8));
       padding: 1px;
       border-radius: 28px;
@@ -182,13 +166,13 @@
           <button onclick="window.print()"
             class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-950 font-extrabold hover:bg-slate-200 transition shadow-xl">
             <i data-lucide="printer" class="w-5 h-5"></i>
-            Print / Save PDF
+            Print Page
           </button>
 
-          <button onclick="downloadLetterOnly()"
+          <button onclick="openLetterPdfTab()"
             class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-blue-600 text-white font-extrabold hover:bg-blue-500 transition shadow-xl">
             <i data-lucide="file-down" class="w-5 h-5"></i>
-            Download Letter
+            Download Letter PDF
           </button>
 
           <button onclick="copyReferenceId()"
@@ -311,7 +295,7 @@
                 </div>
               </div>
 
-              <div id="letterContent" class="space-y-6 text-[15.5px] md:text-base leading-8 text-slate-700">
+              <div class="space-y-6 text-[15.5px] md:text-base leading-8 text-slate-700">
                 <p>
                   I am pleased to provide this peer reference for <strong>Shayal Singh</strong>,
                   who worked together with me at <strong>KPMG Australia</strong> from
@@ -524,7 +508,7 @@
                 <span class="w-9 h-9 rounded-full bg-green-500/20 flex items-center justify-center">
                   <i data-lucide="check" class="w-4 h-4 text-green-200"></i>
                 </span>
-                <p class="text-sm text-slate-200">Download and print-ready format</p>
+                <p class="text-sm text-slate-200">New tab PDF letter generator</p>
               </div>
             </div>
           </div>
@@ -532,10 +516,10 @@
           <div class="glass rounded-3xl p-6">
             <h3 class="text-xl font-black mb-3">Actions</h3>
 
-            <button onclick="downloadLetterOnly()"
+            <button onclick="openLetterPdfTab()"
               class="inline-flex w-full items-center justify-center gap-2 mb-3 px-5 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 transition font-extrabold shadow-lg">
               <i data-lucide="file-down" class="w-5 h-5"></i>
-              Download Letter Only
+              Open Letter PDF Tab
             </button>
 
             <button onclick="copyLetter()"
@@ -564,7 +548,7 @@
       day: "numeric"
     });
 
-    const letterOnlyText = `
+    const letterPlainText = `
 PEER REFERENCE LETTER
 
 Reference ID: ${refId}
@@ -605,20 +589,253 @@ Email: zbuksh@outlook.com
     }
 
     function copyLetter() {
-      navigator.clipboard.writeText(letterOnlyText.trim());
+      navigator.clipboard.writeText(letterPlainText.trim());
       showToast("Letter text copied.");
     }
 
-    function downloadLetterOnly() {
-      const blob = new Blob([letterOnlyText.trim()], { type: "text/plain;charset=utf-8" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "shayal-singh-peer-reference-letter.txt";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(link.href);
-      showToast("Letter file downloaded.");
+    function openLetterPdfTab() {
+      const letterWindow = window.open("", "_blank");
+
+      if (!letterWindow) {
+        showToast("Popup blocked. Allow popups to open the PDF tab.");
+        return;
+      }
+
+      const letterHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Peer Reference Letter - Shayal Singh</title>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+  <script src="https://unpkg.com/lucide@latest"><\/script>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm;
+    }
+
+    body {
+      background: #e5e7eb;
+      font-family: Arial, sans-serif;
+      color: #0f172a;
+      padding: 24px;
+    }
+
+    .a4 {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 20px 70px rgba(15, 23, 42, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .accent-bar {
+      height: 10px;
+      background: linear-gradient(90deg, #2563eb, #06b6d4, #7c3aed);
+    }
+
+    .signature {
+      font-family: "Brush Script MT", "Segoe Script", cursive;
+    }
+
+    .watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 90px;
+      font-weight: 900;
+      color: rgba(15, 23, 42, 0.035);
+      transform: rotate(-28deg);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .a4 {
+        width: auto;
+        min-height: auto;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="no-print max-w-[210mm] mx-auto mb-5 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-xl font-black">Letter PDF Preview</h1>
+      <p class="text-sm text-slate-600">Use the button to save this formatted letter as a PDF.</p>
+    </div>
+
+    <button onclick="window.print()"
+      class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-500 transition">
+      <i data-lucide="download" class="w-5 h-5"></i>
+      Download / Save PDF
+    </button>
+  </div>
+
+  <main class="a4">
+    <div class="accent-bar"></div>
+    <div class="watermark">PEER VERIFIED</div>
+
+    <section class="relative p-12">
+
+      <header class="flex items-start justify-between gap-8 border-b border-slate-200 pb-8">
+        <div>
+          <p class="text-xs font-bold tracking-[0.26em] text-blue-600 uppercase">
+            Peer Reference Letter
+          </p>
+          <h2 class="text-4xl font-black mt-3 text-slate-950">
+            Shayal Singh
+          </h2>
+          <p class="text-slate-500 mt-2">
+            Professional collaboration reference
+          </p>
+        </div>
+
+        <div class="text-right">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 border border-blue-100 mb-3">
+            <i data-lucide="badge-check" class="w-8 h-8 text-blue-600"></i>
+          </div>
+          <p class="text-xs text-slate-500">Reference ID</p>
+          <p class="font-mono font-black text-sm">${refId}</p>
+        </div>
+      </header>
+
+      <section class="grid grid-cols-3 gap-3 mt-7">
+        <div class="rounded-xl border border-slate-200 p-4">
+          <p class="text-[11px] uppercase tracking-widest text-slate-500">Workplace</p>
+          <p class="font-bold mt-1">KPMG Australia</p>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 p-4">
+          <p class="text-[11px] uppercase tracking-widest text-slate-500">Office Context</p>
+          <p class="font-bold mt-1">Star One Office, Nadi, Fiji</p>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 p-4">
+          <p class="text-[11px] uppercase tracking-widest text-slate-500">Team</p>
+          <p class="font-bold mt-1">CTG Digital Delivery</p>
+        </div>
+      </section>
+
+      <section class="mt-10 text-[15px] leading-8 text-slate-700">
+        <p class="mb-6 font-semibold text-slate-900">
+          To whom it may concern,
+        </p>
+
+        <p class="mb-5">
+          I am pleased to provide this peer reference for <strong>Shayal Singh</strong>,
+          who worked together with me at <strong>KPMG Australia</strong> from
+          <strong>Fiji, Nadi, Star One Office</strong>, within the
+          <strong>CTG Digital Delivery team</strong>.
+        </p>
+
+        <p class="mb-5">
+          During our time working together, Shayal demonstrated strong professionalism,
+          reliability, and a positive attitude toward project teamwork and delivery. She was
+          approachable, cooperative, and consistently willing to support the wider project team
+          where needed.
+        </p>
+
+        <p class="mb-5">
+          Shayal contributed well in areas connected to <strong>Project Business Analysis</strong>,
+          including coordination support, requirement understanding, stakeholder communication,
+          documentation awareness, and assisting with project delivery activities. She showed a
+          practical understanding of how business needs connect with delivery outcomes.
+        </p>
+
+        <p class="mb-5">
+          She also showed good capability around <strong>test analysis and quality support</strong>,
+          including reviewing requirements, understanding test scenarios, supporting validation
+          activities, and helping ensure that project outputs aligned with expected business and
+          user needs.
+        </p>
+
+        <p class="mb-5">
+          From my experience working with her, Shayal was respectful, detail-aware, dependable,
+          and committed to learning. She maintained a professional approach and demonstrated good
+          communication, accountability, and team collaboration throughout our work together.
+        </p>
+
+        <p>
+          Based on this professional experience, I am happy to recognize Shayal Singh as a capable
+          and dependable project team colleague with strengths in business analysis support,
+          testing awareness, communication, collaboration, and digital delivery contribution.
+        </p>
+      </section>
+
+      <section class="mt-10 grid grid-cols-2 gap-4">
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-500">Reference Provided By</p>
+          <div class="signature text-4xl text-slate-950 mt-5">Zain Buksh</div>
+          <p class="font-bold mt-2">Project Team Member / Peer Reference</p>
+          <p class="text-sm text-slate-500">CTG Digital Delivery collaboration context</p>
+        </div>
+
+        <div class="rounded-xl bg-slate-950 text-white p-5">
+          <p class="text-xs uppercase tracking-widest text-slate-400">Contact Details</p>
+
+          <div class="mt-5 space-y-3 text-sm">
+            <p class="flex items-center gap-2">
+              <i data-lucide="phone" class="w-4 h-4 text-cyan-300"></i>
+              +679 2133382
+            </p>
+
+            <p class="flex items-center gap-2">
+              <i data-lucide="mail" class="w-4 h-4 text-cyan-300"></i>
+              zbuksh@outlook.com
+            </p>
+
+            <p class="flex items-center gap-2">
+              <i data-lucide="calendar-days" class="w-4 h-4 text-cyan-300"></i>
+              Generated: ${generatedDate}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="absolute left-12 right-12 bottom-9 border-t border-slate-200 pt-4 flex justify-between text-xs text-slate-500">
+        <span>Personal Web App Verification System</span>
+        <span>Reference ID: ${refId}</span>
+      </footer>
+
+    </section>
+  </main>
+
+  <script>
+    lucide.createIcons();
+
+    setTimeout(() => {
+      window.print();
+    }, 600);
+  <\/script>
+
+</body>
+</html>
+      `;
+
+      letterWindow.document.open();
+      letterWindow.document.write(letterHTML);
+      letterWindow.document.close();
+
+      showToast("Letter PDF tab opened.");
     }
 
     function showToast(message) {
