@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INQ001 - Service Portal</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body{
+    background:#f5f7fa;
+    color:#172b4d;
+}
+
+.topbar{
+    background:#293e52;
+    color:#fff;
+    height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 20px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+
+.logo{
+    font-size:20px;
+    font-weight:600;
+}
+
+.user{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.avatar{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    background:#5a9bd8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-weight:bold;
+}
+
+.container{
+    max-width:1200px;
+    margin:20px auto;
+    padding:0 15px;
+}
+
+.breadcrumb{
+    font-size:14px;
+    color:#5e6c84;
+    margin-bottom:15px;
+}
+
+.ticket-header{
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    border:1px solid #dfe1e6;
+    margin-bottom:20px;
+}
+
+.ticket-header h1{
+    font-size:26px;
+    margin-bottom:8px;
+}
+
+.badges{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+}
+
+.badge{
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.open{
+    background:#e3fcef;
+    color:#006644;
+}
+
+.medium{
+    background:#deebff;
+    color:#0747a6;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns: 1fr 350px;
+    gap:20px;
+}
+
+.card{
+    background:#fff;
+    border:1px solid #dfe1e6;
+    border-radius:8px;
+    padding:20px;
+}
+
+.card-title{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:15px;
+    padding-bottom:10px;
+    border-bottom:1px solid #eceff3;
+}
+
+.info-table{
+    width:100%;
+}
+
+.info-row{
+    display:flex;
+    padding:10px 0;
+    border-bottom:1px solid #f1f2f4;
+}
+
+.info-label{
+    width:180px;
+    font-weight:600;
+    color:#42526e;
+}
+
+.info-value{
+    flex:1;
+}
+
+.activity{
+    margin-top:15px;
+}
+
+.activity-item{
+    border-left:3px solid #0070d2;
+    padding-left:15px;
+    margin-bottom:20px;
+}
+
+.activity-time{
+    color:#6b778c;
+    font-size:13px;
+    margin-bottom:5px;
+}
+
+.note{
+    background:#f8fafc;
+    padding:15px;
+    border-radius:6px;
+    line-height:1.6;
+}
+
+.email-box{
+    background:#f8fafc;
+    border:1px solid #dfe1e6;
+    padding:15px;
+    border-radius:6px;
+    word-break:break-word;
+}
+
+.action-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    background:#0070d2;
+    color:#fff;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:15px;
+    margin-top:10px;
+}
+
+.action-btn:hover{
+    background:#005fb2;
+}
+
+@media(max-width:900px){
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .info-row{
+        flex-direction:column;
+        gap:5px;
+    }
+
+    .info-label{
+        width:auto;
+    }
+
+    .ticket-header h1{
+        font-size:22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div class="logo">Service Portal</div>
+
+    <div class="user">
+        <div class="avatar">RC</div>
+        <span>Rahul Chand</span>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="breadcrumb">
+        Service Portal / Enquiries / INQ001
+    </div>
+
+    <div class="ticket-header">
+        <h1>INQ001 - Fiji Marriott Resort Momi Bay Local Rate Inquiry</h1>
+
+        <div class="badges">
+            <span class="badge open">Open</span>
+            <span class="badge medium">Medium Priority</span>
+        </div>
+    </div>
+
+    <div class="grid">
+
+        <div>
+
+            <div class="card">
+                <div class="card-title">Ticket Details</div>
+
+                <div class="info-table">
+
+                    <div class="info-row">
+                        <div class="info-label">Ticket Number</div>
+                        <div class="info-value">INQ001</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Requested For</div>
+                        <div class="info-value">Rahul Chand</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Category</div>
+                        <div class="info-value">Hotel Reservation Enquiry</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Subcategory</div>
+                        <div class="info-value">Local Resident Rate</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Location</div>
+                        <div class="info-value">Fiji Marriott Resort Momi Bay</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">Open</div>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">Assigned To</div>
+                        <div class="info-value">Reservations Team</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <div class="card-title">Description</div>
+
+                <div class="note">
+                    Rahul Chand has requested information regarding the
+                    Fijian resident rate at Fiji Marriott Resort Momi Bay.
+                    <br><br>
+
+                    Purpose of stay: Birthday celebration for his niece.
+                    <br><br>
+
+                    Information requested:
+                    <ul style="margin-top:10px;margin-left:20px;">
+                        <li>Availability of local resident rates.</li>
+                        <li>Accommodation package options.</li>
+                        <li>Birthday cake arrangements.</li>
+                        <li>Reserved dining table at MyBula Restaurant or Oceanfront Restaurant.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <div class="card-title">Activity Stream</div>
+
+                <div class="activity">
+
+                    <div class="activity-item">
+                        <div class="activity-time">
+                            13 Jun 2026 - 10:05 AM
+                        </div>
+                        <strong>Ticket Created</strong>
+                        <p>
+                            Enquiry received from Rahul Chand regarding
+                            Marriott Momi Bay local resident rates.
+                        </p>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-time">
+                            13 Jun 2026 - 10:07 AM
+                        </div>
+                        <strong>Recommendation Added</strong>
+                        <p>
+                            Contact resort reservations team for resident
+                            rates and birthday arrangements.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div>
+
+            <div class="card">
+                <div class="card-title">Contact Information</div>
+
+                <div class="email-box">
+                    <strong>Reservations Email</strong><br><br>
+                    reservations.momibay@marriotthotels.com
+                </div>
+
+                <button class="action-btn" onclick="copyEmail()">
+                    Copy Email Address
+                </button>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <div class="card-title">Suggested Email Subject</div>
+
+                <div class="email-box">
+                    Fijian Resident Rate + Birthday Inquiry
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:20px;">
+                <div class="card-title">Requested Services</div>
+
+                <div class="note">
+                    ✓ Local Resident Rate<br><br>
+                    ✓ Birthday Cake Arrangement<br><br>
+                    ✓ Restaurant Reservation<br><br>
+                    ✓ Celebration Assistance
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function copyEmail() {
+    navigator.clipboard.writeText(
+        "reservations.momibay@marriotthotels.com"
+    );
+
+    alert("Email address copied.");
+}
+</script>
+
+</body>
+</html>
