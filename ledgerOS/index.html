@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LedgerOS Education Registry</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <canvas id="wallpaperCanvas"></canvas>
+  <div class="noise"></div>
+
+  <section id="setupScreen" class="auth-screen hidden">
+    <div class="auth-card">
+      <div class="brand-orb">⬢</div>
+      <h1>LedgerOS Setup</h1>
+      <p>Create a local demo password to initialize the permissioned education registry workstation.</p>
+      <input id="setupPassword" type="password" placeholder="Create password" autocomplete="new-password" />
+      <input id="setupPasswordConfirm" type="password" placeholder="Confirm password" autocomplete="new-password" />
+      <button id="setupBtn" class="primary">Initialize LedgerOS</button>
+      <small>Demo only: password is stored in localStorage JSON and is not secure.</small>
+      <div id="setupError" class="error"></div>
+    </div>
+  </section>
+
+  <section id="loginScreen" class="auth-screen hidden">
+    <div class="auth-card login-card">
+      <div class="brand-orb">⛓</div>
+      <h1>LedgerOS</h1>
+      <p>Education Registry · Permissioned Ledger Workstation</p>
+      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password" />
+      <button id="loginBtn" class="primary">Unlock Desktop</button>
+      <div id="loginError" class="error"></div>
+      <small>Hyperledger-style simulation running fully in browser storage.</small>
+    </div>
+  </section>
+
+  <main id="desktop" class="desktop locked">
+    <header class="topbar">
+      <div class="top-left"><button id="launcherBtn" class="os-logo">◈</button><span id="activeAppName">LedgerOS Education Registry</span></div>
+      <div class="top-center"><span class="pill ok">Permissioned Ledger</span><span id="nodeHealth" class="pill">Node Health: OK</span></div>
+      <div class="top-right"><span id="clock"></span><span>📶</span><button id="lockBtn" class="ghost">Lock</button></div>
+    </header>
+
+    <section class="widgets">
+      <article class="widget"><h3>Ledger Health</h3><div class="metric big" id="wLedgerStatus">VALID</div><p>Block height: <b id="wBlockHeight">0</b></p><p>Latest: <code id="wLatestHash">GENESIS</code></p><p>Consensus: <b id="wConsensus">PBFT</b></p></article>
+      <article class="widget"><h3>Registry Overview</h3><p>Providers: <b id="wProviderCount">0</b></p><p>Active licenses: <b id="wActiveLicenses">0</b></p><p>Inactive licenses: <b id="wInactiveLicenses">0</b></p><p>High risk: <b id="wHighRisk">0</b></p></article>
+      <article class="widget"><h3>Node Network</h3><p>Validator nodes: <b id="wNodeCount">7</b></p><p>Confirmations: <b id="wConfirmations">0</b></p><p>Latency: <b id="wLatency">18ms</b></p><div class="mini-bars" id="nodeBars"></div></article>
+      <article class="widget"><h3>Quick Actions</h3><button data-app="registry">Register Provider</button><button data-app="search">Search Registry</button><button data-app="explorer">Explore Ledger</button><button id="quickVerify">Verify Chain</button></article>
+    </section>
+
+    <section id="windowLayer" class="window-layer"></section>
+
+    <aside id="launcher" class="launcher hidden">
+      <input id="launcherSearch" placeholder="Search apps... Ctrl + Space" />
+      <div id="launcherGrid" class="launcher-grid"></div>
+    </aside>
+
+    <nav class="dock" id="dock"></nav>
+    <div id="toast" class="toast hidden"></div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

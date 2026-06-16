@@ -1,0 +1,30 @@
+{
+  "note": "Demo data is generated in-app via Settings > Load sample demo data. This file documents the expected ledgerOSData shape.",
+  "localStorageKey": "ledgerOSData",
+  "schema": {
+    "auth": {
+      "isSetupComplete": true,
+      "username": "admin",
+      "password": "demo-password",
+      "lastLogin": "ISO timestamp"
+    },
+    "settings": {
+      "accentColor": "#00d4ff",
+      "glassIntensity": 0.7,
+      "wallpaper": "aurora-grid",
+      "consensusMode": "PBFT",
+      "nodeCount": 7
+    },
+    "registry": {
+      "providers": [],
+      "licenses": []
+    },
+    "blockchain": {
+      "chain": [],
+      "transactions": [],
+      "latestHash": "",
+      "blockHeight": 0
+    },
+    "auditLogs": []
+  }
+}
