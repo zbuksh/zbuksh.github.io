@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech Invoice Studio</title>
+
+  <!-- External Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- App Styles -->
+  <style>
+    :root { --brand:#111827; --muted:#6b7280; }
+    body { background:#f3f4f6; color:#111827; }
+    .nav-item.active { background:#111827; color:white; }
+    .view { display:none; }
+    .view.active { display:block; }
+    .toast { animation: slideIn .22s ease-out; }
+    @keyframes slideIn { from { transform:translateY(-8px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .invoice-paper { background:white; color:#111827; width:210mm; max-width:100%; min-height:297mm; margin:auto; padding:18mm; box-shadow:0 10px 25px rgba(0,0,0,.08); }
+    .required:after { content:' *'; color:#dc2626; }
+    @media print {
+      @page { size:A4; margin:12mm; }
+      body { background:white !important; }
+      .no-print, aside, header, nav, button, input, select, textarea, .app-control { display:none !important; }
+      main { margin:0 !important; padding:0 !important; }
+      .view { display:none !important; }
+      #editorView { display:block !important; }
+      #printArea { display:block !important; box-shadow:none !important; width:100% !important; padding:0 !important; min-height:auto !important; }
+      .invoice-paper { box-shadow:none !important; width:100% !important; min-height:auto !important; padding:0 !important; }
+      table { page-break-inside:auto; }
+      tr { page-break-inside:avoid; page-break-after:auto; }
+    }
+  </style>
+</head>
+<body>
+  <!-- App Layout -->
+  <div id="toastHost" class="fixed top-4 right-4 z-50 space-y-2 no-print"></div>
+
+  <aside class="fixed inset-y-0 left-0 w-72 bg-white border-r border-gray-200 p-4 hidden lg:flex flex-col no-print">
+    <div class="mb-6">
+      <div class="flex items-center gap-3">
+        <div class="h-11 w-11 rounded-2xl bg-gray-900 text-white grid place-items-center"><i class="bi bi-receipt-cutoff text-xl"></i></div>
+        <div>
+          <h1 class="font-bold text-lg">Tech Invoice Studio</h1>
+          <p class="text-xs text-gray-500">Single-file local invoicing</p>
+        </div>
+      </div>
+    </div>
+    <nav class="space-y-2 text-sm">
+      <button class="nav-item active w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="dashboardView"><i class="bi bi-speedometer2 mr-2"></i>Dashboard</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-action="newInvoice"><i class="bi bi-file-earmark-plus mr-2"></i>New Invoice</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-action="newQuote"><i class="bi bi-chat-square-quote mr-2"></i>New Quote</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="documentsView"><i class="bi bi-folder2-open mr-2"></i>Documents</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="customersView"><i class="bi bi-people mr-2"></i>Customers</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="templatesView"><i class="bi bi-boxes mr-2"></i>Service Templates</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="settingsView"><i class="bi bi-gear mr-2"></i>Settings</button>
+      <button class="nav-item w-full text-left px-4 py-3 rounded-xl hover:bg-gray-100" data-view="backupView"><i class="bi bi-database-down mr-2"></i>Backup / Restore</button>
+    </nav>
+    <div class="mt-auto text-xs text-gray-500 p-3 rounded-xl bg-yellow-50 border border-yellow-100">
+      <i class="bi bi-exclamation-triangle mr-1"></i>
+      Your data is stored locally in this browser. Clearing browser cache or changing device may remove your data. Please export regular backups.
+    </div>
+  </aside>
+
+  <main class="lg:ml-72 min-h-screen">
+    <header class="sticky top-0 bg-white/90 backdrop-blur border-b border-gray-200 z-20 no-print">
+      <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <h2 id="pageTitle" class="text-xl font-bold">Dashboard</h2>
+          <p id="saveIndicator" class="text-xs text-gray-500">Saved locally</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="newDocument('invoice')" class="px-4 py-2 rounded-xl bg-gray-900 text-white text-sm"><i class="bi bi-plus-lg mr-1"></i>Invoice</button>
+          <button onclick="newDocument('quote')" class="px-4 py-2 rounded-xl bg-white border text-sm"><i class="bi bi-plus-lg mr-1"></i>Quote</button>
+          <button onclick="exportBackup()" class="px-4 py-2 rounded-xl bg-white border text-sm"><i class="bi bi-download mr-1"></i>Backup</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="p-4 md:p-6">
+      <!-- Dashboard -->
+      <div id="dashboardView" class="view active">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6" id="dashboardCards"></div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-semibold mb-3">Recent Documents</h3>
+            <div id="recentDocs" class="overflow-x-auto"></div>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-semibold mb-3">Storage & Backup</h3>
+            <p class="text-sm text-gray-600 mb-3">Last backup: <span id="lastBackupLabel">Never</span></p>
+            <button onclick="exportBackup()" class="w-full px-4 py-2 rounded-xl bg-gray-900 text-white"><i class="bi bi-database-down mr-1"></i>Export JSON Backup</button>
+            <div class="mt-4 p-3 rounded-xl bg-yellow-50 text-sm text-yellow-900 border border-yellow-100">Your data is stored locally in this browser. Export regular backups.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div id="editorView" class="view">
+        <div class="grid grid-cols-1 2xl:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl shadow-sm border p-4 no-print app-control">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-lg">Document Editor</h3>
+              <span id="editorModeBadge" class="text-xs px-3 py-1 rounded-full bg-gray-100"></span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+              <label class="text-sm">Document Type<select id="docMode" class="mt-1 w-full border rounded-xl p-2" onchange="onEditorChange()"></select></label>
+              <label class="text-sm required">Number<input id="docNumber" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></label>
+              <label class="text-sm">Status<select id="docStatus" class="mt-1 w-full border rounded-xl p-2" onchange="onEditorChange()"></select></label>
+              <label class="text-sm required">Issue Date<input id="issueDate" type="date" class="mt-1 w-full border rounded-xl p-2" onchange="onEditorChange()"></label>
+              <label class="text-sm">Due Date<input id="dueDate" type="date" class="mt-1 w-full border rounded-xl p-2" onchange="onEditorChange()"></label>
+              <label class="text-sm">Amount Paid<input id="amountPaid" type="number" min="0" step="0.01" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <label class="text-sm required">Customer<select id="customerSelect" class="mt-1 w-full border rounded-xl p-2" onchange="selectCustomerForDoc()"></select></label>
+              <label class="text-sm">Currency<input id="docCurrency" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></label>
+            </div>
+
+            <div class="rounded-2xl border p-3 mb-4">
+              <h4 class="font-semibold mb-2">Customer Snapshot</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input id="custName" placeholder="Customer name" class="border rounded-xl p-2" oninput="onEditorChange()">
+                <input id="custCompany" placeholder="Company" class="border rounded-xl p-2" oninput="onEditorChange()">
+                <input id="custEmail" placeholder="Email" class="border rounded-xl p-2" oninput="onEditorChange()">
+                <input id="custPhone" placeholder="Phone" class="border rounded-xl p-2" oninput="onEditorChange()">
+                <input id="custTin" placeholder="Customer TIN / Tax No." class="border rounded-xl p-2" oninput="onEditorChange()">
+                <textarea id="custAddress" placeholder="Address" class="border rounded-xl p-2 md:col-span-2" oninput="onEditorChange()"></textarea>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border p-3 mb-4">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <h4 class="font-semibold">Service Line Items</h4>
+                <div class="flex gap-2">
+                  <select id="templateApply" class="border rounded-xl p-2 text-sm"></select>
+                  <button onclick="applyTemplateToDoc()" class="px-3 py-2 rounded-xl bg-white border text-sm">Apply</button>
+                  <button onclick="addLineItem()" class="px-3 py-2 rounded-xl bg-gray-900 text-white text-sm"><i class="bi bi-plus"></i> Add</button>
+                </div>
+              </div>
+              <div id="itemsHost" class="space-y-3"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              <label class="text-sm">Tax Mode<select id="taxMode" class="mt-1 w-full border rounded-xl p-2" onchange="onEditorChange()"><option value="exclusive">Tax Exclusive</option><option value="inclusive">Tax Inclusive</option><option value="zero">Zero-rated</option><option value="exempt">Tax Exempt</option></select></label>
+              <label class="text-sm">Invoice Tax Override %<input id="taxOverride" type="number" min="0" max="100" step="0.01" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></label>
+              <label class="text-sm">Notes<textarea id="docNotes" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></textarea></label>
+              <label class="text-sm">Terms<textarea id="docTerms" class="mt-1 w-full border rounded-xl p-2" oninput="onEditorChange()"></textarea></label>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button onclick="saveDocument('Draft')" class="px-4 py-2 rounded-xl bg-white border">Save Draft</button>
+              <button onclick="saveDocument('final')" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Save Final</button>
+              <button onclick="duplicateCurrentDocument()" class="px-4 py-2 rounded-xl bg-white border">Duplicate</button>
+              <button onclick="convertQuoteToInvoice()" id="convertBtn" class="px-4 py-2 rounded-xl bg-blue-600 text-white">Convert Quote</button>
+              <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-white border">Print / Save as PDF</button>
+              <button onclick="exportPDF()" class="px-4 py-2 rounded-xl bg-white border">Export PDF</button>
+              <button onclick="deleteCurrentDocument()" class="px-4 py-2 rounded-xl bg-red-600 text-white">Delete</button>
+            </div>
+          </div>
+
+          <div id="printArea" class="invoice-paper"></div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div id="documentsView" class="view">
+        <div class="bg-white rounded-2xl shadow-sm border p-4 mb-4 no-print">
+          <div class="grid grid-cols-1 md:grid-cols-6 gap-3">
+            <input id="docSearch" placeholder="Search number, customer..." class="border rounded-xl p-2" oninput="renderDocuments()">
+            <select id="docFilterType" class="border rounded-xl p-2" onchange="renderDocuments()"><option value="">All Types</option><option value="invoice">Invoices</option><option value="quote">Quotes</option></select>
+            <select id="docFilterStatus" class="border rounded-xl p-2" onchange="renderDocuments()"><option value="">All Statuses</option></select>
+            <input id="docDateFrom" type="date" class="border rounded-xl p-2" onchange="renderDocuments()">
+            <input id="docDateTo" type="date" class="border rounded-xl p-2" onchange="renderDocuments()">
+            <select id="docSort" class="border rounded-xl p-2" onchange="renderDocuments()"><option value="dateDesc">Date ↓</option><option value="dateAsc">Date ↑</option><option value="amountDesc">Amount ↓</option><option value="amountAsc">Amount ↑</option><option value="numberAsc">Number ↑</option><option value="statusAsc">Status ↑</option></select>
+          </div>
+        </div>
+        <div id="documentsList" class="bg-white rounded-2xl shadow-sm border overflow-x-auto"></div>
+      </div>
+
+      <!-- Customers -->
+      <div id="customersView" class="view">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-bold mb-3">Customer</h3>
+            <input id="customerId" type="hidden">
+            <div class="space-y-3">
+              <input id="customerName" placeholder="Customer name" class="w-full border rounded-xl p-2">
+              <input id="customerCompany" placeholder="Company name" class="w-full border rounded-xl p-2">
+              <input id="customerEmail" placeholder="Email" class="w-full border rounded-xl p-2">
+              <input id="customerPhone" placeholder="Phone" class="w-full border rounded-xl p-2">
+              <input id="customerTin" placeholder="TIN / Tax number" class="w-full border rounded-xl p-2">
+              <input id="customerContact" placeholder="Contact person" class="w-full border rounded-xl p-2">
+              <textarea id="customerAddress" placeholder="Address" class="w-full border rounded-xl p-2"></textarea>
+              <textarea id="customerNotes" placeholder="Notes" class="w-full border rounded-xl p-2"></textarea>
+              <div class="flex gap-2"><button onclick="saveCustomer()" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Save Customer</button><button onclick="clearCustomerForm()" class="px-4 py-2 rounded-xl border">Clear</button></div>
+            </div>
+          </div>
+          <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border p-4">
+            <div class="flex justify-between gap-3 mb-3"><h3 class="font-bold">Customers</h3><input id="customerSearch" oninput="renderCustomers()" placeholder="Search customers" class="border rounded-xl p-2"></div>
+            <div id="customersList" class="overflow-x-auto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Templates -->
+      <div id="templatesView" class="view">
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-bold mb-3">Service Template</h3>
+            <input id="tplId" type="hidden">
+            <div class="space-y-3">
+              <input id="tplName" placeholder="Template name" class="w-full border rounded-xl p-2">
+              <textarea id="tplDesc" placeholder="Description" class="w-full border rounded-xl p-2"></textarea>
+              <select id="tplCategory" class="w-full border rounded-xl p-2"></select>
+              <select id="tplUnit" class="w-full border rounded-xl p-2"></select>
+              <input id="tplQty" type="number" min="0" step="0.01" placeholder="Default quantity" class="w-full border rounded-xl p-2">
+              <input id="tplPrice" type="number" min="0" step="0.01" placeholder="Default unit price" class="w-full border rounded-xl p-2">
+              <input id="tplTax" type="number" min="0" max="100" step="0.01" placeholder="Default tax rate" class="w-full border rounded-xl p-2">
+              <div class="flex gap-2"><button onclick="saveTemplate()" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Save Template</button><button onclick="clearTemplateForm()" class="px-4 py-2 rounded-xl border">Clear</button></div>
+            </div>
+          </div>
+          <div class="xl:col-span-2 bg-white rounded-2xl shadow-sm border p-4"><h3 class="font-bold mb-3">Reusable Services</h3><div id="templatesList"></div></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div id="settingsView" class="view">
+        <div class="bg-white rounded-2xl shadow-sm border p-4">
+          <h3 class="font-bold text-lg mb-4">Business Profile & Settings</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            <input id="businessName" placeholder="Business name" class="border rounded-xl p-2">
+            <input id="tradingName" placeholder="Trading name" class="border rounded-xl p-2">
+            <input id="ownerName" placeholder="Owner name" class="border rounded-xl p-2">
+            <input id="profileEmail" placeholder="Email" class="border rounded-xl p-2">
+            <input id="profilePhone" placeholder="Phone" class="border rounded-xl p-2">
+            <input id="website" placeholder="Website" class="border rounded-xl p-2">
+            <input id="tin" placeholder="Tax Identification Number / TIN" class="border rounded-xl p-2">
+            <input id="bankName" placeholder="Bank name" class="border rounded-xl p-2">
+            <input id="bankAccountName" placeholder="Bank account name" class="border rounded-xl p-2">
+            <input id="bankAccountNumber" placeholder="Bank account number" class="border rounded-xl p-2">
+            <textarea id="address" placeholder="Business address" class="border rounded-xl p-2"></textarea>
+            <textarea id="paymentInstructions" placeholder="Payment instructions" class="border rounded-xl p-2"></textarea>
+            <label class="border rounded-xl p-2">Logo upload<input id="logoUpload" type="file" accept="image/*" class="block text-sm mt-1" onchange="handleLogoUpload(event)"></label>
+            <input id="currency" placeholder="Default currency" class="border rounded-xl p-2">
+            <input id="defaultTaxRate" type="number" min="0" max="100" step="0.01" placeholder="Default tax rate" class="border rounded-xl p-2">
+            <input id="invoicePrefix" placeholder="Default invoice prefix" class="border rounded-xl p-2">
+            <input id="quotePrefix" placeholder="Default quote prefix" class="border rounded-xl p-2">
+            <input id="defaultNotes" placeholder="Default notes" class="border rounded-xl p-2">
+            <input id="defaultTerms" placeholder="Default terms" class="border rounded-xl p-2">
+            <select id="backupReminderDays" class="border rounded-xl p-2"><option value="7">Backup every 7 days</option><option value="14">Backup every 14 days</option><option value="30">Backup every 30 days</option><option value="0">Never</option></select>
+            <select id="theme" class="border rounded-xl p-2"><option value="light">Light</option><option value="dark">Dark</option></select>
+            <label class="flex items-center gap-2 border rounded-xl p-2"><input id="taxEnabled" type="checkbox"> Tax enabled</label>
+            <label class="flex items-center gap-2 border rounded-xl p-2"><input id="taxInclusive" type="checkbox"> Tax-inclusive pricing</label>
+          </div>
+          <div class="flex flex-wrap gap-2 mt-4"><button onclick="saveSettings()" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Save Settings</button><button onclick="resetAllData()" class="px-4 py-2 rounded-xl bg-red-600 text-white">Reset Local Data</button></div>
+        </div>
+      </div>
+
+      <!-- Backup -->
+      <div id="backupView" class="view">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div class="bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-bold mb-3">Export Backup</h3>
+            <p class="text-sm text-gray-600 mb-4">Exports profile, settings, invoices, quotes, customers, templates, sequences, and metadata as JSON.</p>
+            <button onclick="exportBackup()" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Export JSON Backup</button>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm border p-4">
+            <h3 class="font-bold mb-3">Restore Backup</h3>
+            <input id="restoreFile" type="file" accept="application/json,.json" class="mb-3">
+            <select id="restoreMode" class="border rounded-xl p-2 mb-3 w-full"><option value="everything">Everything</option><option value="invoices">Only invoices</option><option value="quotes">Only quotes</option><option value="customers">Only customers</option><option value="profileSettings">Only profile and settings</option><option value="numbering">Only numbering sequences</option></select>
+            <div class="flex gap-2"><button onclick="previewBackup()" class="px-4 py-2 rounded-xl border">Preview</button><button onclick="restoreBackup()" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Restore</button></div>
+            <div id="backupPreview" class="mt-4 text-sm rounded-xl bg-gray-50 p-3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- App State and Logic -->
+  <script>
+    const APP_VERSION = '1.0.0';
+    const STORAGE_KEY = 'techInvoiceStudioData';
+    const docModes = ['Invoice','Quote','Estimate','Proforma Invoice','Freelance Invoice','Consultation Invoice','Technical Support Invoice','Software Development Invoice','Maintenance Invoice','Retainer Invoice','Project Milestone Invoice','Hourly Service Invoice','Fixed Price Service Invoice'];
+    const invoiceStatuses = ['Draft','Sent','Viewed','Partially Paid','Paid','Overdue','Cancelled','Archived'];
+    const quoteStatuses = ['Draft','Sent','Accepted','Rejected','Expired','Converted to Invoice','Archived'];
+    const categories = ['Web Development','App Development','IT Support','Cloud Configuration','Power Platform Development','Automation','Consultation','Cybersecurity Review','System Maintenance','Data Migration','Training','Technical Documentation','Project Management','Custom Service'];
+    const units = ['Hour','Day','Week','Month','Project','Session','License','Item','Milestone'];
+    let state = loadData();
+    let currentDoc = null;
+
+    function defaultData(){ return {
+      appVersion: APP_VERSION,
+      profile: { businessName:'ABC Tech Services', tradingName:'ABC Tech', ownerName:'', email:'hello@example.com', phone:'+679 123 4567', address:'Business address', website:'', tin:'123-456-789', logoBase64:'', bankName:'Example Bank', bankAccountName:'ABC Tech Services', bankAccountNumber:'123456789', paymentInstructions:'Please pay by bank transfer.' },
+      settings: { currency:'FJD', defaultTaxRate:15, taxEnabled:true, taxInclusive:false, invoicePrefix:'INV', quotePrefix:'QTE', nextInvoiceNumber:1, nextQuoteNumber:1, backupReminderDays:14, theme:'light', defaultNotes:'Thank you for your business.', defaultTerms:'Payment due within 14 days.' },
+      invoices: [], quotes: [], customers: [], serviceTemplates: seedTemplates(), backupMetadata: { lastBackupAt:null }
+    }}
+    function seedTemplates(){ return [
+      {id:id('tpl'), name:'Website setup', description:'Website setup and configuration', category:'Web Development', unitType:'Project', quantity:1, unitPrice:1200, taxRate:15},
+      {id:id('tpl'), name:'Power Platform consultation', description:'Power Apps / Power Automate consulting', category:'Power Platform Development', unitType:'Hour', quantity:1, unitPrice:150, taxRate:15},
+      {id:id('tpl'), name:'Monthly IT support', description:'Monthly technical support retainer', category:'IT Support', unitType:'Month', quantity:1, unitPrice:750, taxRate:15}
+    ]}
+    function id(prefix){ return prefix + '_' + Date.now() + '_' + Math.random().toString(16).slice(2); }
+    function loadData(){ try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? {...defaultData(), ...JSON.parse(raw)} : defaultData(); } catch(e){ notify('error','Local data was corrupted. Started with a clean dataset.'); return defaultData(); } }
+    function persist(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); document.getElementById('saveIndicator').textContent = 'Last saved: ' + new Date().toLocaleString(); } catch(e){ notify('error','Browser storage quota exceeded. Export a backup and reduce stored data.'); } }
+    function notify(type, message){ const colors={success:'bg-green-600',warning:'bg-yellow-500',error:'bg-red-600',info:'bg-blue-600'}; const el=document.createElement('div'); el.className=`toast ${colors[type]||colors.info} text-white px-4 py-3 rounded-xl shadow-lg text-sm max-w-md`; el.innerHTML=`<b>${type.toUpperCase()}</b><br>${escapeHtml(message)}`; document.getElementById('toastHost').appendChild(el); setTimeout(()=>el.remove(),4200); }
+    function escapeHtml(s=''){ return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function money(n, c){ return `${c||state.settings.currency} ${Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`; }
+    function today(){ return new Date().toISOString().slice(0,10); }
+    function addDays(d, days){ const x=new Date(d); x.setDate(x.getDate()+days); return x.toISOString().slice(0,10); }
+
+    function init(){
+      fillSelect('docMode', docModes); fillSelect('tplCategory', categories); fillSelect('tplUnit', units); fillSelect('docFilterStatus', ['',...new Set([...invoiceStatuses,...quoteStatuses])], true);
+      document.querySelectorAll('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+      document.querySelector('[data-action="newInvoice"]').onclick=()=>newDocument('invoice');
+      document.querySelector('[data-action="newQuote"]').onclick=()=>newDocument('quote');
+      if(!localStorage.getItem(STORAGE_KEY)) notify('warning','Your data is stored locally in this browser. Clearing browser cache or changing device may remove your data. Please export regular backups.');
+      renderAll(); loadSettingsForm(); maybeBackupReminder();
+    }
+    function fillSelect(id, arr, keepFirst=false){ const el=document.getElementById(id); if(!el) return; const first=keepFirst?el.innerHTML:''; el.innerHTML=first+arr.filter(Boolean).map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join(''); }
+    function showView(view){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(view).classList.add('active'); document.getElementById('pageTitle').textContent = view.replace('View','').replace(/([A-Z])/g,' $1').trim(); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); const nav=document.querySelector(`.nav-item[data-view="${view}"]`); if(nav) nav.classList.add('active'); renderAll(); }
+    function renderAll(){ renderDashboard(); renderDocuments(); renderCustomers(); renderTemplates(); refreshCustomerSelect(); refreshTemplateSelect(); if(currentDoc) renderEditor(); document.getElementById('lastBackupLabel').textContent = state.backupMetadata?.lastBackupAt ? new Date(state.backupMetadata.lastBackupAt).toLocaleString() : 'Never'; }
+
+    function prefixFor(type, mode){ if(mode.includes('Consultation')) return 'CONSULT'; if(mode.includes('Software')) return 'DEV'; if(type==='quote') return state.settings.quotePrefix || 'QTE'; return state.settings.invoicePrefix || 'INV'; }
+    function generateNumber(type, mode){ const year=new Date().getFullYear(); const seq = type==='quote' ? state.settings.nextQuoteNumber : state.settings.nextInvoiceNumber; return `${prefixFor(type,mode)}-${year}-${String(seq).padStart(4,'0')}`; }
+    function numberExists(number, excludeId=null){ return [...state.invoices,...state.quotes].some(d=>d.number===number && d.id!==excludeId); }
+    function bumpSequence(type){ if(type==='quote') state.settings.nextQuoteNumber++; else state.settings.nextInvoiceNumber++; }
+    function recalcSequences(){ const invNums=state.invoices.map(d=>parseInt((d.number||'').match(/(\d+)$/)?.[1]||0)); const qteNums=state.quotes.map(d=>parseInt((d.number||'').match(/(\d+)$/)?.[1]||0)); state.settings.nextInvoiceNumber=Math.max(state.settings.nextInvoiceNumber||1, ...invNums, 0)+1; state.settings.nextQuoteNumber=Math.max(state.settings.nextQuoteNumber||1, ...qteNums, 0)+1; persist(); }
+
+    function newDocument(type='invoice'){
+      const mode = type==='quote' ? 'Quote' : 'Invoice';
+      currentDoc = { id:id('doc'), type, mode, number:generateNumber(type,mode), status:'Draft', issueDate:today(), dueDate:addDays(today(),14), customerId:'', customer:{name:'',company:'',email:'',phone:'',address:'',tin:''}, items:[emptyItem()], subtotal:0, discountTotal:0, taxTotal:0, grandTotal:0, amountPaid:0, balanceDue:0, currency:state.settings.currency, taxMode:state.settings.taxInclusive?'inclusive':'exclusive', taxOverride:'', notes:state.settings.defaultNotes||'', terms:state.settings.defaultTerms||'', originalQuoteNumber:'', createdAt:new Date().toISOString(), updatedAt:new Date().toISOString() };
+      showView('editorView'); renderEditor(); notify('info', `${mode} draft created.`);
+    }
+    function emptyItem(){ return {description:'', category:'Consultation', quantity:1, unitType:'Hour', unitPrice:0, discountPercent:0, taxRate:state.settings.defaultTaxRate, subtotal:0, discountAmount:0, taxAmount:0, total:0}; }
+    function renderEditor(){ if(!currentDoc) return; fillSelect('docMode', docModes); fillSelect('docStatus', currentDoc.type==='quote'?quoteStatuses:invoiceStatuses); setVal('docMode', currentDoc.mode); setVal('docNumber', currentDoc.number); setVal('docStatus', currentDoc.status); setVal('issueDate', currentDoc.issueDate); setVal('dueDate', currentDoc.dueDate); setVal('amountPaid', currentDoc.amountPaid); setVal('docCurrency', currentDoc.currency); setVal('customerSelect', currentDoc.customerId); setVal('custName', currentDoc.customer?.name); setVal('custCompany', currentDoc.customer?.company); setVal('custEmail', currentDoc.customer?.email); setVal('custPhone', currentDoc.customer?.phone); setVal('custTin', currentDoc.customer?.tin); setVal('custAddress', currentDoc.customer?.address); setVal('taxMode', currentDoc.taxMode||'exclusive'); setVal('taxOverride', currentDoc.taxOverride); setVal('docNotes', currentDoc.notes); setVal('docTerms', currentDoc.terms); document.getElementById('editorModeBadge').textContent=currentDoc.type.toUpperCase(); document.getElementById('convertBtn').style.display=currentDoc.type==='quote'?'inline-block':'none'; renderItems(); calculateCurrent(); renderPreview(); }
+    function setVal(id,v){ const el=document.getElementById(id); if(el) el.value = v ?? ''; }
+    function onEditorChange(){ if(!currentDoc) return; currentDoc.mode=val('docMode'); const oldNum=currentDoc.number; currentDoc.number=val('docNumber').trim(); currentDoc.status=val('docStatus'); currentDoc.issueDate=val('issueDate'); currentDoc.dueDate=val('dueDate'); currentDoc.amountPaid=parseFloat(val('amountPaid'))||0; currentDoc.currency=val('docCurrency')||state.settings.currency; currentDoc.customerId=val('customerSelect'); currentDoc.customer={name:val('custName'),company:val('custCompany'),email:val('custEmail'),phone:val('custPhone'),tin:val('custTin'),address:val('custAddress')}; currentDoc.taxMode=val('taxMode'); currentDoc.taxOverride=val('taxOverride'); currentDoc.notes=val('docNotes'); currentDoc.terms=val('docTerms'); if(currentDoc.number!==oldNum && numberExists(currentDoc.number,currentDoc.id)) notify('warning','Duplicate document number detected. Please use a unique number.'); readItemsFromDom(); calculateCurrent(); renderPreview(); autoSaveDraft(); }
+    function val(id){ return document.getElementById(id)?.value || ''; }
+    let autoTimer; function autoSaveDraft(){ clearTimeout(autoTimer); autoTimer=setTimeout(()=>{ if(currentDoc && currentDoc.number && currentDoc.customer?.name && currentDoc.items?.length){ upsertDocument(false); persist(); } }, 700); }
+
+    function renderItems(){ const host=document.getElementById('itemsHost'); host.innerHTML=''; currentDoc.items.forEach((it,i)=>{ const div=document.createElement('div'); div.className='grid grid-cols-1 md:grid-cols-12 gap-2 rounded-xl bg-gray-50 p-3 item-row'; div.dataset.index=i; div.innerHTML=`
+      <input class="md:col-span-3 border rounded-xl p-2 item-description" placeholder="Service description" value="${escapeHtml(it.description)}" oninput="onEditorChange()">
+      <select class="md:col-span-2 border rounded-xl p-2 item-category" onchange="onEditorChange()">${categories.map(c=>`<option ${it.category===c?'selected':''}>${c}</option>`).join('')}</select>
+      <input class="border rounded-xl p-2 item-qty" type="number" min="0" step="0.01" value="${it.quantity}" oninput="onEditorChange()">
+      <select class="border rounded-xl p-2 item-unit" onchange="onEditorChange()">${units.map(u=>`<option ${it.unitType===u?'selected':''}>${u}</option>`).join('')}</select>
+      <input class="border rounded-xl p-2 item-price" type="number" min="0" step="0.01" value="${it.unitPrice}" oninput="onEditorChange()">
+      <input class="border rounded-xl p-2 item-discount" type="number" min="0" max="100" step="0.01" value="${it.discountPercent}" oninput="onEditorChange()">
+      <input class="border rounded-xl p-2 item-tax" type="number" min="0" max="100" step="0.01" value="${it.taxRate}" oninput="onEditorChange()">
+      <div class="md:col-span-1 text-sm p-2 font-semibold">${money(it.total,currentDoc.currency)}</div>
+      <button onclick="removeLineItem(${i})" class="rounded-xl bg-red-50 text-red-700 p-2"><i class="bi bi-trash"></i></button>`; host.appendChild(div); }); }
+    function readItemsFromDom(){ currentDoc.items=[...document.querySelectorAll('.item-row')].map(r=>({ description:r.querySelector('.item-description').value, category:r.querySelector('.item-category').value, quantity:parseFloat(r.querySelector('.item-qty').value)||0, unitType:r.querySelector('.item-unit').value, unitPrice:parseFloat(r.querySelector('.item-price').value)||0, discountPercent:parseFloat(r.querySelector('.item-discount').value)||0, taxRate:parseFloat(r.querySelector('.item-tax').value)||0, subtotal:0, discountAmount:0, taxAmount:0, total:0 })); }
+    function addLineItem(){ currentDoc.items.push(emptyItem()); renderItems(); onEditorChange(); }
+    function removeLineItem(i){ if(currentDoc.items.length<=1) return notify('warning','At least one line item is required.'); currentDoc.items.splice(i,1); renderItems(); onEditorChange(); }
+    function applyTemplateToDoc(){ const t=state.serviceTemplates.find(x=>x.id===val('templateApply')); if(!t) return; currentDoc.items.push({description:t.description, category:t.category, quantity:t.quantity, unitType:t.unitType, unitPrice:t.unitPrice, discountPercent:0, taxRate:t.taxRate, subtotal:0, discountAmount:0, taxAmount:0, total:0}); renderItems(); onEditorChange(); }
+
+    function calculateCurrent(){ if(!currentDoc) return; let subtotal=0, discountTotal=0, taxTotal=0; const override = currentDoc.taxOverride!=='' ? parseFloat(currentDoc.taxOverride) : null; currentDoc.items.forEach(it=>{ it.quantity=Math.max(0,+it.quantity||0); it.unitPrice=Math.max(0,+it.unitPrice||0); it.discountPercent=Math.min(100,Math.max(0,+it.discountPercent||0)); let rate = override!==null ? override : (+it.taxRate||0); if(!state.settings.taxEnabled || ['zero','exempt'].includes(currentDoc.taxMode)) rate=0; it.subtotal=it.quantity*it.unitPrice; it.discountAmount=it.subtotal*(it.discountPercent/100); const taxable=it.subtotal-it.discountAmount; it.taxAmount = currentDoc.taxMode==='inclusive' && rate>0 ? taxable - (taxable/(1+rate/100)) : taxable*(rate/100); it.total = currentDoc.taxMode==='inclusive' ? taxable : taxable + it.taxAmount; subtotal+=it.subtotal; discountTotal+=it.discountAmount; taxTotal+=it.taxAmount; }); currentDoc.subtotal=subtotal; currentDoc.discountTotal=discountTotal; currentDoc.taxTotal=taxTotal; currentDoc.grandTotal=currentDoc.taxMode==='inclusive' ? subtotal-discountTotal : subtotal-discountTotal+taxTotal; if(['zero','exempt'].includes(currentDoc.taxMode)||!state.settings.taxEnabled) currentDoc.taxTotal=0; currentDoc.balanceDue=Math.max(0,currentDoc.grandTotal-(+currentDoc.amountPaid||0)); currentDoc.updatedAt=new Date().toISOString(); }
+    function validationErrors(doc){ const e=[]; if(!doc.number) e.push('Document number is required.'); if(numberExists(doc.number,doc.id)) e.push('Duplicate document number detected.'); if(!doc.issueDate) e.push('Issue date is required.'); if(!doc.customer?.name) e.push('Customer name is required.'); if(!doc.currency) e.push('Currency is required.'); if(!state.profile.businessName) e.push('Business name is required in Settings.'); if(state.settings.taxEnabled && !state.profile.tin && doc.type==='invoice') e.push('TIN number is required when tax is enabled.'); if(!doc.items?.length) e.push('At least one line item is required.'); doc.items.forEach((it,idx)=>{ if(!it.description) e.push(`Line ${idx+1}: description is required.`); if(it.quantity<0) e.push(`Line ${idx+1}: quantity cannot be negative.`); if(it.unitPrice<0) e.push(`Line ${idx+1}: unit price cannot be negative.`); if(it.taxRate<0 || it.taxRate>100) e.push(`Line ${idx+1}: tax rate must be 0-100.`); if(it.discountPercent<0 || it.discountPercent>100) e.push(`Line ${idx+1}: discount must be 0-100.`); }); return e; }
+    function saveDocument(statusMode){ readItemsFromDom(); onEditorChange(); if(statusMode==='final' && currentDoc.status==='Draft') currentDoc.status = currentDoc.type==='quote'?'Sent':'Sent'; else if(statusMode!=='final') currentDoc.status=statusMode; calculateCurrent(); const errs=validationErrors(currentDoc); if(errs.length) return notify('error', errs[0]); const isNew=!findDocument(currentDoc.id); upsertDocument(true); if(isNew) bumpSequence(currentDoc.type); persist(); renderAll(); notify('success', `${currentDoc.type==='quote'?'Quote':'Invoice'} saved.`); }
+    function upsertDocument(mark=false){ const arr=currentDoc.type==='quote'?state.quotes:state.invoices; const i=arr.findIndex(d=>d.id===currentDoc.id); if(i>=0) arr[i]=JSON.parse(JSON.stringify(currentDoc)); else arr.push(JSON.parse(JSON.stringify(currentDoc))); if(mark) currentDoc.updatedAt=new Date().toISOString(); }
+    function findDocument(id){ return [...state.invoices,...state.quotes].find(d=>d.id===id); }
+    function editDocument(id){ currentDoc=JSON.parse(JSON.stringify(findDocument(id))); showView('editorView'); renderEditor(); }
+    function duplicateDocument(id){ const d=JSON.parse(JSON.stringify(findDocument(id))); d.id=id='doc_'+Date.now(); d.number=generateNumber(d.type,d.mode); d.issueDate=today(); d.dueDate=addDays(today(),14); d.status='Draft'; d.createdAt=new Date().toISOString(); d.updatedAt=d.createdAt; currentDoc=d; showView('editorView'); renderEditor(); notify('info','Document duplicated as a new draft. Save to keep it.'); }
+    function duplicateCurrentDocument(){ if(currentDoc) duplicateDocument(currentDoc.id); }
+    function deleteDocument(id){ const d=findDocument(id); if(!d || !confirm('Delete this document? This cannot be undone.')) return; state.invoices=state.invoices.filter(x=>x.id!==id); state.quotes=state.quotes.filter(x=>x.id!==id); persist(); renderAll(); notify('success','Document deleted. Deleted numbers are not reused automatically.'); }
+    function deleteCurrentDocument(){ if(currentDoc) { deleteDocument(currentDoc.id); currentDoc=null; showView('documentsView'); } }
+    function archiveDocument(id){ const d=findDocument(id); if(d){ d.status='Archived'; persist(); renderAll(); notify('success','Document archived.'); } }
+    function convertQuoteToInvoice(){ if(!currentDoc || currentDoc.type!=='quote') return; const original=currentDoc.number; currentDoc.status='Converted to Invoice'; upsertDocument(true); const inv=JSON.parse(JSON.stringify(currentDoc)); inv.id=id('doc'); inv.type='invoice'; inv.mode='Invoice'; inv.number=generateNumber('invoice','Invoice'); inv.status='Draft'; inv.originalQuoteNumber=original; inv.createdAt=new Date().toISOString(); inv.updatedAt=inv.createdAt; state.invoices.push(inv); bumpSequence('invoice'); persist(); currentDoc=inv; renderAll(); renderEditor(); notify('success',`Quote converted to invoice ${inv.number}.`); }
+
+    function renderPreview(){ if(!currentDoc) return; const p=state.profile, d=currentDoc; const title=d.mode||'Invoice'; const amountLabel = d.mode.includes('Quote')||d.type==='quote'?'Estimated Cost':d.mode.includes('Proforma')?'Proforma Total':d.mode.includes('Retainer')?'Retainer Fee':'Amount Due'; const taxLine = (!state.settings.taxEnabled || ['zero','exempt'].includes(d.taxMode)) ? 'Tax: Not Applicable' : money(d.taxTotal,d.currency); document.getElementById('printArea').innerHTML=`
+      <div class="flex justify-between items-start gap-6 border-b pb-6 mb-6">
+        <div>${p.logoBase64?`<img src="${p.logoBase64}" class="h-16 mb-3">`:''}<h1 class="text-3xl font-bold">${escapeHtml(p.businessName||'Business Name')}</h1><p class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(p.address||'')}</p><p class="text-sm text-gray-600">${escapeHtml(p.email||'')} ${p.phone?' | '+escapeHtml(p.phone):''}</p><p class="text-sm text-gray-600">TIN: ${escapeHtml(p.tin||'')}</p></div>
+        <div class="text-right"><h2 class="text-4xl font-black uppercase">${escapeHtml(title)}</h2><p class="mt-2 text-sm">No: <b>${escapeHtml(d.number)}</b></p><p class="text-sm">Issue: ${escapeHtml(d.issueDate||'')}</p><p class="text-sm">Due: ${escapeHtml(d.dueDate||'')}</p><p class="text-sm">Status: ${escapeHtml(d.status||'')}</p>${d.originalQuoteNumber?`<p class="text-sm">Ref Quote: ${escapeHtml(d.originalQuoteNumber)}</p>`:''}</div>
+      </div>
+      <div class="grid grid-cols-2 gap-6 mb-6"><div><h3 class="font-bold mb-1">Bill To</h3><p class="font-semibold">${escapeHtml(d.customer?.name||'')}</p><p>${escapeHtml(d.customer?.company||'')}</p><p class="text-sm text-gray-600">${escapeHtml(d.customer?.email||'')}</p><p class="text-sm text-gray-600">${escapeHtml(d.customer?.phone||'')}</p><p class="text-sm text-gray-600 whitespace-pre-line">${escapeHtml(d.customer?.address||'')}</p><p class="text-sm text-gray-600">Customer TIN: ${escapeHtml(d.customer?.tin||'')}</p></div><div class="text-right"><p class="text-sm text-gray-500">${amountLabel}</p><p class="text-3xl font-black">${money(d.balanceDue,d.currency)}</p></div></div>
+      <table class="w-full text-sm mb-6"><thead><tr class="border-b bg-gray-50"><th class="text-left p-2">Description</th><th class="text-left p-2">Category</th><th class="text-right p-2">Qty</th><th class="text-left p-2">Unit</th><th class="text-right p-2">Price</th><th class="text-right p-2">Disc</th><th class="text-right p-2">Tax</th><th class="text-right p-2">Total</th></tr></thead><tbody>${d.items.map(it=>`<tr class="border-b"><td class="p-2">${escapeHtml(it.description)}</td><td class="p-2">${escapeHtml(it.category)}</td><td class="p-2 text-right">${it.quantity}</td><td class="p-2">${escapeHtml(it.unitType)}</td><td class="p-2 text-right">${money(it.unitPrice,d.currency)}</td><td class="p-2 text-right">${it.discountPercent}%</td><td class="p-2 text-right">${money(it.taxAmount,d.currency)}</td><td class="p-2 text-right font-semibold">${money(it.total,d.currency)}</td></tr>`).join('')}</tbody></table>
+      <div class="flex justify-end"><div class="w-full max-w-sm space-y-2 text-sm"><div class="flex justify-between"><span>Subtotal</span><b>${money(d.subtotal,d.currency)}</b></div><div class="flex justify-between"><span>Discount</span><b>${money(d.discountTotal,d.currency)}</b></div><div class="flex justify-between"><span>Tax</span><b>${taxLine}</b></div><div class="flex justify-between text-lg border-t pt-2"><span>Grand Total</span><b>${money(d.grandTotal,d.currency)}</b></div><div class="flex justify-between"><span>Amount Paid</span><b>${money(d.amountPaid,d.currency)}</b></div><div class="flex justify-between text-xl"><span>${amountLabel}</span><b>${money(d.balanceDue,d.currency)}</b></div></div></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 text-sm"><div><h3 class="font-bold">Payment Details</h3><p>${escapeHtml(p.bankName||'')}</p><p>${escapeHtml(p.bankAccountName||'')}</p><p>${escapeHtml(p.bankAccountNumber||'')}</p><p class="whitespace-pre-line">${escapeHtml(p.paymentInstructions||'')}</p></div><div><h3 class="font-bold">Notes & Terms</h3><p class="whitespace-pre-line">${escapeHtml(d.notes||'')}</p><p class="whitespace-pre-line mt-2">${escapeHtml(d.terms||'')}</p></div></div>
+      <div class="mt-8 pt-4 border-t text-xs text-gray-500 text-center">Generated locally by Tech Invoice Studio. No data sent to a server.</div>`; }
+
+    function renderDashboard(){ const docs=[...state.invoices,...state.quotes]; const paid=state.invoices.filter(d=>d.status==='Paid').length; const outstanding=state.invoices.filter(d=>!['Paid','Cancelled','Archived'].includes(d.status)).length; const overdue=state.invoices.filter(d=>d.dueDate && d.dueDate<today() && !['Paid','Cancelled','Archived'].includes(d.status)).length; const revenue=state.invoices.filter(d=>d.status==='Paid').reduce((s,d)=>s+d.grandTotal,0); const cards=[['Total invoices',state.invoices.length,'bi-receipt'],['Total quotes',state.quotes.length,'bi-chat-square-quote'],['Paid invoices',paid,'bi-check-circle'],['Outstanding invoices',outstanding,'bi-hourglass-split'],['Overdue invoices',overdue,'bi-exclamation-octagon'],['Total revenue',money(revenue,state.settings.currency),'bi-cash-stack'],['Draft documents',docs.filter(d=>d.status==='Draft').length,'bi-pencil-square'],['Last backup',state.backupMetadata?.lastBackupAt?new Date(state.backupMetadata.lastBackupAt).toLocaleDateString():'Never','bi-database']]; document.getElementById('dashboardCards').innerHTML=cards.map(c=>`<div class="bg-white rounded-2xl shadow-sm border p-4"><div class="text-gray-500"><i class="bi ${c[2]} text-xl"></i></div><p class="text-sm text-gray-500 mt-2">${c[0]}</p><p class="text-2xl font-black">${c[1]}</p></div>`).join(''); document.getElementById('recentDocs').innerHTML=docTable(docs.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,8)); }
+    function docTable(docs){ if(!docs.length) return '<p class="text-sm text-gray-500 p-4">No documents yet.</p>'; return `<table class="w-full text-sm"><thead><tr class="border-b bg-gray-50"><th class="p-2 text-left">Number</th><th class="p-2 text-left">Type</th><th class="p-2 text-left">Customer</th><th class="p-2 text-right">Amount</th><th class="p-2 text-left">Status</th><th class="p-2 text-left no-print">Actions</th></tr></thead><tbody>${docs.map(d=>`<tr class="border-b"><td class="p-2 font-semibold">${escapeHtml(d.number)}</td><td class="p-2">${escapeHtml(d.mode)}</td><td class="p-2">${escapeHtml(d.customer?.name||'')}</td><td class="p-2 text-right">${money(d.grandTotal,d.currency)}</td><td class="p-2"><span class="px-2 py-1 rounded-full bg-gray-100 text-xs">${escapeHtml(d.status)}</span></td><td class="p-2 no-print"><button onclick="editDocument('${d.id}')" class="text-blue-700 mr-2">View/Edit</button><button onclick="duplicateDocument('${d.id}')" class="mr-2">Duplicate</button><button onclick="archiveDocument('${d.id}')" class="mr-2">Archive</button><button onclick="deleteDocument('${d.id}')" class="text-red-700">Delete</button></td></tr>`).join('')}</tbody></table>`; }
+    function renderDocuments(){ let docs=[...state.invoices,...state.quotes]; const q=(val('docSearch')||'').toLowerCase(), t=val('docFilterType'), s=val('docFilterStatus'), from=val('docDateFrom'), to=val('docDateTo'); docs=docs.filter(d=>(!t||d.type===t)&&(!s||d.status===s)&&(!from||d.issueDate>=from)&&(!to||d.issueDate<=to)&&(!q||[d.number,d.customer?.name,d.customer?.company,d.customer?.email].join(' ').toLowerCase().includes(q))); const sort=val('docSort'); docs.sort((a,b)=> sort==='dateAsc'?a.issueDate.localeCompare(b.issueDate):sort==='amountDesc'?b.grandTotal-a.grandTotal:sort==='amountAsc'?a.grandTotal-b.grandTotal:sort==='numberAsc'?a.number.localeCompare(b.number):sort==='statusAsc'?a.status.localeCompare(b.status):b.issueDate.localeCompare(a.issueDate)); document.getElementById('documentsList').innerHTML=docTable(docs); }
+
+    function refreshCustomerSelect(){ const el=document.getElementById('customerSelect'); if(!el) return; el.innerHTML='<option value="">Manual / New Customer</option>'+state.customers.map(c=>`<option value="${c.id}">${escapeHtml(c.name)} ${c.company?'— '+escapeHtml(c.company):''}</option>`).join(''); }
+    function selectCustomerForDoc(){ const c=state.customers.find(x=>x.id===val('customerSelect')); if(c && currentDoc){ currentDoc.customerId=c.id; currentDoc.customer={name:c.name, company:c.company, email:c.email, phone:c.phone, address:c.address, tin:c.tin}; renderEditor(); onEditorChange(); } }
+    function saveCustomer(){ const c={id:val('customerId')||id('cust'), name:val('customerName'), company:val('customerCompany'), email:val('customerEmail'), phone:val('customerPhone'), tin:val('customerTin'), contactPerson:val('customerContact'), address:val('customerAddress'), notes:val('customerNotes')}; if(!c.name) return notify('error','Customer name is required.'); const i=state.customers.findIndex(x=>x.id===c.id); i>=0?state.customers[i]=c:state.customers.push(c); persist(); renderCustomers(); refreshCustomerSelect(); clearCustomerForm(); notify('success','Customer saved.'); }
+    function editCustomer(id){ const c=state.customers.find(x=>x.id===id); ['Id','Name','Company','Email','Phone','Tin','Contact','Address','Notes'].forEach(k=>{}); setVal('customerId',c.id); setVal('customerName',c.name); setVal('customerCompany',c.company); setVal('customerEmail',c.email); setVal('customerPhone',c.phone); setVal('customerTin',c.tin); setVal('customerContact',c.contactPerson); setVal('customerAddress',c.address); setVal('customerNotes',c.notes); }
+    function deleteCustomer(id){ if(confirm('Delete this customer?')){ state.customers=state.customers.filter(c=>c.id!==id); persist(); renderCustomers(); refreshCustomerSelect(); notify('success','Customer deleted.'); } }
+    function clearCustomerForm(){ ['customerId','customerName','customerCompany','customerEmail','customerPhone','customerTin','customerContact','customerAddress','customerNotes'].forEach(id=>setVal(id,'')); }
+    function renderCustomers(){ const q=(val('customerSearch')||'').toLowerCase(); const list=state.customers.filter(c=>[c.name,c.company,c.email].join(' ').toLowerCase().includes(q)); document.getElementById('customersList').innerHTML=list.length?`<table class="w-full text-sm"><tbody>${list.map(c=>`<tr class="border-b"><td class="p-2"><b>${escapeHtml(c.name)}</b><br><span class="text-gray-500">${escapeHtml(c.company||'')} ${escapeHtml(c.email||'')}</span></td><td class="p-2 text-right"><button onclick="editCustomer('${c.id}')" class="text-blue-700 mr-2">Edit</button><button onclick="deleteCustomer('${c.id}')" class="text-red-700">Delete</button></td></tr>`).join('')}</tbody></table>`:'<p class="text-sm text-gray-500">No customers saved.</p>'; }
+
+    function refreshTemplateSelect(){ const el=document.getElementById('templateApply'); if(el) el.innerHTML='<option value="">Select template</option>'+state.serviceTemplates.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join(''); }
+    function saveTemplate(){ const t={id:val('tplId')||id('tpl'), name:val('tplName'), description:val('tplDesc'), category:val('tplCategory'), unitType:val('tplUnit'), quantity:+val('tplQty')||1, unitPrice:+val('tplPrice')||0, taxRate:+val('tplTax')||0}; if(!t.name || !t.description) return notify('error','Template name and description are required.'); const i=state.serviceTemplates.findIndex(x=>x.id===t.id); i>=0?state.serviceTemplates[i]=t:state.serviceTemplates.push(t); persist(); renderTemplates(); refreshTemplateSelect(); clearTemplateForm(); notify('success','Service template saved.'); }
+    function renderTemplates(){ document.getElementById('templatesList').innerHTML=state.serviceTemplates.map(t=>`<div class="border rounded-xl p-3 mb-2 flex justify-between"><div><b>${escapeHtml(t.name)}</b><p class="text-sm text-gray-500">${escapeHtml(t.description)} — ${money(t.unitPrice,state.settings.currency)} / ${escapeHtml(t.unitType)}</p></div><div><button onclick="editTemplate('${t.id}')" class="text-blue-700 mr-2">Edit</button><button onclick="deleteTemplate('${t.id}')" class="text-red-700">Delete</button></div></div>`).join('')||'<p class="text-sm text-gray-500">No templates.</p>'; }
+    function editTemplate(id){ const t=state.serviceTemplates.find(x=>x.id===id); setVal('tplId',t.id); setVal('tplName',t.name); setVal('tplDesc',t.description); setVal('tplCategory',t.category); setVal('tplUnit',t.unitType); setVal('tplQty',t.quantity); setVal('tplPrice',t.unitPrice); setVal('tplTax',t.taxRate); }
+    function deleteTemplate(id){ if(confirm('Delete this template?')){ state.serviceTemplates=state.serviceTemplates.filter(t=>t.id!==id); persist(); renderTemplates(); refreshTemplateSelect(); notify('success','Template deleted.'); } }
+    function clearTemplateForm(){ ['tplId','tplName','tplDesc','tplQty','tplPrice','tplTax'].forEach(x=>setVal(x,'')); setVal('tplCategory',categories[0]); setVal('tplUnit',units[0]); }
+
+    function loadSettingsForm(){ const p=state.profile,s=state.settings; ['businessName','tradingName','ownerName','website','tin','bankName','bankAccountName','bankAccountNumber','address','paymentInstructions'].forEach(k=>setVal(k,p[k])); setVal('profileEmail',p.email); setVal('profilePhone',p.phone); setVal('currency',s.currency); setVal('defaultTaxRate',s.defaultTaxRate); setVal('invoicePrefix',s.invoicePrefix); setVal('quotePrefix',s.quotePrefix); setVal('defaultNotes',s.defaultNotes); setVal('defaultTerms',s.defaultTerms); setVal('backupReminderDays',s.backupReminderDays); setVal('theme',s.theme); document.getElementById('taxEnabled').checked=!!s.taxEnabled; document.getElementById('taxInclusive').checked=!!s.taxInclusive; }
+    function saveSettings(){ const p=state.profile,s=state.settings; ['businessName','tradingName','ownerName','website','tin','bankName','bankAccountName','bankAccountNumber','address','paymentInstructions'].forEach(k=>p[k]=val(k)); p.email=val('profileEmail'); p.phone=val('profilePhone'); s.currency=val('currency')||'FJD'; s.defaultTaxRate=+val('defaultTaxRate')||0; s.invoicePrefix=val('invoicePrefix')||'INV'; s.quotePrefix=val('quotePrefix')||'QTE'; s.defaultNotes=val('defaultNotes'); s.defaultTerms=val('defaultTerms'); s.backupReminderDays=+val('backupReminderDays'); s.theme=val('theme'); s.taxEnabled=document.getElementById('taxEnabled').checked; s.taxInclusive=document.getElementById('taxInclusive').checked; persist(); renderAll(); notify('success','Settings updated.'); }
+    function handleLogoUpload(ev){ const f=ev.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ state.profile.logoBase64=r.result; persist(); notify('success','Logo saved locally.'); if(currentDoc) renderPreview(); }; r.readAsDataURL(f); }
+    function resetAllData(){ if(confirm('This will delete all local app data. Continue?') && confirm('Final confirmation: delete local data?')){ localStorage.removeItem(STORAGE_KEY); state=defaultData(); currentDoc=null; persist(); renderAll(); loadSettingsForm(); showView('dashboardView'); notify('success','Local data reset.'); } }
+
+    function exportBackup(){ const backup={...state, appVersion:APP_VERSION, backupTimestamp:new Date().toISOString()}; const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`invoice-app-backup-${today()}.json`; a.click(); URL.revokeObjectURL(a.href); state.backupMetadata.lastBackupAt=new Date().toISOString(); persist(); renderAll(); notify('success','Backup exported.'); }
+    function readRestoreFile(){ return new Promise((res,rej)=>{ const f=document.getElementById('restoreFile').files[0]; if(!f) return rej('Select a JSON backup file first.'); const r=new FileReader(); r.onload=()=>{ try{ res(JSON.parse(r.result)); }catch(e){ rej('Invalid JSON or corrupted backup file.'); }}; r.onerror=()=>rej('Could not read backup file.'); r.readAsText(f); }); }
+    function validateBackup(b){ const errors=[]; ['profile','settings','invoices','quotes','customers'].forEach(k=>{ if(!(k in b)) errors.push(`Missing required field: ${k}`); }); if(b.appVersion && String(b.appVersion).split('.')[0]!==APP_VERSION.split('.')[0]) errors.push('Unsupported app version.'); const dup=(arr)=>{ const seen=new Set(); return arr.some(d=>seen.size===seen.add(d.number).size); }; if(Array.isArray(b.invoices)&&dup(b.invoices)) errors.push('Duplicate invoice numbers found in backup.'); if(Array.isArray(b.quotes)&&dup(b.quotes)) errors.push('Duplicate quote numbers found in backup.'); [...(b.invoices||[]),...(b.quotes||[])].forEach(d=>{ const calc=(d.items||[]).reduce((s,it)=>s+(+it.total||0),0); if(Math.abs(calc-(+d.grandTotal||0))>1 && d.items?.length) errors.push(`Possible invalid totals on ${d.number}.`); }); return errors; }
+    async function previewBackup(){ try{ const b=await readRestoreFile(); const e=validateBackup(b); document.getElementById('backupPreview').innerHTML=`<b>Backup Preview</b><br>Date: ${escapeHtml(b.backupTimestamp||'Unknown')}<br>App version: ${escapeHtml(b.appVersion||'Unknown')}<br>Invoices: ${(b.invoices||[]).length}<br>Quotes: ${(b.quotes||[]).length}<br>Customers: ${(b.customers||[]).length}<br>Business: ${escapeHtml(b.profile?.businessName||'')}<br>Latest invoice: ${escapeHtml((b.invoices||[]).at(-1)?.number||'N/A')}<br>Latest quote: ${escapeHtml((b.quotes||[]).at(-1)?.number||'N/A')}<br>${e.length?'<span class="text-red-700">Issues: '+e.join('; ')+'</span>':'<span class="text-green-700">Integrity check passed.</span>'}`; } catch(err){ notify('error',err); } }
+    async function restoreBackup(){ try{ const b=await readRestoreFile(); const e=validateBackup(b); if(e.length) return notify('error', e[0]); if(!confirm('Restore backup? Current selected data will be overwritten.')) return; const mode=val('restoreMode'); if(mode==='everything') state={...defaultData(),...b}; if(mode==='invoices') state.invoices=b.invoices||[]; if(mode==='quotes') state.quotes=b.quotes||[]; if(mode==='customers') state.customers=b.customers||[]; if(mode==='profileSettings'){ state.profile=b.profile; state.settings={...state.settings,...b.settings}; } if(mode==='numbering'){ state.settings.nextInvoiceNumber=b.settings?.nextInvoiceNumber||state.settings.nextInvoiceNumber; state.settings.nextQuoteNumber=b.settings?.nextQuoteNumber||state.settings.nextQuoteNumber; } recalcSequences(); persist(); loadSettingsForm(); renderAll(); notify('success','Backup restored successfully.'); } catch(err){ notify('error',err); } }
+    function maybeBackupReminder(){ const days=+state.settings.backupReminderDays; if(!days) return; const last=state.backupMetadata?.lastBackupAt; if(!last || (Date.now()-new Date(last).getTime())/86400000>=days) notify('warning','Backup reminder: export a JSON backup to protect your local data.'); }
+
+    function exportPDF(){ if(!currentDoc) return; try{ const filename=`${currentDoc.number}-${(currentDoc.customer?.name||'Customer').replace(/[^a-z0-9]/gi,'-')}.pdf`; html2pdf().set({margin:8, filename, image:{type:'jpeg',quality:0.98}, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(document.getElementById('printArea')).save(); notify('success','PDF generated.'); } catch(e){ notify('error','PDF generation failed. Use Print / Save as PDF instead.'); } }
+    function copyEmailSubject(){ navigator.clipboard.writeText(`${currentDoc.type==='quote'?'Quote':'Invoice'} ${currentDoc.number} from ${state.profile.businessName}`); notify('success','Email subject copied.'); }
+    function copyEmailBody(){ const body=`Hi ${currentDoc.customer?.name||''},\n\nPlease find attached ${currentDoc.type==='quote'?'quote':'invoice'} ${currentDoc.number} for the services provided.\n\nAmount due: ${money(currentDoc.balanceDue,currentDoc.currency)}\nDue date: ${currentDoc.dueDate}\n\nRegards,\n${state.profile.businessName}`; navigator.clipboard.writeText(body); notify('success','Email body copied.'); }
+
+    init();
+  </script>
+</body>
+</html>
